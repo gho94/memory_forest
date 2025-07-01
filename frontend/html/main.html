@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=412, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>기억 숲 게임 퍼블</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    
+    <style>
+      /* 전체 배경 및 레이아웃 */
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        font-family: "Noto Sans KR", sans-serif;
+      }
+      .app-container {
+        max-width: 412px;
+        height: 915px;
+        margin: auto;
+        background-color: #F1F2EB; /* 전체 배경 밝은 초록톤 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 10px;
+      }
+
+      /* 상단 헤더 */
+      .app-header {
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        color: #2f4f4f;
+      }
+      .app-header .logo {
+        width: 70px;
+        height: 70px;
+        background-image: url(../svg/main_logo.svg);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      .app-header .title {
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      /* 중앙 컨텐츠 */
+      .content-area {
+        padding: 0 34px;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+        color: #054E26;
+      }
+      .content-area .greeting {
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      /* 게임 진행 영역 */
+      .game-progress {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+      }
+      .game-progress .title {
+        font-weight: 600;
+        margin-bottom: 12px;
+        font-size: 2rem;
+      }
+      .progress {
+        height: 18px;
+        background-color: #d8e4e1;
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        background-color: #8cc0a3;
+        border-radius: 9px;
+        transition: width 0.4s ease;
+      }
+      .progress-text {
+        margin-top: 10px;
+        font-weight: 600;
+        color: #054E26;
+        font-size: 28px;
+      }
+
+      /* 게임 시작 버튼 */
+      .btn-start {
+        width: 100%;
+        background-color: #6C9A8B;
+        border: none;
+        color: #F7F9F9;
+        font-weight: 700;
+        font-size: 1.2rem;
+        padding: 14px 0;
+        border-radius: 8px;
+        user-select: none;
+        transition: background-color 0.3s ease;
+      }
+      .btn-start:hover {
+        background-color: #CDEAE1;
+      }
+
+      /* 최근 점수 */
+      .recent-score {
+        margin-top: 16px;
+        color: #1c2b1a;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      /* 하단 메뉴 푸터 */
+      .app-footer {
+        border-top: 1px solid #dfdfdf;
+        background-color: #f7f9f9;
+        height: 80px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        color: #567953;
+        font-weight: 600;
+        font-size: 1.15rem;
+      }
+      .app-footer .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        cursor: pointer;
+        user-select: none;
+        color: #567953;
+        text-decoration: none;
+      }
+      .app-footer .nav-item.active,
+      .app-footer .nav-item:hover {
+        color: #3b5e3b;
+      }
+      .app-footer .nav-item svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container d-flex flex-column">
+      <!-- 상단 헤더 -->
+      <header class="app-header">
+        <!-- 아이콘 (예: 나무 아이콘) -->
+        <div class="logo" role="img" aria-label="기억 숲 아이콘"></div>
+        <div>
+          <div>기억</div>
+          <div>숲</div>
+        </div>
+      </header>
+
+      <!-- 중앙 콘텐츠 -->
+      <main class="content-area">
+        <div class="greeting">
+          안녕하세요, <br /><span class="user-name">홍길동</span>님!
+        </div>
+
+        <section class="game-progress">
+          <div class="title">오늘의 게임</div>
+          <div class="progress">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: 60%"
+              aria-valuenow="6"
+              aria-valuemin="0"
+              aria-valuemax="10"
+            ></div>
+          </div>
+          <div class="progress-text">6 / 10 문제 완료</div>
+        </section>
+
+        <button class="btn btn-start mt-3">게임 시작하기</button>
+
+        <div class="recent-score">최근 점수 : 85점</div>
+      </main>
+
+      <!-- 하단 메뉴 푸터 -->
+      <footer class="app-footer">
+        <a href="#" class="nav-item active" aria-current="page">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+          </svg>
+          홈
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 6h12v2H6zM6 11h12v2H6zM6 16h12v2H6z" />
+          </svg>
+          게임
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M3 17h2v-3H3v3zm4 0h2v-6H7v6zm4 0h2v-4h-2v4zm4 0h2v-7h-2v7zm4 0h2v-9h-2v9z"
+            />
+          </svg>
+          진행도
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"
+            />
+          </svg>
+          내 정보
+        </a>
+      </footer>
+    </div>
+  </body>
+</html>
