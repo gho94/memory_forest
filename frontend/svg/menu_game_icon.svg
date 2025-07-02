@@ -1,10 +1,10 @@
 <svg width="38" height="36" viewBox="0 0 38 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2 21.8833C2 16.7722 5.89964 10 9.67742 10H28.3226C32.1004 10 36 17.1556 36 22.2667C36 27.3778 32.1004 33 28.3226 33H9.67742C5.89964 33 2 26.9944 2 21.8833Z" stroke="#6C9A8B" stroke-width="3.5"/>
-<path d="M9 22L15 22" stroke="#6C9A8B" stroke-width="3.5" stroke-linecap="round"/>
-<path d="M12 19V25" stroke="#6C9A8B" stroke-width="3.5" stroke-linecap="round"/>
-<path d="M19 2V10" stroke="#6C9A8B" stroke-width="3.5" stroke-linecap="round"/>
-<path d="M23.75 21C24.1642 21 24.5 21.3358 24.5 21.75C24.5 22.1642 24.1642 22.5 23.75 22.5C23.3358 22.5 23 22.1642 23 21.75C23 21.3358 23.3358 21 23.75 21Z" fill="#6C9A8B" stroke="#6C9A8B" stroke-width="2"/>
-<path d="M29.75 21C30.1642 21 30.5 21.3358 30.5 21.75C30.5 22.1642 30.1642 22.5 29.75 22.5C29.3358 22.5 29 22.1642 29 21.75C29 21.3358 29.3358 21 29.75 21Z" fill="#6C9A8B" stroke="#6C9A8B" stroke-width="2"/>
-<path d="M26.75 18C27.1642 18 27.5 18.3358 27.5 18.75C27.5 19.1642 27.1642 19.5 26.75 19.5C26.3358 19.5 26 19.1642 26 18.75C26 18.3358 26.3358 18 26.75 18Z" fill="#6C9A8B" stroke="#6C9A8B" stroke-width="2"/>
-<path d="M26.75 24C27.1642 24 27.5 24.3358 27.5 24.75C27.5 25.1642 27.1642 25.5 26.75 25.5C26.3358 25.5 26 25.1642 26 24.75C26 24.3358 26.3358 24 26.75 24Z" fill="#6C9A8B" stroke="#6C9A8B" stroke-width="2"/>
+<path d="M2 21.8833C2 16.7722 5.89964 10 9.67742 10H28.3226C32.1004 10 36 17.1556 36 22.2667C36 27.3778 32.1004 33 28.3226 33H9.67742C5.89964 33 2 26.9944 2 21.8833Z" stroke="currentColor" stroke-width="3.5"/>
+<path d="M9 22L15 22" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M12 19V25" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M19 2V10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M23.75 21C24.1642 21 24.5 21.3358 24.5 21.75C24.5 22.1642 24.1642 22.5 23.75 22.5C23.3358 22.5 23 22.1642 23 21.75C23 21.3358 23.3358 21 23.75 21Z" fill="#6C9A8B" stroke="currentColor" stroke-width="2"/>
+<path d="M29.75 21C30.1642 21 30.5 21.3358 30.5 21.75C30.5 22.1642 30.1642 22.5 29.75 22.5C29.3358 22.5 29 22.1642 29 21.75C29 21.3358 29.3358 21 29.75 21Z" fill="#6C9A8B" stroke="currentColor" stroke-width="2"/>
+<path d="M26.75 18C27.1642 18 27.5 18.3358 27.5 18.75C27.5 19.1642 27.1642 19.5 26.75 19.5C26.3358 19.5 26 19.1642 26 18.75C26 18.3358 26.3358 18 26.75 18Z" fill="#6C9A8B" stroke="currentColor" stroke-width="2"/>
+<path d="M26.75 24C27.1642 24 27.5 24.3358 27.5 24.75C27.5 25.1642 27.1642 25.5 26.75 25.5C26.3358 25.5 26 25.1642 26 24.75C26 24.3358 26.3358 24 26.75 24Z" fill="#6C9A8B" stroke="currentColor" stroke-width="2"/>
 </svg>
