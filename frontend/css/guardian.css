@@ -1,0 +1,180 @@
+.app-header .alarm {
+  width: 48px;
+  height: 48px;
+  background-image: url(../img/alarm_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.app-header.guardian-header {
+  justify-content: space-between;
+}
+
+.guardian-con.content-area {
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #054e26;
+}
+
+.guardian-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guardian-con .greeting-con {
+  background-color: #ffffff;
+  border-radius: 15px;
+  text-align: left;
+  padding: 22px;
+  margin: 0 1rem;
+}
+
+.guardian-con .greeting-con .sub-text {
+  font-size: 14px;
+}
+
+.guardian-con .tab-btn {
+  width: 50%;
+  border-radius: 0;
+  font-weight: 600;
+}
+.guardian-con .tab-btn.active {
+  background-color: #3b7c67;
+  color: white;
+}
+.guardian-con .tab-btn.inactive {
+  background-color: #d8e4dc;
+  color: #4a4a4a;
+}
+
+/* 계정 추가 버튼 */
+.guardian-con .btn-add {
+  background-color: #3d5d75;
+  color: white;
+  font-weight: 500;
+  border-radius: 13px;
+  padding: 10px 25px;
+  font-size: 14px;
+}
+
+/* 카드 스타일 */
+.guardian-con .card-box {
+  border: 1px solid #054e26;
+  border-radius: 16px;
+  padding: 15px;
+  background-color: #f7f9f9;
+}
+
+.profile-img {
+  width: 67px;
+  height: 67px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #a9d0c0;
+  margin: 0 10px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.guardian-con .card-box .btn-detail {
+  background-color: #6c9a8b;
+  color: #f7f9f9;
+  border: none;
+  padding: 15px 14px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.guardian-con .card-box .risk-bar-bg {
+  overflow: hidden;
+  background-color: #cdeae1;
+  height: 15px;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.guardian-con .card-box .risk-bar-fill {
+  background-color: #a8dadc;
+  height: 100%;
+  border-radius: 10px;
+  width: 60%; /* 위험도 값에 따라 변경 */
+}
+
+.guardian-con .menu-tab-con {
+  --bs-nav-link-color: #ffffff;
+  --bs-nav-tabs-link-active-color: #ffffff;
+}
+
+.guardian-con .nav-tabs {
+  --bs-nav-tabs-border-color: #6c9a8b;
+  --bs-nav-tabs-border-width: 3px;
+}
+
+.guardian-con .nav-tabs .nav-link {
+  margin-bottom: 0;
+  border: 0;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.guardian-con .nav-tabs .nav-link.active {
+  background-color: #6c9a8b;
+}
+.guardian-con .nav-link {
+  background-color: #b7cbbf;
+}
+
+.guardian-con .nav-item {
+  width: 103px;
+}
+.guardian-con .nav-item:first-of-type {
+  margin: 0 8px;
+}
+.guardian-con .nav-link:focus,
+.guardian-con .nav-link:hover {
+  color: #f1f2eb;
+}
+
+.guardian-con .card-box .main-desc {
+  margin-bottom: 5px;
+}
+
+.guardian-con .card-box .main-desc .patient-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.guardian-con .card-box .main-desc .patient-age {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.guardian-con .card-box .extra-desc {
+  color: #6c9a8b;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.guardian-con .risk-con .risk-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding-left: 15px;
+  padding-right: 0px;
+}
+
+.guardian-con .risk-con .risk-bar-con {
+  padding-top: 3.2px;
+}
+
+.guardian-con .card-box-con {
+  max-height: 430px;
+  overflow-y: auto;
+}

@@ -124,3 +124,13 @@
   flex-direction: column;
   gap: 16px;
 }
+
+.find-id-form .find-id-result-con{
+  color:#6C9A8B;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.find-id-form .find-id-result-con .id-result{
+  font-weight: 900;
+}
