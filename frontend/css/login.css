@@ -84,9 +84,9 @@
 
 .app-header.utility-header {
   position: relative;
-  height: 80px;
+  height: 72px;
   border-bottom: 1px solid #ddd;
-  background-color: #fff;
+  background-color: #F7F9F9;
 }
 
 .utility-header .back-btn {

@@ -13,6 +13,73 @@
     />
     <link href="../css/common.css" rel="stylesheet" />
     <link href="../css/guardian.css" rel="stylesheet" />
+
+    <style>
+      /* 모달 오버레이 */
+      .custom-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1050;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* 모달 내용 */
+      .custom-modal {
+        background-color: #f6fdf6;
+        border-radius: 16px;
+        padding: 20px;
+        width: 350px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 모달 내부 스크롤 영역 */
+      .modal-body-scroll {
+        overflow-y: auto;
+        max-height: 300px;
+      }
+
+      /* 모달 카드 디자인 */
+      .alert-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 12px;
+        border: 2px solid transparent;
+      }
+
+      .alert-card.active {
+        border-color: #47a6ff;
+      }
+
+      .alert-card.inactive {
+        background-color: #f1f4f1;
+        color: #aaa;
+      }
+
+      /* 닫기 버튼 */
+      .custom-close {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #888;
+        cursor: pointer;
+      }
+
+      /* 체크박스 트릭 */
+      #toggle-alarm-modal {
+        display: none;
+      }
+
+      #toggle-alarm-modal:checked ~ .custom-modal-overlay {
+        display: flex;
+      }
+    </style>
   </head>
   <body>
     <div class="app-container d-flex flex-column">
@@ -27,7 +94,7 @@
           </div>
         </div>
         <!-- 오른쪽 알람 아이콘 -->
-        <div class="alarm"></div>
+        <label for="toggle-alarm-modal" class="alarm"></label>
       </header>
 
       <!-- 중앙 콘텐츠  -->
@@ -91,6 +158,58 @@
           </div>
         </div>
       </main>
+      <!-- leb. 알람 모달창 리액트로 옮길 때는 파일로 따로 하나 빼야 함-->
+      <input type="checkbox" id="toggle-alarm-modal" />
+      <div class="custom-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-alarm-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <strong class="text-success">🌳 최근 알림</strong>
+          </div>
+
+          <!-- 알림 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="alert-card active d-flex align-items-start gap-2">
+              <div
+                class="rounded-circle"
+                alt="avatar"
+              ></div>
+              <div>
+                <div>
+                  <strong>환자01</strong>
+                  <small class="text-muted">2025.06.20 15:20</small>
+                </div>
+                <small
+                  >오늘의 게임을 완료하였습니다.<br />지금 바로 결과를
+                  확인해보세요.</small
+                >
+              </div>
+            </div>
+
+            <div class="alert-card inactive d-flex align-items-start gap-2">
+              <img
+                src="https://via.placeholder.com/40"
+                class="rounded-circle"
+                alt="avatar"
+              />
+              <div>
+                <div>
+                  <strong>환자01</strong> <small>2025.06.20 15:20</small>
+                </div>
+                <small
+                  >오늘의 게임을 완료하였습니다.<br />지금 바로 결과를
+                  확인해보세요.</small
+                >
+              </div>
+            </div>
+
+            <!-- 더 추가 가능 -->
+          </div>
+        </div>
+      </div>
 
       <!-- 하단 메뉴 푸터 -->
       <footer class="app-footer">

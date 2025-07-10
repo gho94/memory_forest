@@ -5,6 +5,8 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  display: inline-block;
+  cursor: pointer;
 }
 
 .app-header.guardian-header {
