@@ -180,3 +180,125 @@
   max-height: 430px;
   overflow-y: auto;
 }
+
+
+/*--- 모달 시작 ----*/
+
+/* 모달 오버레이 */
+.alarm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 1050;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 모달 내용 */
+.alarm-modal-overlay .custom-modal {
+  background-color: #f6fdf6;
+  border-radius: 16px;
+  padding: 20px;
+  width: 350px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 모달 내부 스크롤 영역 */
+.alarm-modal-overlay .modal-body-scroll {
+  overflow-y: auto;
+  max-height: 322px;
+}
+
+/* 모달 카드 디자인 */
+.alarm-modal-overlay .alert-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid transparent;
+  color: #6c9a8b;
+}
+
+.alarm-modal-overlay .alert-card.active {
+  border-color: #a8dadc;
+}
+
+.alarm-modal-overlay .alert-card.inactive {
+  background-color: #f1f4f1;
+  color: #c2c2c2;
+  border-color: #ececec;
+}
+
+/* 닫기 버튼 */
+.alarm-modal-overlay .custom-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+}
+
+/* 체크박스 트릭 */
+#toggle-alarm-modal {
+  display: none;
+}
+
+#toggle-alarm-modal:checked ~ .alarm-modal-overlay {
+  display: flex;
+}
+
+.alarm-modal-overlay .center-group {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.alarm-modal-overlay .center-group .logo {
+  width: 20px;
+  height: 20px;
+  background-image: url(../img/main_logo.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.alarm-modal-overlay .center-group .title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #6c9a8b;
+}
+
+.alarm-modal-overlay .patient-con .patient-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.alarm-modal-overlay .patient-con .patient-reg-date {
+  font-size: 0.8rem;
+}
+
+.alarm-modal-overlay .alarm-content {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.alarm-modal-overlay .alert-card.active .patient-con {
+  align-content: flex-end;
+  color: #054e26;
+}
+
+.alarm-modal-overlay .alert-card.inactive .profile-img {
+  margin: 0 6px;
+  border: 1px solid #d5d5d5;
+  opacity: 0.4;
+}
+
+.alarm-modal-overlay .alert-card .profile-img {
+  margin: 0 6px;
+}
