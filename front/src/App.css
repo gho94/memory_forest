@@ -1,0 +1,10 @@
+.app-container {
+  max-width: 412px;    /* 최대 너비 412px */
+  height: 915px;       /* 높이 고정 (원래 퍼블리싱 높이) */
+  margin: 0 auto;      /* 가로 가운데 정렬 */
+  background-color: #f1f2eb; /* 원래 배경색 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+}
