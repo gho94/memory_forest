@@ -1,5 +1,6 @@
-import '../../assets/css/patient/GamePage.css';
 import '../../assets/css/common/common.css';
+import '../../assets/css/patient/Patient.css'; 
+import '../../assets/css/patient/GamePage.css';
 import PatientHeader from '../../components/layout/header/PatientHeader';
 import PatientFooter from '../../components/layout/footer/PatientFooter';
 import gameExampleImg from '../../assets/images/game_example.jpg';

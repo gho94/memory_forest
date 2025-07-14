@@ -1,4 +1,3 @@
-/* 전체 배경 및 레이아웃 */
 body,
 html {
   height: 100%;
@@ -10,7 +9,7 @@ html {
   max-width: 412px;
   height: 915px;
   margin: auto;
-  background-color: #f1f2eb;
+  background-color: #f1f2eb; 
   display: flex;
   flex-direction: column;
   justify-content: space-between;

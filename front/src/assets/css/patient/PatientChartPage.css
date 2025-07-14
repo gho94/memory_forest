@@ -1,0 +1,44 @@
+.patient-con.game-result-area {
+  gap: 35px;
+}
+
+.greeting {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #054e26;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chart-con {
+  min-height: 270px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+  margin-bottom: 20px;
+}
+
+.result-number {
+  color: #054e26;
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.result-text {
+  color: #80958a;
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-align: center;
+  white-space: pre-line; 
+}
+
+.row {
+  margin: 0 -15px;
+}
+
+.col-6 {
+  padding: 0 15px;
+  margin-bottom: 20px;
+}
