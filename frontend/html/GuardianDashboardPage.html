@@ -13,70 +13,6 @@
     />
     <link href="../css/common.css" rel="stylesheet" />
     <link href="../css/guardian.css" rel="stylesheet" />
-    <style>
-      /* 🔽 셀렉트 + 검색 input 감싸는 부분 */
-      .search-filter-box {
-        background-color: #ffffff;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1px solid #cce3d9;
-      }
-
-      /* 🔽 커스텀 셀렉트 */
-      .custom-select {
-        border: none;
-        background-color: transparent;
-        font-size: 14px;
-        color: #3b615c;
-        padding: 4px 8px;
-        outline: none;
-        appearance: none;
-      }
-
-      /* 🔽 검색 input */
-      .search-input-box {
-        position: relative;
-      }
-
-      .search-input {
-        width: 100%;
-        border: none;
-        background-color: transparent;
-        font-size: 14px;
-        padding: 4px 30px 4px 8px;
-        color: #3b615c;
-        outline: none;
-      }
-
-      .search-icon {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 23px;
-        height: 23px;
-        background-image: url(../img/filter_search_icon.svg);
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        display: inline-block;
-        cursor: pointer;
-      }
-
-      /* 🔽 게임 카드 */
-      .game-card {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        background-color: white;
-        border: 1px solid #cce3d9;
-        border-radius: 10px;
-        text-align: center;
-        font-weight: bold;
-        line-height: 5;
-        font-size: 14px;
-        color: #3b615c;
-      }
-    </style>
   </head>
   <body>
     <div class="app-container d-flex flex-column">
@@ -121,7 +57,7 @@
           </li>
         </ul>
 
-        <div style="display: none" class="account-con mx-3">
+        <div style="display: block;" class="account-con mx-3">
           <!-- 총 인원 + 계정 추가 -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="fw-bold fs-5">총 기록자 : <span>8</span>명</div>
@@ -155,15 +91,24 @@
           </div>
         </div>
 
-        <div class="game-con mx-3">
+        <div style="display:none;" class="game-con mx-3">
           <!-- 🔍 필터 + 검색창 -->
           <div class="search-filter-box d-flex align-items-center gap-2 mb-3">
-            <select class="custom-select">
-              <option>전체</option>
-              <option>제목</option>
-              <option>설명</option>
-              <option>정답</option>
-            </select>
+            <!-- 체크박스 트릭용 input -->
+            <input type="checkbox" id="search-dropdown-toggle" />
+            <!-- 드롭다운 전체 -->
+            <div class="search-dropdown-wrapper">
+              <!-- 표시 영역 -->
+              <label for="search-dropdown-toggle" class="search-dropdown-display">전체</label>
+
+              <!-- 옵션 리스트 -->
+              <ul class="search-dropdown-options">
+                <li>전체</li>
+                <li>제목</li>
+                <li>설명</li>
+                <li>정답</li>
+              </ul>
+            </div>
 
             <div class="search-input-box position-relative flex-grow-1">
               <input
@@ -182,7 +127,40 @@
           </div>
 
           <!-- 📦 게임 카드 목록 -->
-          <div class="row row-cols-3 g-2">
+          <div class="card-box2-con row row-cols-3 g-2">
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
+            <div class="col">
+              <div class="game-card">사진</div>
+            </div>
             <div class="col">
               <div class="game-card">사진</div>
             </div>

@@ -181,6 +181,10 @@
   overflow-y: auto;
 }
 
+.guardian-con .card-box2-con {
+  max-height: 360px;
+  overflow-y: auto;
+}
 
 /*--- 모달 시작 ----*/
 
@@ -193,6 +197,8 @@
   z-index: 1050;
   justify-content: center;
   align-items: center;
+  top: 0;
+  left: 0;
 }
 
 /* 모달 내용 */
@@ -204,6 +210,7 @@
   max-height: 80vh;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 /* 모달 내부 스크롤 영역 */
@@ -301,4 +308,140 @@
 
 .alarm-modal-overlay .alert-card .profile-img {
   margin: 0 6px;
+}
+
+::-webkit-scrollbar {
+  width: 5px; /* 세로 스크롤바 너비 */
+  height: 4px; /* 가로 스크롤바 높이 */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* 트랙 배경 없음 */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* 손잡이 색 (연한 회색) */
+  border-radius: 15px;
+}
+
+/* 대시보드 게임목록 */
+/* 🔽 셀렉트 + 검색 input 감싸는 부분 */
+.game-con .search-filter-box {
+  background-color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #cce3d9;
+}
+
+/* 🔽 검색 input */
+.game-con .search-input-box {
+  position: relative;
+}
+
+.game-con .search-input-box .search-input {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  padding: 4px 30px 4px 8px;
+  color: #3b615c;
+  outline: none;
+}
+
+.game-con .search-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  background-image: url(../img/filter_search_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* 🔽 게임 카드 */
+.game-con .game-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: white;
+  border: 1px solid #cce3d9;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 5;
+  font-size: 14px;
+  color: #3b615c;
+}
+
+.game-con .search-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+.game-con .search-dropdown-display {
+  padding: 8px 27px 8px 12px;
+  background-color: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+}
+
+.game-con .search-dropdown-display::after {
+  content: "▼";
+  position: absolute;
+  right: 6px;
+  transition: transform 0.3s ease;
+}
+
+/* 체크박스 트릭용 숨김 */
+.game-con #search-dropdown-toggle {
+  display: none;
+}
+
+/* 옵션 리스트 */
+.game-con .search-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  display: none;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-left: 0;
+}
+
+.game-con .search-dropdown-options li {
+  padding: 8px 0px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.game-con .search-dropdown-options li:hover {
+  background-color: #f0f0f0;
+}
+
+/* 드롭다운 열렸을 때 */
+.game-con
+  #search-dropdown-toggle:checked
+  ~ .search-dropdown-wrapper
+  .search-dropdown-options {
+  display: block;
+}
+
+.game-con
+  #search-dropdown-toggle:checked
+  ~ .search-dropdown-wrapper
+  .search-dropdown-display::after {
+  transform: rotate(180deg);
 }
