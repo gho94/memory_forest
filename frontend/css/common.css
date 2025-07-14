@@ -147,3 +147,7 @@ html {
 .app-container .form-control::placeholder {
   color: #8aa899;
 }
+
+.app-container .form-control-con{
+  width: 100%;
+}

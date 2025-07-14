@@ -69,6 +69,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-items: center;
 }
 
 .signup-con .btn-custom {
@@ -86,7 +87,7 @@
   position: relative;
   height: 72px;
   border-bottom: 1px solid #ddd;
-  background-color: #F7F9F9;
+  background-color: #f7f9f9;
 }
 
 .utility-header .back-btn {
@@ -125,12 +126,12 @@
   gap: 16px;
 }
 
-.find-id-form .find-id-result-con{
-  color:#6C9A8B;
+.find-id-form .find-id-result-con {
+  color: #6c9a8b;
   font-size: 1.5rem;
   text-align: center;
 }
 
-.find-id-form .find-id-result-con .id-result{
+.find-id-form .find-id-result-con .id-result {
   font-weight: 900;
 }
