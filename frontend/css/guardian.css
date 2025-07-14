@@ -22,6 +22,10 @@
   color: #054e26;
 }
 
+.guardian-con.content-area.center {
+  justify-content: center;
+}
+
 .guardian-header .header-content {
   display: flex;
   align-items: center;
@@ -668,4 +672,63 @@ textarea::placeholder {
   font-size: 1rem;
   pointer-events: none;
   font-weight: 800;
+}
+
+/* 게임 생성 완료 페이지*/ 
+.guardian-con .game-complete-gap {
+  gap: 45px;
+}
+
+.kakaotalk-icon {
+  width: 55px;
+  height: 55px;
+  background-image: url(../img/kakaotalk_yellow_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.link-icon {
+  width: 53px;
+  height: 53px;
+  background-image: url(../img/link_grey_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.guardian-con .game-result-con {
+  width: 100%;
+  border: 1px solid #054e26;
+  font-size: 1.55rem;
+  text-align: left;
+  padding: 13px 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-content: space-around;
+  height: 160px;
+}
+
+.guardian-con .game-result-con .desc-title {
+  font-weight: 700;
+}
+
+.guardian-con .game-result-title {
+  font-size: 42px;
+  font-weight: 900;
+  margin-bottom: 13px;
+}
+
+.guardian-con .game-result-share-text {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.guardian-con .game-result-share-icon {
+  justify-content: space-around;
 }
