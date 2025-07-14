@@ -577,3 +577,46 @@
   font-size: 26px;
   font-weight: 600;
 }
+
+.guardian-con .patient-signup-form .profile-upload {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.guardian-con .patient-signup-form .profile-upload input[type="file"] {
+  display: none;
+}
+
+.guardian-con .patient-signup-form .upload-label {
+  width: 100%;
+  height: 100%;
+  background-color: #f8faf8;
+  border: 1.5px solid #5c8a6f;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  background-image: url("../img/user_default_icon.svg"); /* 기본 이미지 */
+  background-size: cover;
+  background-position: center;
+}
+
+.guardian-con .patient-signup-form .upload-label i {
+  font-size: 36px;
+  color: #5c8a6f;
+}
+
+.guardian-con .patient-signup-form .upload-label img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.guardian-con .patient-signup-form .profile-upload-con {
+  margin-bottom: 20px;
+}
