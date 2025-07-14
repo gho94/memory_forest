@@ -674,7 +674,7 @@ textarea::placeholder {
   font-weight: 800;
 }
 
-/* 게임 생성 완료 페이지*/ 
+/* 게임 생성 완료 페이지*/
 .guardian-con .game-complete-gap {
   gap: 45px;
 }
@@ -731,4 +731,82 @@ textarea::placeholder {
 
 .guardian-con .game-result-share-icon {
   justify-content: space-around;
+}
+
+.game-list-wrap .game-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 15px;
+}
+
+.game-list-wrap .game-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #00704a;
+  width: 24px;
+  text-align: right;
+}
+
+.game-list-wrap .game-box {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.game-list-wrap .game-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.game-list-wrap .game-texts {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.game-list-wrap .game-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: #054e26;
+}
+
+.game-list-wrap .game-answer {
+  font-size: 0.9rem;
+  color: #6c9a8b;
+  font-weight: 600;
+}
+
+.game-list-wrap .game-edit-btn {
+  background-color: #6c9a8b;
+  color: #f7f9f9;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.game-list-wrap .game-list-con {
+  width: 100%;
+  overflow-y: auto;
+  max-height: 545px;
+}
+
+.game-list-wrap {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
 }
