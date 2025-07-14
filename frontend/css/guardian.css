@@ -620,3 +620,52 @@
 .guardian-con .patient-signup-form .profile-upload-con {
   margin-bottom: 20px;
 }
+
+.game-signup-form {
+  padding: 0 20px;
+  gap: 14px;
+}
+
+.game-signup-form .game-file-desc,
+.game-signup-form input,
+textarea::placeholder {
+  color: #6c9a8b;
+  font-weight: 500;
+}
+
+.game-signup-form .game-file-desc-con {
+  height: 130px;
+}
+
+.game-signup-form .form-control {
+  border-radius: 13px;
+}
+
+.guardian-con .progress {
+  height: 29px;
+  background-color: #d8e4e1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  width: 220px;
+  position: relative;
+  top: 1px;
+}
+
+.guardian-con .progress-bar {
+  background-color: #a8dadc;
+  border-radius: 14px;
+  transition: width 0.4s ease;
+}
+
+.guardian-con .progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 500;
+  color: #054e26;
+  font-size: 1rem;
+  pointer-events: none;
+  font-weight: 800;
+}
