@@ -57,6 +57,12 @@ html {
   font-weight: 600;
   font-size: 1.15rem;
 }
+
+.app-footer.guardian {
+  font-size: 1rem;
+  height: 82px;
+}
+
 .app-footer .nav-item {
   display: flex;
   flex-direction: column;
@@ -91,21 +97,32 @@ html {
 .app-footer .nav-item .icon.home {
   mask-image: url("../img/menu_home_icon.svg");
   -webkit-mask-image: url("../img/menu_home_icon.svg");
+  margin-top: 2px;
 }
 
 .app-footer .nav-item .icon.game {
   mask-image: url("../img/menu_game_icon.svg");
   -webkit-mask-image: url("../img/menu_game_icon.svg");
+  width: 39px;
+  height: 37px;
 }
 
 .app-footer .nav-item .icon.chart {
   mask-image: url("../img/menu_chart_icon.svg");
   -webkit-mask-image: url("../img/menu_chart_icon.svg");
+  width: 35px;
+  height: 33px;
+  margin-top: 1px;
 }
 
 .app-footer .nav-item .icon.user {
   mask-image: url("../img/menu_user_icon.svg");
   -webkit-mask-image: url("../img/menu_user_icon.svg");
+}
+
+.app-footer .nav-item .icon.patient {
+  mask-image: url("../img/menu_patient_icon.svg");
+  -webkit-mask-image: url("../img/menu_patient_icon.svg");
 }
 
 .dark-green-color {
