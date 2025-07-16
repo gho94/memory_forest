@@ -57,7 +57,7 @@
           </li>
         </ul>
 
-        <div style="display: none;" class="account-con mx-3">
+        <div style="display: none" class="account-con mx-3">
           <!-- 총 인원 + 계정 추가 -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="fw-bold fs-5">총 기록자 : <span>8</span>명</div>
@@ -77,7 +77,15 @@
                   </div>
                   <div class="extra-desc">최근 활동 : 2025-06-20</div>
                 </div>
-                <button class="btn-detail">자세히보기</button>
+                <button class="btn-detail me-1">
+                  <div class="btn more-btn"></div>
+                </button>
+                <button class="btn-detail">
+                  <label
+                    for="toggle-account-modal"
+                    class="btn share-btn"
+                  ></label>
+                </button>
               </div>
               <div class="row risk-con mt-2">
                 <div class="risk-title col-3">평균 위험도</div>
@@ -91,7 +99,7 @@
           </div>
         </div>
 
-        <div style="display:block;" class="game-con mx-3">
+        <div style="display: block" class="game-con mx-3">
           <!-- 🔍 필터 + 검색창 -->
           <div class="search-filter-box d-flex align-items-center gap-2 mb-3">
             <!-- 체크박스 트릭용 input -->
@@ -99,7 +107,11 @@
             <!-- 드롭다운 전체 -->
             <div class="search-dropdown-wrapper">
               <!-- 표시 영역 -->
-              <label for="search-dropdown-toggle" class="search-dropdown-display">전체</label>
+              <label
+                for="search-dropdown-toggle"
+                class="search-dropdown-display"
+                >전체</label
+              >
 
               <!-- 옵션 리스트 -->
               <ul class="search-dropdown-options">
@@ -123,60 +135,33 @@
           <!-- 게임 수 + 게임 추가 버튼 -->
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="fw-bold fs-5">총 게임 : <span>8</span>개</div>
-            <button class="btn btn-add">게임 추가</button>
+            <label for="toggle-game-modal" class="btn btn-add">게임 추가</label>
           </div>
 
           <!-- 📦 게임 카드 목록 -->
-          <div class="card-box2-con row row-cols-3 g-2">
-            <div class="col">
-              <div class="game-card">사진</div>
+          <div class="d-flex flex-column gap-3 card-box-con">
+            <!-- 카드 1 -->
+            <div class="card-box">
+              <div class="d-flex align-items-center">
+                <div class="game-img"></div>
+                <div class="flex-grow-1 text-start">
+                  <div class="main-desc">
+                    <span class="patient-name">게임 제목</span>
+                  </div>
+                  <div class="target-desc">대상자 : 환자01, 환자02</div>
+                  <div class="extra-desc">생성일 : 2025-06-20</div>
+                </div>
+                <button class="btn-detail me-1">
+                  <div class="btn more-btn"></div>
+                </button>
+              </div>
             </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <div class="col">
-              <div class="game-card">사진</div>
-            </div>
-            <!-- 반복 -->
           </div>
         </div>
       </main>
       <!-- leb. 알람 모달창 리액트로 옮길 때는 파일로 따로 하나 빼야 함-->
       <input type="checkbox" id="toggle-alarm-modal" />
-      <div class="alarm-modal-overlay">
+      <div class="modal-overlay alarm-modal-overlay">
         <div class="position-relative custom-modal">
           <!-- 닫기 버튼 -->
           <label for="toggle-alarm-modal" class="custom-close">&times;</label>
@@ -224,6 +209,104 @@
         </div>
       </div>
 
+      <!-- leb. 계정 url 공유 모달창 -->
+      <input type="checkbox" id="toggle-account-modal" />
+      <div class="modal-overlay account-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-account-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <div class="center-group">
+              <div class="logo" aria-label="기억 숲 로고"></div>
+              <div class="title">계정 공유</div>
+            </div>
+          </div>
+
+          <!-- 알림 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="qr-code-con">
+              <div class="qr-code">qr</div>
+            </div>
+            <div class="row gx-0 share-icon-con">
+              <div class="col-6 me-4 kakaotalk-icon"></div>
+              <div class="col-6 link-icon"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- leb. 게임 추가 모달창 -->
+      <input type="checkbox" id="toggle-game-modal" />
+      <div class="modal-overlay game-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-game-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <div class="center-group">
+              <div class="logo" aria-label="기억 숲 로고"></div>
+              <div class="title">게임 추가</div>
+            </div>
+          </div>
+
+          <div class="row gx-0 game-name-con">
+            <div class="game-modal-title col-3">게임 제목</div>
+            <div class="col-1">:</div>
+            <div class="col-8">
+              <input
+                type="text"
+                class="game-name"
+                placeholder="게임 제목을 입력하세요"
+              />
+            </div>
+          </div>
+          <div class="game-modal-title mb-1">게임 대상</div>
+          <!-- 계정 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="account-card">
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-modal">다음 단계</button>
+        </div>
+      </div>
+
       <!-- 하단 메뉴 푸터 -->
       <footer class="app-footer guardian">
         <a
@@ -233,7 +316,7 @@
           <span class="icon home"></span>
           <span class="label">홈</span>
         </a>
-           <a
+        <a
           href="#"
           class="nav-item d-flex flex-column align-items-center text-decoration-none"
         >
