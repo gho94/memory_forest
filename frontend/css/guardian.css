@@ -98,6 +98,22 @@
   font-weight: 500;
 }
 
+.guardian-con .card-box .btn-detail .btn {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 30px;
+  height: 30px;
+}
+
+.guardian-con .card-box .btn-detail .btn.more-btn {
+  background-image: url(../img/more_icon.svg);
+}
+
+.guardian-con .card-box .btn-detail .btn.share-btn {
+  background-image: url(../img/share_icon.svg);
+}
+
 .guardian-con .card-box .risk-bar-bg {
   overflow: hidden;
   background-color: #cdeae1;
@@ -193,7 +209,7 @@
 /*--- 모달 시작 ----*/
 
 /* 모달 오버레이 */
-.alarm-modal-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
@@ -206,7 +222,7 @@
 }
 
 /* 모달 내용 */
-.alarm-modal-overlay .custom-modal {
+.modal-overlay .custom-modal {
   background-color: #f6fdf6;
   border-radius: 16px;
   padding: 20px;
@@ -218,13 +234,13 @@
 }
 
 /* 모달 내부 스크롤 영역 */
-.alarm-modal-overlay .modal-body-scroll {
+.modal-overlay .modal-body-scroll {
   overflow-y: auto;
   max-height: 322px;
 }
 
 /* 모달 카드 디자인 */
-.alarm-modal-overlay .alert-card {
+.modal-overlay .alert-card {
   background-color: white;
   border-radius: 12px;
   padding: 12px;
@@ -232,18 +248,18 @@
   color: #6c9a8b;
 }
 
-.alarm-modal-overlay .alert-card.active {
+.modal-overlay .alert-card.active {
   border-color: #a8dadc;
 }
 
-.alarm-modal-overlay .alert-card.inactive {
+.modal-overlay .alert-card.inactive {
   background-color: #f1f4f1;
   color: #c2c2c2;
   border-color: #ececec;
 }
 
 /* 닫기 버튼 */
-.alarm-modal-overlay .custom-close {
+.modal-overlay .custom-close {
   position: absolute;
   top: 10px;
   right: 14px;
@@ -254,7 +270,8 @@
 }
 
 /* 체크박스 트릭 */
-#toggle-alarm-modal {
+#toggle-alarm-modal,
+#toggle-account-modal {
   display: none;
 }
 
@@ -262,7 +279,11 @@
   display: flex;
 }
 
-.alarm-modal-overlay .center-group {
+#toggle-account-modal:checked ~ .account-modal-overlay {
+  display: flex;
+}
+
+.modal-overlay .center-group {
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -270,7 +291,7 @@
   justify-content: center;
 }
 
-.alarm-modal-overlay .center-group .logo {
+.modal-overlay .center-group .logo {
   width: 20px;
   height: 20px;
   background-image: url(../img/main_logo.svg);
@@ -279,39 +300,58 @@
   background-position: center;
 }
 
-.alarm-modal-overlay .center-group .title {
+.modal-overlay .center-group .title {
   font-size: 18px;
   font-weight: bold;
   color: #6c9a8b;
 }
 
-.alarm-modal-overlay .patient-con .patient-name {
+.modal-overlay .patient-con .patient-name {
   font-size: 1rem;
   font-weight: 700;
 }
 
-.alarm-modal-overlay .patient-con .patient-reg-date {
+.modal-overlay .patient-con .patient-reg-date {
   font-size: 0.8rem;
 }
 
-.alarm-modal-overlay .alarm-content {
+.modal-overlay .alarm-content {
   font-size: 13px;
   font-weight: 500;
 }
 
-.alarm-modal-overlay .alert-card.active .patient-con {
+.modal-overlay .alert-card.active .patient-con {
   align-content: flex-end;
   color: #054e26;
 }
 
-.alarm-modal-overlay .alert-card.inactive .profile-img {
+.modal-overlay .alert-card.inactive .profile-img {
   margin: 0 6px;
   border: 1px solid #d5d5d5;
   opacity: 0.4;
 }
 
-.alarm-modal-overlay .alert-card .profile-img {
+.modal-overlay .alert-card .profile-img {
   margin: 0 6px;
+}
+
+.modal-overlay .share-icon-con {
+  justify-content: center;
+}
+
+.modal-overlay .qr-code-con {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-overlay .qr-code-con .qr-code {
+  width: 90px;
+  height: 90px;
+  margin: 25px;
+  background-image: url(../img/qr_example_img.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 ::-webkit-scrollbar {
