@@ -307,6 +307,131 @@
         </div>
       </div>
 
+      <!-- leb. 계정 url 공유 모달창 -->
+      <input type="checkbox" id="toggle-account-modal" />
+      <div class="modal-overlay account-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-account-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <div class="center-group">
+              <div class="logo" aria-label="기억 숲 로고"></div>
+              <div class="title">계정 공유</div>
+            </div>
+          </div>
+
+          <!-- 알림 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="qr-code-con">
+              <div class="qr-code">qr</div>
+            </div>
+            <div class="row gx-0 share-icon-con">
+              <div class="col-6 me-4 kakaotalk-icon"></div>
+              <div class="col-6 link-icon"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- leb. 게임 추가 모달창 -->
+      <input type="checkbox" id="toggle-game-modal" />
+      <div class="modal-overlay game-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-game-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <div class="center-group">
+              <div class="logo" aria-label="기억 숲 로고"></div>
+              <div class="title">게임 추가</div>
+            </div>
+          </div>
+
+          <div class="row gx-0 game-name-con">
+            <div class="game-modal-title col-3">게임 제목</div>
+            <div class="col-1">:</div>
+            <div class="col-8">
+              <input
+                type="text"
+                class="game-name"
+                placeholder="게임 제목을 입력하세요"
+              />
+            </div>
+          </div>
+          <div class="game-modal-title mb-1">게임 대상</div>
+          <!-- 계정 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="account-card">
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+              <div class="account-info align-items-start d-flex gap-2">
+                <div>
+                  <input type="checkbox" class="modal-checkbox" />
+                </div>
+                <div>
+                  <div class="patient-con">
+                    <span class="patient-name">환자01</span>
+                    <span class="patient-reg-date">(78세, 부)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-modal">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- leb. 계정 url 공유 모달창 -->
+      <input type="checkbox" id="toggle-account-modal" />
+      <div class="modal-overlay account-modal-overlay">
+        <div class="position-relative custom-modal">
+          <!-- 닫기 버튼 -->
+          <label for="toggle-account-modal" class="custom-close">&times;</label>
+
+          <!-- 헤더 -->
+          <div class="text-center mb-3">
+            <div class="center-group">
+              <div class="logo" aria-label="기억 숲 로고"></div>
+              <div class="title">계정 공유</div>
+            </div>
+          </div>
+
+          <!-- 알림 목록 -->
+          <div class="modal-body-scroll d-flex flex-column gap-3">
+            <div class="qr-code-con">
+              <div class="qr-code">qr</div>
+            </div>
+            <div class="row gx-0 share-icon-con">
+              <div class="col-6 me-4 kakaotalk-icon"></div>
+              <div class="col-6 link-icon"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- 하단 메뉴 푸터 -->
       <footer class="app-footer guardian">
         <a
