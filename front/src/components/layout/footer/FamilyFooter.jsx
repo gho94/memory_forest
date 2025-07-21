@@ -1,19 +1,16 @@
-import React from 'react';
-import '../../../assets/css/footer.css';
-
-function PatientFooter() {
+function FamilyFooter() {
   return (
     <footer className="app-footer">
       <a
         href="#"
-        className="nav-item d-flex flex-column align-items-center text-decoration-none"
+        className="nav-item active d-flex flex-column align-items-center text-decoration-none"
       >
         <span className="icon home"></span>
         <span className="label">홈</span>
       </a>
       <a
         href="#"
-        className="nav-item active d-flex game-con flex-column align-items-center text-decoration-none"
+        className="nav-item d-flex game-con flex-column align-items-center text-decoration-none"
       >
         <span className="icon game"></span>
         <span className="label">게임</span>
@@ -36,4 +33,4 @@ function PatientFooter() {
   );
 }
 
-export default PatientFooter;
+export default FamilyFooter;

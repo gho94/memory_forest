@@ -1,7 +1,5 @@
-import React from 'react';
-import '../../assets/css/common/common.css';
-import '../../assets/css/patient/Patient.css';
-import '../../assets/css/patient/PatientMyPage.css';
+import '../../assets/css/common.css';
+import '../../assets/css/Patient.css';
 import PatientHeader from '../../components/layout/header/PatientHeader';
 import PatientFooter from '../../components/layout/footer/PatientFooter';
 

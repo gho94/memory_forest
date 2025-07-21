@@ -9,7 +9,7 @@
 .app-header .logo {
   width: 70px;
   height: 70px;
-  background-image: url(../../images/main_logo.svg);
+  background-image: url(../images/main_logo.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

@@ -1,4 +1,4 @@
-import '../../../assets/css/common/header.css';
+import '../../../assets/css/header.css';
 
 function PatientHeader() {
   return (
