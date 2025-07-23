@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import '../../assets/css/common.css';
 import '../../assets/css/login.css';
 import LoginHeader from '../../components/layout/header/LoginHeader';
@@ -9,7 +10,6 @@ function FindIdPage() {
 
       <main className="content-area signup-con">
         <form className="find-id-form">
-          {/* 이메일 입력 + 인증번호 전송 버튼 */}
           <div>
             <div className="input-group-custom">
               <input
@@ -23,7 +23,6 @@ function FindIdPage() {
             </div>
           </div>
 
-          {/* 인증번호 입력 */}
           <div>
             <input
               type="text"
@@ -32,13 +31,11 @@ function FindIdPage() {
             />
           </div>
 
-          {/* 아이디 찾기 결과 (초기에는 숨김 처리) */}
           <div style={{ display: 'none' }} className="find-id-result-con">
             가입하신 아이디는<br />
             [<span className="id-result">test1234</span>] 입니다.
           </div>
 
-          {/* 아이디 찾기 버튼 */}
           <button type="submit" className="btn btn-login">
             아이디 찾기
           </button>

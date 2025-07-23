@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import '../../assets/css/common.css';
 import '../../assets/css/patient.css';
 import '../../assets/css/login.css';
@@ -22,9 +23,9 @@ function LoginPage() {
         </form>
 
         <div className="login-links">
-          <a href="#">아이디 찾기</a>
-          <a href="#">비밀번호 찾기</a>
-          <a href="#">회원가입</a>
+          <Link to="/findId">아이디 찾기</Link>
+          <Link to="/find-password">비밀번호 찾기</Link>
+          <Link to="/signup">회원가입</Link>
         </div>
       </main>
     </div>

@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import GamePage from './game/patient/GamePage';
+// import GamePage from './game/patient/GamePage';
 // import GameResultPage from './game/patient/GameResultPage';
 // import PatientChartPage from './user/patient/PatientChartPage';
 // import PatientDashboardPage from './game/patient/PatientDashboardPage';
@@ -13,11 +13,11 @@ import GamePage from './game/patient/GamePage';
 // import SignupPage from './user/family/SignupPage';
 // import LoginPage from './user/family/LoginPage';
 // import PatientProfilePage from './user/family/PatientProfilePage';
-
+import FamilyGameCreatePage from './game/family/FamilyGameCreatePage';
 
 function App() {
   return ( 
-    <GamePage />
+    // <GamePage />
     // <GameResultPage/>
     // <PatientChartPage/>
     // <PatientDashboardPage/>
@@ -30,7 +30,18 @@ function App() {
     // <SignupPage/>
     // <LoginPage/>
     // <PatientProfilePage/>
+    <FamilyGameCreatePage/>
   )
 }
 
 export default App
+
+// import 'bootstrap/dist/css/bootstrap.min.css';
+
+// import Router from './router';
+
+// function App() {
+//   return <Router />;
+// }
+
+// export default App;
