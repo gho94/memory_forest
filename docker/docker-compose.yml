@@ -1,20 +1,21 @@
 version: "3.8"
 
 services:
-  oracle-db:
+  mysql-db:
     build:
-      context: ./oracle
-    container_name: oracle21c-container
+      context: ./mysql
+    container_name: mysql8-container
     ports:
-      - "1521:1521"
-      - "5500:5500"
+      - "3306:3306"
     environment:
-      ORACLE_PASSWORD: oracle
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: mysql
     volumes:
-      - oracle-data:/opt/oracle/oradata
+      - mysql-data:/var/lib/mysql
     networks:
       - backendnet
-
   redis:
     image: redis:7-alpine
     container_name: redis-container
@@ -28,17 +29,18 @@ services:
   backend:
     build:
       context: ../backend/SpringBoot
-      dockerfile: ./backend/Dockerfile
+      dockerfile: ../../docker/backend/Dockerfile
     container_name: spring-backend
     depends_on:
-      - oracle-db
+      - mysql-db
       - redis
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/XEPDB1
-      SPRING_DATASOURCE_USERNAME: system
-      SPRING_DATASOURCE_PASSWORD: oracle
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: app_user
+      SPRING_DATASOURCE_PASSWORD: mysql
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
     networks:
@@ -68,7 +70,7 @@ services:
     networks:
       - webnet
 volumes:
-  oracle-data:
+  mysql-data:
   redis-data:
 
 networks:
