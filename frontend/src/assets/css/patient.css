@@ -1,0 +1,225 @@
+/* 중앙 컨텐츠 */
+.patient-con.content-area {
+  padding: 0 34px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  color: #054e26;
+}
+
+.patient-con.content-area.game-result-area {
+  gap: 35px;
+}
+
+.patient-con.content-area .greeting {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* 게임 진행 영역 */
+.patient-con .content-con {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
+}
+
+.patient-con .content-con.game-img-con {
+  max-height: 340px;
+  padding: 15px;
+}
+
+.patient-con .content-con.game-img-con .game-img {
+  max-height: 312px;
+}
+
+.patient-con .content-con .title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 2rem;
+}
+
+.patient-con .content-con .game-phrase {
+  font-weight: 900;
+  margin-bottom: 12px;
+  font-size: 2rem;
+  color: #80958a;
+}
+
+.patient-con .content-con .score-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.patient-con .content-con .score-wrap .score-con {
+  text-align: center;
+  width: 215px;
+  height: 80px;
+  color: #000000;
+  font-size: 1.75rem;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 17px;
+}
+
+.patient-con .content-con .score-wrap .score-con.good {
+  background-color: #e8eaf6;
+}
+
+.patient-con .content-con .score-wrap .score-con.bad {
+  background-color: #f3f2d8;
+}
+
+.patient-con .content-con .result-number {
+  color: #054e26;
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+.patient-con .content-con .result-text {
+  color: #80958a;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.patient-con .content-con .chart-con {
+  min-height: 270px;
+}
+
+.patient-con .content-con .information-con {
+  text-align: left;
+  font-size: 1.9rem;
+  font-weight: 900;
+}
+
+.patient-con .progress {
+  height: 32px;
+  background-color: #d8e4e1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.patient-con .progress-bar {
+  background-color: #a8dadc;
+  border-radius: 14px;
+  transition: width 0.4s ease;
+}
+.patient-con .progress-text {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #054e26;
+  font-size: 28px;
+}
+
+.patient-con .progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 700;
+  color: #054e26;
+  font-size: 1.75rem;
+  pointer-events: none; /* 클릭 막힘 방지 */
+  font-weight: 800;
+}
+
+/* 게임 시작 버튼 */
+.patient-con .btn-patient {
+  width: 100%;
+  background-color: #6c9a8b;
+  border: none;
+  color: #f7f9f9;
+  font-weight: 700;
+  font-size: 1.8rem;
+  padding: 17px 0;
+  border-radius: 8px;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+.patient-con .btn-patient:hover {
+  background-color: #88c7b3;
+}
+
+/* 환자 게임 선택 버튼 */
+.patient-con .btn-game {
+  background-color: #6c9a8b;
+  border: none;
+  color: #f7f9f9;
+  font-weight: 600;
+  font-size: 1.8rem;
+  padding: 0 5px;
+  border-radius: 19px;
+  user-select: none;
+  transition: background-color 0.3s ease;
+
+  min-height: 100px; /* ✅ 버튼 최소 높이 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center; /* ✅ 가운데 정렬 */
+  white-space: pre-wrap; /* ✅ 줄바꿈 허용 */
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 줄 수 제한 */
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+
+/* 최근 점수 */
+.patient-con .recent-score {
+  margin-top: 16px;
+  color: #1c2b1a;
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+.patient-con .game-icon-con .game-icon {
+  width: 125px;
+  height: 125px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.patient-con .game-icon-con .game-icon.good {
+  background-image: url(../images/game_good_icon.svg);
+}
+
+.patient-con .game-icon-con .game-icon.bad {
+  background-image: url(../images/game_bad_icon.svg);
+}
+
+.patient-con .game-icon-con .game-icon.record {
+  background-image: url(../images/record_icon.svg);
+  border: 15px solid #ffe8c0;
+  border-radius: 100px;
+  width: 180px;
+  height: 180px;
+}
+
+.patient-con .game-icon-con {
+  justify-content: center;
+  display: flex;
+}
+
+.patient-con .game-sum-score-con {
+  background-color: #8aa899;
+  color: #f7f9f9;
+  border-radius: 10px;
+  font-size: 1.75rem;
+  font-weight: 600;
+  height: 80px;
+  padding: 17px;
+}
+
+.patient-con .record_desc_con {
+  font-size: 1.7rem;
+  line-height: normal;
+  font-weight: 900;
+}
