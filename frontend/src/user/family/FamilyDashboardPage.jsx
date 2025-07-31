@@ -1,53 +1,124 @@
-import React from 'react';
-import '../../assets/css/common.css';
-import '../../assets/css/login.css';
-import '../../assets/css/family.css';
-
+import React, { useState } from 'react';
 import FamilyHeader from '../../components/layout/header/FamilyHeader';
 import FamilyFooter from '../../components/layout/footer/FamilyFooter';
+
 import AlarmModal from '../../components/modal/AlarmModal';
+import AccountShareModal from '../../components/modal/AccountShareModal';
+import GameAddModal from '../../components/modal/GameAddModal';
+
+import '../../assets/css/common.css';
+import '../../assets/css/family.css';
 
 function FamilyDashboardPage() {
+  const [activeTab, setActiveTab] = useState('account');
+  const [showAlarmModal, setShowAlarmModal] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showGameModal, setShowGameModal] = useState(false);
+
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
 
+      {/* 모달 영역 */}
+      {showAlarmModal && (
+        <AlarmModal onClose={() => setShowAlarmModal(false)} />
+      )}
+      {showAccountModal && (
+        <AccountShareModal onClose={() => setShowAccountModal(false)} />
+      )}
+      {showGameModal && (
+        <GameAddModal onClose={() => setShowGameModal(false)} />
+      )}
+
       <main className="content-area family-con">
-        <div className="detail-title">
-          <div><span>환자 01</span> 최근 활동</div>
-          <div>
-            <div className="icon-btn print-btn"></div>
-            <div className="icon-btn trash-btn"></div>
+        <div className="header-box">
+          <div className="page-title">환자01 님</div>
+          <button
+            className="btn-alarm"
+            onClick={() => setShowAlarmModal(true)}
+          >
+            <span className="blind">알림</span>
+          </button>
+        </div>
+
+        <ul className="nav nav-tabs tab-lg mb-4">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === 'account' ? 'active' : ''}`}
+              onClick={() => setActiveTab('account')}
+            >
+              계정
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === 'game' ? 'active' : ''}`}
+              onClick={() => setActiveTab('game')}
+            >
+              게임목록
+            </button>
+          </li>
+        </ul>
+
+        {/* 계정 탭 */}
+        {activeTab === 'account' && (
+          <div className="account-con">
+            <div className="account-header">
+              <div className="title">공유 계정</div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => setShowAccountModal(true)}
+              >
+                계정 공유
+              </button>
+            </div>
+
+            <div className="row row-cols-2 row-cols-sm-3 row-cols-lg-4">
+              {[1, 2, 3].map((_, idx) => (
+                <div key={idx} className="col">
+                  <div className="account-card">
+                    <div className="profile-img"></div>
+                    <div className="account-info">
+                      <div className="user-name">가족이름</div>
+                      <div className="email">test@email.com</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="patient-activity-con row">
-          <div className="col-6">오늘 : <span>76</span>점</div>
-          <div className="col-6">이번주 참여율 : <span>85</span>%</div>
-          <div className="col-6">어제 : <span>91</span>점</div>
-          <div className="col-6">점수 향상률 : <span>+7</span>%</div>
-          <div className="col-6">일주일 평균 : <span>81.23</span>점</div>
-          <div className="col-6">평균 위험도 : <span>46</span>%</div>
-        </div>
+        {/* 게임 목록 탭 */}
+        {activeTab === 'game' && (
+          <div className="game-con">
+            <div className="account-header">
+              <div className="title">게임 목록</div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => setShowGameModal(true)}
+              >
+                게임 추가
+              </button>
+            </div>
 
-        <div className="date-picker-wrapper">
-          <label className="date-input">
-            <input type="date" />
-          </label>
-          <span className="range-symbol">~</span>
-          <label className="date-input">
-            <input type="date" />
-          </label>
-          <div className="search-btn"></div>
-        </div>
-
-        <div className="chart-con">
-          <div></div>
-          <div></div>
-        </div>
+            <div className="row row-cols-2 row-cols-sm-3 row-cols-lg-4">
+              {[1, 2, 3].map((_, idx) => (
+                <div key={idx} className="col">
+                  <div className="game-card">
+                    <div className="thumbnail"></div>
+                    <div className="game-info">
+                      <div className="title">회상 게임</div>
+                      <div className="desc">단기 기억력을 향상시키는 게임</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
-      <AlarmModal />
       <FamilyFooter />
     </div>
   );
