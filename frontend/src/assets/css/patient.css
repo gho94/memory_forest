@@ -188,15 +188,15 @@
 }
 
 .patient-con .game-icon-con .game-icon.good {
-  background-image: url(../img/game_good_icon.svg);
+  background-image: url(../../../public/images/game_good_icon.svg);
 }
 
 .patient-con .game-icon-con .game-icon.bad {
-  background-image: url(../img/game_bad_icon.svg);
+  background-image: url(../../../public/images/game_bad_icon.svg);
 }
 
 .patient-con .game-icon-con .game-icon.record {
-  background-image: url(../img/record_icon.svg);
+  background-image: url(../../../public/images/record_icon.svg);
   border: 15px solid #ffe8c0;
   border-radius: 100px;
   width: 180px;
@@ -218,8 +218,8 @@
   padding: 17px;
 }
 
-.patient-con .record_desc_con{
-    font-size: 1.70rem;
-    line-height: normal;
-    font-weight: 900;
+.patient-con .record_desc_con {
+  font-size: 1.7rem;
+  line-height: normal;
+  font-weight: 900;
 }

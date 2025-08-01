@@ -1,0 +1,949 @@
+.app-header .alarm {
+  width: 48px;
+  height: 48px;
+  background-image: url(../../../public/images/alarm_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.app-header.guardian-header {
+  justify-content: space-between;
+}
+
+.guardian-con.content-area {
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #054e26;
+}
+
+.guardian-con.content-area.center {
+  justify-content: center;
+}
+
+.guardian-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guardian-con .greeting-con {
+  background-color: #ffffff;
+  border-radius: 15px;
+  text-align: left;
+  padding: 22px;
+  margin: 0 1rem;
+}
+
+.guardian-con .greeting-con .sub-text {
+  font-size: 14px;
+}
+
+.guardian-con .tab-btn {
+  width: 50%;
+  border-radius: 0;
+  font-weight: 600;
+}
+.guardian-con .tab-btn.active {
+  background-color: #3b7c67;
+  color: white;
+}
+.guardian-con .tab-btn.inactive {
+  background-color: #d8e4dc;
+  color: #4a4a4a;
+}
+
+/* 계정 추가 버튼 */
+.guardian-con .btn-add {
+  background-color: #3d5d75;
+  color: white;
+  font-weight: 500;
+  border-radius: 13px;
+  padding: 10px 25px;
+  font-size: 14px;
+}
+
+/* 카드 스타일 */
+.guardian-con .card-box {
+  border: 1px solid #054e26;
+  border-radius: 16px;
+  padding: 15px;
+  background-color: #f7f9f9;
+}
+
+.profile-img {
+  width: 67px;
+  height: 67px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #a9d0c0;
+  margin: 0 10px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.guardian-con .card-box .btn-detail {
+  background-color: #6c9a8b;
+  color: #f7f9f9;
+  border: none;
+  padding: 15px 14px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.guardian-con .card-box .btn-detail .btn {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 30px;
+  height: 30px;
+}
+
+.guardian-con .card-box .btn-detail .btn.more-btn {
+  background-image: url(../../../public/images/more_icon.svg);
+}
+
+.guardian-con .card-box .btn-detail .btn.share-btn {
+  background-image: url(../../../public/images/share_icon.svg);
+}
+
+.guardian-con .card-box .risk-bar-bg {
+  overflow: hidden;
+  background-color: #cdeae1;
+  height: 15px;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.guardian-con .card-box .risk-bar-fill {
+  background-color: #a8dadc;
+  height: 100%;
+  border-radius: 10px;
+  width: 60%; /* 위험도 값에 따라 변경 */
+}
+
+.guardian-con .menu-tab-con {
+  --bs-nav-link-color: #ffffff;
+  --bs-nav-tabs-link-active-color: #ffffff;
+}
+
+.guardian-con .nav-tabs {
+  --bs-nav-tabs-border-color: #6c9a8b;
+  --bs-nav-tabs-border-width: 3px;
+}
+
+.guardian-con .nav-tabs .nav-link {
+  margin-bottom: 0;
+  border: 0;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.guardian-con .nav-tabs .nav-link.active {
+  background-color: #6c9a8b;
+}
+.guardian-con .nav-link {
+  background-color: #b7cbbf;
+}
+
+.guardian-con .nav-item {
+  width: 103px;
+}
+.guardian-con .nav-item:first-of-type {
+  margin: 0 8px;
+}
+.guardian-con .nav-link:focus,
+.guardian-con .nav-link:hover {
+  color: #f1f2eb;
+}
+
+.guardian-con .card-box .main-desc {
+  margin-bottom: 5px;
+}
+
+.guardian-con .card-box .main-desc .patient-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.guardian-con .card-box .main-desc .patient-age {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.guardian-con .card-box .extra-desc {
+  color: #6c9a8b;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.guardian-con .card-box .target-desc {
+  color: #054E26;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.guardian-con .risk-con .risk-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding-left: 15px;
+  padding-right: 0px;
+}
+
+.guardian-con .risk-con .risk-bar-con {
+  padding-top: 3.2px;
+}
+
+.guardian-con .card-box-con {
+  max-height: 430px;
+  overflow-y: auto;
+}
+
+.guardian-con .card-box2-con {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/*--- 모달 시작 ----*/
+
+/* 모달 오버레이 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 1050;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+}
+
+/* 모달 내용 */
+.modal-overlay .custom-modal {
+  background-color: #f6fdf6;
+  border-radius: 16px;
+  padding: 20px;
+  width: 350px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* 모달 내부 스크롤 영역 */
+.modal-overlay .modal-body-scroll {
+  overflow-y: auto;
+  max-height: 322px;
+}
+
+/* 모달 카드 디자인 */
+.modal-overlay .alert-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid transparent;
+  color: #6c9a8b;
+}
+
+.modal-overlay .alert-card.active {
+  border-color: #a8dadc;
+}
+
+.modal-overlay .alert-card.inactive {
+  background-color: #f1f4f1;
+  color: #c2c2c2;
+  border-color: #ececec;
+}
+
+/* 닫기 버튼 */
+.modal-overlay .custom-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+  cursor: pointer;
+}
+
+/* 체크박스 트릭 */
+#toggle-alarm-modal,
+#toggle-account-modal,
+#toggle-game-modal {
+  display: none;
+}
+
+#toggle-alarm-modal:checked ~ .alarm-modal-overlay {
+  display: flex;
+}
+
+#toggle-account-modal:checked ~ .account-modal-overlay {
+  display: flex;
+}
+
+#toggle-game-modal:checked ~ .game-modal-overlay {
+  display: flex;
+}
+
+.modal-overlay .center-group {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.modal-overlay .center-group .logo {
+  width: 20px;
+  height: 20px;
+  background-image: url(../../../public/images/main_logo.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.modal-overlay .center-group .title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #6c9a8b;
+}
+
+.modal-overlay .patient-con .patient-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.modal-overlay .patient-con .patient-reg-date {
+  font-size: 0.8rem;
+}
+
+.modal-overlay .alarm-content {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.modal-overlay .alert-card.active .patient-con {
+  align-content: flex-end;
+  color: #054e26;
+}
+
+.modal-overlay .alert-card.inactive .profile-img {
+  margin: 0 6px;
+  border: 1px solid #d5d5d5;
+  opacity: 0.4;
+}
+
+.modal-overlay .alert-card .profile-img {
+  margin: 0 6px;
+}
+
+.modal-overlay .share-icon-con {
+  justify-content: center;
+}
+
+.modal-overlay .qr-code-con {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-overlay .qr-code-con .qr-code {
+  width: 90px;
+  height: 90px;
+  margin: 25px;
+  background-image: url(../../../public/images/qr_example_img.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar {
+  width: 5px; /* 세로 스크롤바 너비 */
+  height: 4px; /* 가로 스크롤바 높이 */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* 트랙 배경 없음 */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* 손잡이 색 (연한 회색) */
+  border-radius: 15px;
+}
+
+/* 대시보드 게임목록 */
+/* 🔽 셀렉트 + 검색 input 감싸는 부분 */
+.game-con .search-filter-box {
+  background-color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #cce3d9;
+}
+
+/* 🔽 검색 input */
+.game-con .search-input-box {
+  position: relative;
+}
+
+.game-con .search-input-box .search-input {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  font-size: 16px;
+  padding: 4px 30px 4px 8px;
+  color: #3b615c;
+  outline: none;
+}
+
+.game-con .search-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  background-image: url(../../../public/images/filter_search_green_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* 🔽 게임 카드 */
+.game-con .game-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: white;
+  border: 1px solid #cce3d9;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 5;
+  font-size: 14px;
+  color: #3b615c;
+}
+
+.game-con .search-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+.game-con .search-dropdown-display {
+  padding: 8px 27px 8px 12px;
+  background-color: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+}
+
+.game-con .search-dropdown-display::after {
+  content: "▼";
+  position: absolute;
+  right: 6px;
+  transition: transform 0.3s ease;
+}
+
+/* 체크박스 트릭용 숨김 */
+.game-con #search-dropdown-toggle {
+  display: none;
+}
+
+/* 옵션 리스트 */
+.game-con .search-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  display: none;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-left: 0;
+}
+
+.game-con .search-dropdown-options li {
+  padding: 8px 0px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.game-con .search-dropdown-options li:hover {
+  background-color: #f0f0f0;
+}
+
+/* 드롭다운 열렸을 때 */
+.game-con
+  #search-dropdown-toggle:checked
+  ~ .search-dropdown-wrapper
+  .search-dropdown-options {
+  display: block;
+}
+
+.game-con
+  #search-dropdown-toggle:checked
+  ~ .search-dropdown-wrapper
+  .search-dropdown-display::after {
+  transform: rotate(180deg);
+}
+
+.guardian-con .date-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  margin: 0 1rem;
+  justify-content: center;
+}
+
+.guardian-con .date-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(108, 154, 139, 0.5);
+  border-radius: 5px;
+  padding: 6px 12px;
+  background-color: white;
+  color: #94b0a1;
+  font-size: 14px;
+}
+
+.guardian-con .date-input input[type="date"] {
+  border: none;
+  background: none;
+  outline: none;
+  color: inherit;
+  font: inherit;
+  width: 110px;
+  cursor: pointer;
+}
+
+.guardian-con
+  .date-input
+  input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(48%) sepia(4%) saturate(347%) hue-rotate(92deg) brightness(92%)
+    contrast(90%);
+  cursor: pointer;
+}
+
+.guardian-con .date-picker-wrapper .range-symbol {
+  color: #94b0a1;
+  font-size: 18px;
+}
+
+.guardian-con .date-picker-wrapper .search-btn {
+  background-color: #6c998a;
+  color: white;
+  border-radius: 6px;
+  padding: 12px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(../../../public/images/filter_search_white_icon.svg);
+  border: 4px solid #6c998a;
+  width: 24px;
+  height: 24px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.guardian-con .icon-btn.trash-btn {
+  background-image: url(../../../public/images/trash_icon.svg);
+}
+
+.guardian-con .icon-btn.print-btn {
+  background-image: url(../../../public/images/print_icon.svg);
+}
+
+.guardian-con .icon-btn {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+  background-color: #fff;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  width: 30px;
+  height: 30px;
+}
+
+.guardian-con .detail-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 0px 16px;
+  color: #054e26;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.guardian-con .patient-activity-con {
+  border: 1px solid #054e26;
+  font-size: 15px;
+  text-align: left;
+  padding: 13px 5px;
+  background-color: #fff;
+  margin: 0 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.guardian-con .chart-con {
+  overflow-y: auto;
+  max-height: 460px;
+}
+
+.guardian-con .chart-con > div {
+  border: 1px solid rgba(108, 154, 139, 0.5);
+  background-color: #fff;
+  margin: 0 1rem 15px 1rem;
+  height: 300px;
+  border-radius: 5px;
+}
+
+.patient-signup-form {
+  padding: 70px 20px;
+}
+
+.guardian-con .menu-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 0px 18px;
+  color: #054e26;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.guardian-con .patient-signup-form .profile-upload {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.guardian-con .patient-signup-form .profile-upload input[type="file"] {
+  display: none;
+}
+
+.guardian-con .patient-signup-form .upload-label {
+  width: 100%;
+  height: 100%;
+  background-color: #f8faf8;
+  border: 1.5px solid #5c8a6f;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  background-image: url("../../../public/images/user_default_icon.svg"); /* 기본 이미지 */
+  background-size: cover;
+  background-position: center;
+}
+
+.guardian-con .patient-signup-form .upload-label i {
+  font-size: 36px;
+  color: #5c8a6f;
+}
+
+.guardian-con .patient-signup-form .upload-label img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.guardian-con .patient-signup-form .profile-upload-con {
+  margin-bottom: 20px;
+}
+
+.game-signup-form {
+  padding: 0 20px;
+  gap: 14px;
+}
+
+.game-signup-form .game-file-desc,
+.game-signup-form input,
+textarea::placeholder {
+  color: #6c9a8b;
+  font-weight: 500;
+}
+
+.game-signup-form .game-file-desc-con {
+  height: 130px;
+}
+
+.game-signup-form .form-control {
+  border-radius: 13px;
+}
+
+.guardian-con .progress {
+  height: 29px;
+  background-color: #d8e4e1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  width: 220px;
+  position: relative;
+  top: 1px;
+}
+
+.guardian-con .progress-bar {
+  background-color: #a8dadc;
+  border-radius: 14px;
+  transition: width 0.4s ease;
+}
+
+.guardian-con .progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 500;
+  color: #054e26;
+  font-size: 1rem;
+  pointer-events: none;
+  font-weight: 800;
+}
+
+/* 게임 생성 완료 페이지*/
+.guardian-con .game-complete-gap {
+  gap: 45px;
+}
+
+.kakaotalk-icon {
+  width: 55px;
+  height: 55px;
+  background-image: url(../../../public/images/kakaotalk_yellow_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.link-icon {
+  width: 53px;
+  height: 53px;
+  background-image: url(../../../public/images/link_grey_icon.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.guardian-con .game-result-con {
+  width: 100%;
+  border: 1px solid #054e26;
+  font-size: 1.55rem;
+  text-align: left;
+  padding: 13px 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-content: space-around;
+  height: 160px;
+}
+
+.guardian-con .game-result-con .desc-title {
+  font-weight: 700;
+}
+
+.guardian-con .game-result-title {
+  font-size: 42px;
+  font-weight: 900;
+  margin-bottom: 13px;
+}
+
+.guardian-con .game-result-share-text {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.guardian-con .game-result-share-icon {
+  justify-content: space-around;
+}
+
+.game-list-wrap .game-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 15px;
+}
+
+.game-list-wrap .game-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #00704a;
+  width: 24px;
+  text-align: right;
+}
+
+.game-list-wrap .game-box {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.game-list-wrap .game-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.game-list-wrap .game-texts {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.game-list-wrap .game-title {
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: #054e26;
+}
+
+.game-list-wrap .game-answer {
+  font-size: 0.9rem;
+  color: #6c9a8b;
+  font-weight: 600;
+}
+
+.game-list-wrap .game-edit-btn {
+  background-color: #6c9a8b;
+  color: #f7f9f9;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.game-list-wrap .game-list-con {
+  width: 100%;
+  overflow-y: auto;
+  max-height: 545px;
+}
+
+.game-list-wrap {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.modal-overlay .game-modal-title {
+  color: #054e26;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-overlay .game-name-con {
+  margin-bottom: 10px;
+}
+
+.modal-overlay .game-name-con .game-name {
+  border: 1px solid #b7cbbf;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.modal-overlay .game-name-con .game-name::placeholder {
+  color: #6c9a8b;
+  font-size: 15px;
+  padding-left: 7px;
+}
+
+.btn-modal {
+  background-color: #6a9985;
+  color: white;
+  font-weight: 600;
+  border-radius: 11px;
+  padding: 14px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.modal-overlay .account-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #b7cbbf;
+  color: #6c9a8b;
+}
+
+.modal-overlay .modal-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 1.7px solid #6c9a8b;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+/* 체크됐을 때 스타일 */
+.modal-overlay .modal-checkbox:checked {
+  background-color: #6c9a8b;
+  border-color: #6c9a8b;
+}
+
+/* 체크 아이콘 (✔) 표시 */
+.modal-overlay .modal-checkbox:checked::after {
+  content: "✔";
+  color: white;
+  font-size: 16px;
+  position: absolute;
+  top: -1px;
+  left: 4px;
+}
+
+.modal-overlay .account-card .account-info:not(:first-child) {
+  margin-top: 7px;
+}
+
+.game-img {
+    width: 67px;
+    height: 67px;
+    border-radius: 10%;
+    object-fit: cover;
+    border: 1px solid #a9d0c0;
+    margin: 0 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}

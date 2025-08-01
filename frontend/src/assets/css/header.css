@@ -1,0 +1,29 @@
+.app-header {
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.app-header .logo {
+  width: 70px;
+  height: 70px;
+  background-image: url(../../../public/images/main_logo.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.app-header .title {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.app-header .app-header-text-top {
+  color: #2e7d32;
+}
+
+.app-header .app-header-text-bottom {
+  color: #4caf50;
+}

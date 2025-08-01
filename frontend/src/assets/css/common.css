@@ -27,7 +27,7 @@ html {
 .app-header .logo {
   width: 70px;
   height: 70px;
-  background-image: url(../img/main_logo.svg);
+  background-image: url(/images/main_logo.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -57,6 +57,12 @@ html {
   font-weight: 600;
   font-size: 1.15rem;
 }
+
+.app-footer.guardian {
+  font-size: 1rem;
+  height: 82px;
+}
+
 .app-footer .nav-item {
   display: flex;
   flex-direction: column;
@@ -89,29 +95,80 @@ html {
 }
 
 .app-footer .nav-item .icon.home {
-  mask-image: url("../img/menu_home_icon.svg");
-  -webkit-mask-image: url("../img/menu_home_icon.svg");
+  mask-image: url("/images/menu_home_icon.svg");
+  -webkit-mask-image: url("/images/menu_home_icon.svg");
+  margin-top: 2px;
 }
 
 .app-footer .nav-item .icon.game {
-  mask-image: url("../img/menu_game_icon.svg");
-  -webkit-mask-image: url("../img/menu_game_icon.svg");
+  mask-image: url("/images/menu_game_icon.svg");
+  -webkit-mask-image: url("/images/menu_game_icon.svg");
+  width: 39px;
+  height: 37px;
 }
 
 .app-footer .nav-item .icon.chart {
-  mask-image: url("../img/menu_chart_icon.svg");
-  -webkit-mask-image: url("../img/menu_chart_icon.svg");
+  mask-image: url("/images/menu_chart_icon.svg");
+  -webkit-mask-image: url("/images/menu_chart_icon.svg");
+  width: 35px;
+  height: 33px;
+  margin-top: 1px;
 }
 
 .app-footer .nav-item .icon.user {
-  mask-image: url("../img/menu_user_icon.svg");
-  -webkit-mask-image: url("../img/menu_user_icon.svg");
+  mask-image: url("/images/menu_user_icon.svg");
+  -webkit-mask-image: url("/images/menu_user_icon.svg");
 }
 
-.dark-green-color{
-    color:#054E26;
+.app-footer .nav-item .icon.patient {
+  mask-image: url("/images/menu_patient_icon.svg");
+  -webkit-mask-image: url("/images/menu_patient_icon.svg");
 }
 
-.light-green-color{
-    color:#8AA899;
+.dark-green-color {
+  color: #054e26;
+}
+
+.light-green-color {
+  color: #8aa899;
+}
+
+.form-text-valid {
+  color: #0055ff;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.form-text-invalid {
+  color: #fa060a;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.app-container .spacer {
+  flex: 1;
+}
+
+.app-container .input-group-custom {
+  display: flex;
+  gap: 10px;
+}
+
+.app-container .form-control {
+  border-radius: 15px;
+  border: 1px solid #447a66;
+  padding: 12px;
+  font-size: 0.95rem;
+}
+
+.app-container .form-control::placeholder {
+  color: #8aa899;
+}
+
+.app-container .form-control-con {
+  width: 100%;
+}
+
+.app-container textarea.form-control {
+  height: 190px;
 }
