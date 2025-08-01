@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=412, initial-scale=1, maximu m-scale=1, user-scalable=no"
+      content="width=412, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
     <title>기억 숲</title>
     <link
@@ -28,40 +28,25 @@
 
       <!-- 중앙 콘텐츠  -->
       <main class="content-area patient-con">
-        <section class="content-con mb-16">
-          <div class="progress">
-            <div
-              class="progress-bar"
-              role="progressbar"
-              style="width: 60%"
-              aria-valuenow="6"
-              aria-valuemin="0"
-              aria-valuemax="10"
-            ></div>
-            <div class="progress-label">6 / 10</div>
+        <div class="greeting">나의 정보</div>
+
+        <section class="content-con">
+          <div class="information-con">
+            <div>이름 : <span>홍길동</span></div>
+            <div>성별 : <span>남성</span></div>
+            <div>생년월일 : <br><span>1900년 01월 01일</span></div>
           </div>
         </section>
 
-        <section class="content-con game-img-con">
-          <img class="game-img" src="../img/game_example.jpg" />
-        </section>
+        <div class="greeting">동행자 정보</div>
 
-        <div class="row">
-          <div class="col-6">
-            <button class="btn btn-game w-100">달</button>
+        <section class="content-con">
+            <div class="information-con">
+            <div>이름 : <span>김철수</span></div>
+            <div>관계 : <span>자녀</span></div>
+            <div>연락처 : <br><span>010-0000-0000</span></div>
           </div>
-          <div class="col-6">
-            <button class="btn btn-game w-100">해수욕장</button>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <button class="btn btn-game w-100">달</button>
-          </div>
-          <div class="col-6">
-            <button class="btn btn-game w-100">을왕리해수욕장!!!!</button>
-          </div>
-        </div>
+        </section>
       </main>
 
       <!-- 하단 메뉴 푸터 -->
@@ -75,7 +60,7 @@
         </a>
         <a
           href="#"
-          class="nav-item active d-flex game-con flex-column align-items-center text-decoration-none"
+          class="nav-item d-flex game-con flex-column align-items-center text-decoration-none"
         >
           <span class="icon game"></span>
           <span class="label">게임</span>
@@ -89,7 +74,7 @@
         </a>
         <a
           href="#"
-          class="nav-item d-flex flex-column align-items-center text-decoration-none"
+          class="nav-item active d-flex flex-column align-items-center text-decoration-none"
         >
           <span class="icon user"></span>
           <span class="label">내 정보</span>
