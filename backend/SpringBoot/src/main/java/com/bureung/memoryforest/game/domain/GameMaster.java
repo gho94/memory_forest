@@ -27,7 +27,7 @@ public class GameMaster {
     @Column(name = "CREATED_BY", nullable = false, length = 5)
     private String createdBy;
 
-    @Column(name = "CREATED_AT", columnDefinition = "TIMESTAMP DEFAULT SYSTIMESTAMP")
+    @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
     @Column(name = "UPDATED_BY", length = 5)

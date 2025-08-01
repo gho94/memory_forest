@@ -14,8 +14,8 @@ import java.util.Date;
 @Builder
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String user_id;
+    @Column(name = "user_id", length = 255, nullable = false)
+    private String userId;
     private String user_name;
     private String password;
     private String email;

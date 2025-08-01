@@ -15,12 +15,13 @@ import java.util.List;
 public class CompanionGameController {
     private final GameMasterService gameMasterService;
 
-    public CompanionGameController() {
-        gameMasterService = null;
+    public CompanionGameController(GameMasterService gameMasterService) {
+        this.gameMasterService = gameMasterService;
     }
 
     @GetMapping("/search/by-name")
     public ResponseEntity<List<GameMaster>> searchByName(@RequestParam String name) {
+        System.out.println("검색어: " + name);
         return ResponseEntity.ok(gameMasterService.getGamesByGameName(name));
     }
 
