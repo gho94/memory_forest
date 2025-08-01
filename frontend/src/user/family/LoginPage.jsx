@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import '../../assets/css/common.css';
-import '../../assets/css/patient.css';
-import '../../assets/css/login.css';
+import '@/assets/css/common.css';
+import '@/assets/css/patient.css';
+import '@/assets/css/login.css';
 
 function LoginPage() {
   return (

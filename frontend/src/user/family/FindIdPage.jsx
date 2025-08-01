@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import '../../assets/css/common.css';
-import '../../assets/css/login.css';
-import LoginHeader from '../../components/layout/header/LoginHeader';
+import '@/assets/css/common.css';
+import '@/assets/css/login.css';
+import LoginHeader from '@/components/layout/header/LoginHeader';
 
 function FindIdPage() {
   return (

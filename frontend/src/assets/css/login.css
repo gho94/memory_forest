@@ -55,7 +55,7 @@
 .login-con .logo-con .logo {
   width: 77px;
   height: 77px;
-  background-image: url(../images/main_logo.svg);
+  background-image: url(../../../public/images/main_logo.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -96,7 +96,7 @@
   text-decoration: none; 
   width: 24px;
   height: 24px;
-  background-image: url("../images/back_btn_icon.svg"); 
+  background-image: url("../../../public/images/back_btn_icon.svg");
   background-size: contain;
   background-repeat: no-repeat;
 }

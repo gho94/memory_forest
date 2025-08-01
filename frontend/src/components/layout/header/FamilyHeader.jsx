@@ -1,9 +1,9 @@
-import '../../../assets/css/common.css';
-import '../../../assets/css/login.css';
-import '../../../assets/css/family.css';
+import '@/assets/css/common.css';
+import '@/assets/css/login.css';
+import '@/assets/css/family.css';
 import FamilyHeader from './FamilyHeader';
-import FamilyFooter from '../footer/FamilyFooter';
-import AlarmModal from '../../modal/AlarmModal';
+import FamilyFooter from '@/components/layout/footer/FamilyFooter';
+import AlarmModal from '@/components/modal/AlarmModal';
 
 function FamilyGameListPage() {
   return (

@@ -1,4 +1,4 @@
-import '../../../assets/css/common.css';
+import '@/assets/css/common.css';
 
 function LoginHeader({ title = '아이디 찾기' }) {
   return (

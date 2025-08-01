@@ -1,6 +1,6 @@
-import '../../assets/css/common.css';  
-import '../../assets/css/login.css'; 
-import SignupHeader from '../../components/layout/header/SignupHeader';
+import '@/assets/css/common.css';
+import '@/assets/css/login.css';
+import SignupHeader from '@/components/layout/header/SignupHeader';
 
 function SignupPage() {
   return (

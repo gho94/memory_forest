@@ -1,8 +1,8 @@
-import '../../assets/css/common.css';
-import '../../assets/css/Patient.css'; 
-import PatientHeader from '../../components/layout/header/PatientHeader';
-import PatientFooter from '../../components/layout/footer/PatientFooter';
-import gameExampleImg from '../../assets/images/game_example.jpg';
+import '@/assets/css/common.css';
+import '@/assets/css/patient.css';
+import PatientHeader from '@/components/layout/header/PatientHeader';
+import PatientFooter from '@/components/layout/footer/PatientFooter';
+const gameImagePath = '/images/game_example.jpg';
 
 function GamePage() {
   return (
@@ -25,7 +25,7 @@ function GamePage() {
         </section>
 
         <section className="content-con game-img-con">
-          <img className="game-img" src={gameExampleImg} alt="게임 예시" />
+          <img className="game-img" src={gameImagePath} alt="게임 예시" />
         </section>
 
         <div className="row">

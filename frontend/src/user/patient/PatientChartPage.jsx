@@ -1,7 +1,7 @@
-import '../../assets/css/common.css';
-import '../../assets/css/Patient.css'; 
-import PatientHeader from '../../components/layout/header/PatientHeader';
-import PatientFooter from '../../components/layout/footer/PatientFooter';
+import '@/assets/css/common.css';
+import '@/assets/css/patient.css';
+import PatientHeader from '@/components/layout/header/PatientHeader';
+import PatientFooter from '@/components/layout/footer/PatientFooter';
 
 function PatientChartPage() {
   return (

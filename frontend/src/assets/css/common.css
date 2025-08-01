@@ -27,7 +27,7 @@ html {
 .app-header .logo {
   width: 70px;
   height: 70px;
-  background-image: url(../img/main_logo.svg);
+  background-image: url(/images/main_logo.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -95,34 +95,34 @@ html {
 }
 
 .app-footer .nav-item .icon.home {
-  mask-image: url("../img/menu_home_icon.svg");
-  -webkit-mask-image: url("../img/menu_home_icon.svg");
+  mask-image: url("/images/menu_home_icon.svg");
+  -webkit-mask-image: url("/images/menu_home_icon.svg");
   margin-top: 2px;
 }
 
 .app-footer .nav-item .icon.game {
-  mask-image: url("../img/menu_game_icon.svg");
-  -webkit-mask-image: url("../img/menu_game_icon.svg");
+  mask-image: url("/images/menu_game_icon.svg");
+  -webkit-mask-image: url("/images/menu_game_icon.svg");
   width: 39px;
   height: 37px;
 }
 
 .app-footer .nav-item .icon.chart {
-  mask-image: url("../img/menu_chart_icon.svg");
-  -webkit-mask-image: url("../img/menu_chart_icon.svg");
+  mask-image: url("/images/menu_chart_icon.svg");
+  -webkit-mask-image: url("/images/menu_chart_icon.svg");
   width: 35px;
   height: 33px;
   margin-top: 1px;
 }
 
 .app-footer .nav-item .icon.user {
-  mask-image: url("../img/menu_user_icon.svg");
-  -webkit-mask-image: url("../img/menu_user_icon.svg");
+  mask-image: url("/images/menu_user_icon.svg");
+  -webkit-mask-image: url("/images/menu_user_icon.svg");
 }
 
 .app-footer .nav-item .icon.patient {
-  mask-image: url("../img/menu_patient_icon.svg");
-  -webkit-mask-image: url("../img/menu_patient_icon.svg");
+  mask-image: url("/images/menu_patient_icon.svg");
+  -webkit-mask-image: url("/images/menu_patient_icon.svg");
 }
 
 .dark-green-color {

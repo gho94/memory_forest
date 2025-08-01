@@ -1,11 +1,11 @@
 import React from 'react';
-import '../../assets/css/common.css';
-import '../../assets/css/login.css';
-import '../../assets/css/family.css';
+import '@/assets/css/common.css';
+import '@/assets/css/login.css';
+import '@/assets/css/family.css';
 
-import FamilyHeader from '../../components/layout/header/FamilyHeader';
-import FamilyFooter from '../../components/layout/footer/FamilyFooter';
-import AlarmModal from '../../components/modal/AlarmModal';
+import FamilyHeader from '@/components/layout/header/FamilyHeader';
+import FamilyFooter from '@/components/layout/footer/FamilyFooter';
+import AlarmModal from '@/components/modal/AlarmModal';
 
 function PatientProfilePage() {
   return (

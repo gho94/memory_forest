@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../assets/css/family.css';
+import '@/assets/css/family.css';
 
 function GameAddModal({ onClose }) {
   return (

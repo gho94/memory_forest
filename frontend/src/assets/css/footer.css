@@ -43,23 +43,23 @@
 }
 
 .app-footer .nav-item .icon.home {
-  mask-image: url(../images/menu_home_icon.svg);
-  -webkit-mask-image: url(../images/menu_home_icon.svg);
+  mask-image: url(../../../public/images/menu_home_icon.svg);
+  -webkit-mask-image: url(../../../public/images/menu_home_icon.svg);
 }
 
 .app-footer .nav-item .icon.game {
-  mask-image: url(../images/menu_game_icon.svg);
-  -webkit-mask-image: url(../images/menu_game_icon.svg);
+  mask-image: url(../../../public/images/menu_game_icon.svg);
+  -webkit-mask-image: url(../../../public/images/menu_game_icon.svg);
 }
 
 .app-footer .nav-item .icon.chart {
-  mask-image: url(../images/menu_chart_icon.svg);
-  -webkit-mask-image: url(../images/menu_chart_icon.svg);
+  mask-image: url(../../../public/images/menu_chart_icon.svg);
+  -webkit-mask-image: url(../../../public/images/menu_chart_icon.svg);
 }
 
 .app-footer .nav-item .icon.user {
-  mask-image: url(../images/menu_user_icon.svg);
-  -webkit-mask-image: url(../images/menu_user_icon.svg);
+  mask-image: url(../../../public/images/menu_user_icon.svg);
+  -webkit-mask-image: url(../../../public/images/menu_user_icon.svg);
 }
 
 .dark-green-color {

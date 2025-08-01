@@ -1,23 +1,23 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import LoginPage from '../user/family/LoginPage';
-import FindIdPage from '../user/family/FindIdPage';
-import SignupPage from '../user/family/SignupPage';
+import LoginPage from '@/user/family/LoginPage';
+import FindIdPage from '@/user/family/FindIdPage';
+import SignupPage from '@/user/family/SignupPage';
 
-import FamilyDashboardPage from '../user/family/FamilyDashboardPage';
-import PatientProfilePage from '../user/family/PatientProfilePage';
-import PatientDetailPage from '../user/family/PatientDetailPage';
-import FamilyGameCreatePage from '../game/family/FamilyGameCreatePage';
-import FamilyGameCompletePage from '../game/family/FamilyGameCompletePage';
-import FamilyGameListPage from '../game/family/FamilyGameListPage';
+import FamilyDashboardPage from '@/user/family/FamilyDashboardPage';
+import PatientProfilePage from '@/user/family/PatientProfilePage';
+import PatientDetailPage from '@/user/family/PatientDetailPage';
+import FamilyGameCreatePage from '@/game/family/FamilyGameCreatePage';
+import FamilyGameCompletePage from '@/game/family/FamilyGameCompletePage';
+import FamilyGameListPage from '@/game/family/FamilyGameListPage';
 
-import PatientDashboardPage from '../game/patient/PatientDashboardPage';
-import PatientChartPage from '../user/patient/PatientChartPage';
-import PatientMyPage from '../user/patient/PatientMyPage';
-import PatientRecord from '../user/patient/PatientRecord';
-import GamePage from '../game/patient/GamePage';
-import GameResultPage from '../game/patient/GameResultPage';
-import PatientGameAnswerResultPage from '../game/patient/PatientGameAnswerResultPage';
+import PatientDashboardPage from '@/game/patient/PatientDashboardPage';
+import PatientChartPage from '@/user/patient/PatientChartPage';
+import PatientMyPage from '@/user/patient/PatientMyPage';
+import PatientRecord from '@/user/patient/PatientRecord';
+import GamePage from '@/game/patient/GamePage';
+import GameResultPage from '@/game/patient/GameResultPage';
+import PatientGameAnswerResultPage from '@/game/patient/PatientGameAnswerResultPage';
 
 function Router() {
   return (

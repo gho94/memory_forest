@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import FamilyHeader from '../../components/layout/header/FamilyHeader';
-import FamilyFooter from '../../components/layout/footer/FamilyFooter';
+import FamilyHeader from '@/components/layout/header/FamilyHeader';
+import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 
-import AlarmModal from '../../components/modal/AlarmModal';
-import AccountShareModal from '../../components/modal/AccountShareModal';
-import GameAddModal from '../../components/modal/GameAddModal';
+import AlarmModal from '@/components/modal/AlarmModal';
+import AccountShareModal from '@/components/modal/AccountShareModal';
+import GameAddModal from '@/components/modal/GameAddModal';
 
-import '../../assets/css/common.css';
-import '../../assets/css/family.css';
+import '@/assets/css/common.css';
+import '@/assets/css/family.css';
 
 function FamilyDashboardPage() {
   const [activeTab, setActiveTab] = useState('account');

@@ -1,5 +1,5 @@
-import '../../../assets/css/common.css';
-import '../../../assets/css/login.css';
+import '@/assets/css/common.css';
+import '@/assets/css/login.css';
 
 function SignupHeader() {
   return (

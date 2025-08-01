@@ -1,8 +1,8 @@
-import '../../assets/css/common.css';
-import '../../assets/css/Patient.css';
-import PatientHeader from "../../components/layout/header/PatientHeader";
-import PatientFooter from "../../components/layout/footer/PatientFooter";
-import recordIcon from "../../assets/images/record_icon.svg";
+import '@/assets/css/common.css';
+import '@/assets/css/patient.css';
+import PatientHeader from "@/components/layout/header/PatientHeader";
+import PatientFooter from "@/components/layout/footer/PatientFooter";
+const recordImagePath = '/images/record_icon.svg';
 
 function PatientRecord() {
   return (
@@ -21,7 +21,7 @@ function PatientRecord() {
             <div
               className="game-icon record"
               style={{
-                backgroundImage: `url(${recordIcon})`,
+                backgroundImage: `url(${recordImagePath})`,
               }}
             ></div>
           </div>
