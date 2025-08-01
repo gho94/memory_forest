@@ -12,6 +12,7 @@ services:
       MYSQL_DATABASE: myapp
       MYSQL_USER: app_user
       MYSQL_PASSWORD: mysql
+    command: --lower_case_table_names=1
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -43,6 +44,8 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+    volumes:
+      - ../backend/SpringBoot/src:/app/src
     networks:
       - backendnet
       - webnet
