@@ -17,6 +17,7 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - backendnet
+
   redis:
     image: redis:7-alpine
     container_name: redis-container
@@ -27,6 +28,26 @@ services:
     networks:
       - backendnet
 
+  ai-service:
+    build:
+      context: ../ai
+      dockerfile: ../docker/ai/Dockerfile
+    container_name: ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../ai/models:/app/models  # Word2Vec 모델 마운트
+    environment:
+      - MODEL_PATH=/app/models/word2vec_custom.model
+      - DB_HOST=mysql-db
+    networks:
+      - backendnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   backend:
     build:
       context: ../backend/SpringBoot
@@ -35,6 +56,7 @@ services:
     depends_on:
       - mysql-db
       - redis
+      - ai-service
     ports:
       - "8080:8080"
     environment:
@@ -44,8 +66,7 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-    volumes:
-      - ../backend/SpringBoot/src:/app/src
+      AI_SERVICE_URL: http://ai-service:8000  # AI 서비스 URL 추가
     networks:
       - backendnet
       - webnet
@@ -77,6 +98,7 @@ services:
       - frontend
     networks:
       - webnet
+
 volumes:
   mysql-data:
   redis-data:
