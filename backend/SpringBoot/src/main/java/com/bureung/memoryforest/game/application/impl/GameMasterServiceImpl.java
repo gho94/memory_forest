@@ -122,22 +122,26 @@ public class GameMasterServiceImpl implements GameMasterService {
     @Async("aiTaskExecutor")
     public CompletableFuture<Void> processAIAnalysis(String gameId) {
         try {
-            // 해당 게임의 모든 GameDetail 조회
             List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameOrder(gameId);
-            
+
             for (GameDetail detail : gameDetails) {
                 if (detail.needsAIAnalysis()) {
-                    // AI 분석 요청
+                    log.info("AI 분석 요청 시작: gameId={}, gameSeq={}, answerText={}",
+                            detail.getGameId(), detail.getGameSeq(), detail.getAnswerText());
+
                     AIAnalysisRequest request = new AIAnalysisRequest();
                     request.setGameId(detail.getGameId());
                     request.setGameSeq(detail.getGameSeq());
                     request.setAnswerText(detail.getAnswerText());
-                    
+
                     detail.markAIAnalyzing();
                     gameDetailRepository.save(detail);
-                    
+
                     AIAnalysisResponse response = aiClientService.analyzeAnswer(request);
-                    
+
+                    log.info("AI 분석 응답: gameId={}, gameSeq={}, aiStatus={}, description={}",
+                            detail.getGameId(), detail.getGameSeq(), response.getAiStatus(), response.getDescription());
+
                     if ("COMPLETED".equals(response.getAiStatus())) {
                         detail.updateAIAnalysisResult(
                             response.getWrongOption1(),
@@ -149,23 +153,26 @@ public class GameMasterServiceImpl implements GameMasterService {
                             response.getAiStatus(),
                             response.getDescription()
                         );
+                        log.info("AI 분석 결과 DB 업데이트 완료: gameId={}, gameSeq={}", detail.getGameId(), detail.getGameSeq());
                     } else {
                         detail.markAIAnalysisFailed(response.getDescription());
+                        log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}, reason={}", detail.getGameId(), detail.getGameSeq(), response.getDescription());
                     }
-                    
+
                     gameDetailRepository.save(detail);
                 }
             }
-            
-            // 모든 GameDetail의 AI 분석이 완료되면 GameMaster 상태도 업데이트
+
             updateGameStatusBasedOnDetails(gameId);
-            
+            log.info("게임 상태 업데이트 완료 후 processAIAnalysis 종료: gameId={}", gameId);
+
         } catch (Exception e) {
             log.error("AI 분석 처리 중 오류: gameId={}", gameId, e);
         }
-        
+
         return CompletableFuture.completedFuture(null);
     }
+
 
     private void updateGameStatusBasedOnDetails(String gameId) {
         List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameOrder(gameId);
