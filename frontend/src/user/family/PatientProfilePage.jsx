@@ -12,24 +12,6 @@ function PatientProfilePage() {
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
-      
-      <button
-        type="button"
-        className="alarm"
-        aria-label="알림 열기"
-        onClick={() => setShowAlarmModal(true)}
-        style={{ 
-          position: 'fixed', 
-          top: '1rem', 
-          right: '1rem', 
-          width: '40px', 
-          height: '40px', 
-          background: 'none', 
-          border: 'none', 
-          cursor: 'pointer',
-          zIndex: 1000
-        }}
-      />
 
       <main className="content-area guardian-con">
         <div className="menu-title">
@@ -91,60 +73,46 @@ function PatientProfilePage() {
       </main>
 
       {/* 알람 모달 */}
-      {showAlarmModal && (
-        <div className="alarm-modal-overlay">
-          <div className="position-relative custom-modal">
-            <button
-              type="button"
-              className="custom-close"
-              aria-label="모달 닫기"
-              onClick={() => setShowAlarmModal(false)}
-              style={{ background: 'none', border: 'none', fontSize: '2rem', cursor: 'pointer' }}
-            >
-              &times;
-            </button>
+      <input type="checkbox" id="toggle-alarm-modal" />
+      <div className="modal-overlay alarm-modal-overlay">
+        <div className="position-relative custom-modal">
+          <label htmlFor="toggle-alarm-modal" className="custom-close">&times;</label>
+          <div className="text-center mb-3">
+            <div className="center-group">
+              <div className="logo" aria-label="기억 숲 로고"></div>
+              <div className="title">알림</div>
+            </div>
+          </div>
 
-            <div className="text-center mb-3">
-              <div className="center-group">
-                <div className="logo" aria-label="기억 숲 로고"></div>
-                <div className="title">알림</div>
+          <div className="modal-body-scroll d-flex flex-column gap-3">
+            <div className="alert-card active d-flex align-items-start gap-2">
+              <div className="profile-img" alt="avatar"></div>
+              <div>
+                <div className="patient-con">
+                  <span className="patient-name">환자01</span>
+                  <span className="patient-reg-date">2025.06.20 15:20</span>
+                </div>
+                <div className="alarm-content">
+                  오늘의 게임을 완료하였습니다.<br />지금 바로 결과를 확인해보세요.
+                </div>
               </div>
             </div>
 
-            <div className="modal-body-scroll d-flex flex-column gap-3">
-              <div className="alert-card active d-flex align-items-start gap-2">
-                <div className="profile-img" alt="avatar" />
-                <div>
-                  <div className="patient-con">
-                    <span className="patient-name">환자01</span>
-                    <span className="patient-reg-date">2025.06.20 15:20</span>
-                  </div>
-                  <div className="alarm-content">
-                    오늘의 게임을 완료하였습니다.
-                    <br />
-                    지금 바로 결과를 확인해보세요.
-                  </div>
+            <div className="alert-card inactive d-flex align-items-start gap-2">
+              <div className="profile-img" alt="avatar"></div>
+              <div>
+                <div className="patient-con">
+                  <span className="patient-name">환자01</span>
+                  <span className="patient-reg-date">2025.06.20 15:20</span>
                 </div>
-              </div>
-
-              <div className="alert-card inactive d-flex align-items-start gap-2">
-                <div className="profile-img" alt="avatar" />
-                <div>
-                  <div className="patient-con">
-                    <span className="patient-name">환자01</span>
-                    <span className="patient-reg-date">2025.06.20 15:20</span>
-                  </div>
-                  <div className="alarm-content">
-                    오늘의 게임을 완료하였습니다.
-                    <br />
-                    지금 바로 결과를 확인해보세요.
-                  </div>
+                <div className="alarm-content">
+                  오늘의 게임을 완료하였습니다.<br />지금 바로 결과를 확인해보세요.
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       <FamilyFooter />
     </div>
