@@ -13,176 +13,173 @@ FLUSH PRIVILEGES;
 
 
 -- 공통코드 테이블
-CREATE TABLE COMMON_CODES (
-                              CODE_ID         VARCHAR(6)     NOT NULL COMMENT '공통코드 ID (6자리 고정)',
-                              CODE_NAME       VARCHAR(100)   NOT NULL COMMENT '공통코드명',
-                              PARENT_CODE_ID  VARCHAR(6)     NULL     COMMENT '부모 코드 ID (계층 구조)',
-                              USE_YN          VARCHAR(1)     NOT NULL DEFAULT 'Y' COMMENT '사용 여부',
-                              CREATED_BY      VARCHAR(10)    NOT NULL COMMENT '생성자',
-                              CREATED_AT      TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-                              UPDATED_BY      VARCHAR(10)    NULL     COMMENT '수정자',
-                              UPDATED_AT      TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
-                              PRIMARY KEY (CODE_ID),
-                              KEY IDX_COMMON_CODES_PARENT_CODE_ID (PARENT_CODE_ID),
-                              CONSTRAINT FK_COMMON_CODES_PARENT FOREIGN KEY (PARENT_CODE_ID) REFERENCES COMMON_CODES(CODE_ID)
+CREATE TABLE common_codes (
+                              code_id         VARCHAR(6)     NOT NULL COMMENT '공통코드 ID (6자리 고정)',
+                              code_name       VARCHAR(100)   NOT NULL COMMENT '공통코드명',
+                              parent_code_id  VARCHAR(6)     NULL     COMMENT '부모 코드 ID (계층 구조)',
+                              use_yn          VARCHAR(1)     NOT NULL DEFAULT 'Y' COMMENT '사용 여부',
+                              created_by      VARCHAR(10)    NOT NULL COMMENT '생성자',
+                              created_at      TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+                              updated_by      VARCHAR(10)    NULL     COMMENT '수정자',
+                              updated_at      TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+                              PRIMARY KEY (code_id),
+                              KEY idx_common_codes_parent_code_id (parent_code_id),
+                              CONSTRAINT fk_common_codes_parent FOREIGN KEY (parent_code_id) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='공통코드 관리 테이블 (계층적 구조)';
 
 -- 파일 정보 테이블
-CREATE TABLE FILE_INFO (
-                           FILE_ID         INT            NOT NULL AUTO_INCREMENT COMMENT '파일 ID (자동증가)',
-                           ORIGINAL_NAME   VARCHAR(255)   NOT NULL COMMENT '원본 파일명',
-                           S3_KEY          VARCHAR(500)   NOT NULL COMMENT 'S3 객체 키',
-                           S3_URL          VARCHAR(1000)  NOT NULL COMMENT 'S3 접근 URL',
-                           BUCKET_NAME     VARCHAR(100)   NOT NULL COMMENT 'S3 버킷명',
-                           FILE_SIZE       BIGINT         NULL     COMMENT '파일 크기',
-                           CONTENT_TYPE    VARCHAR(100)   NULL     COMMENT '컨텐츠 타입',
-                           UPLOAD_DATE     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '업로드일시',
-                           CREATED_BY      VARCHAR(10)    NULL     COMMENT '생성자 ID',
-                           IS_PUBLIC       VARCHAR(1)     NOT NULL DEFAULT 'N' COMMENT '공개/비공개 여부',
-                           PRIMARY KEY (FILE_ID),
-                           UNIQUE KEY UK_S3_KEY (S3_KEY)
+CREATE TABLE file_info (
+                           file_id         INT            NOT NULL AUTO_INCREMENT COMMENT '파일 ID (자동증가)',
+                           original_name   VARCHAR(255)   NOT NULL COMMENT '원본 파일명',
+                           s3_key          VARCHAR(500)   NOT NULL COMMENT 'S3 객체 키',
+                           s3_url          VARCHAR(1000)  NOT NULL COMMENT 'S3 접근 URL',
+                           bucket_name     VARCHAR(100)   NOT NULL COMMENT 'S3 버킷명',
+                           file_size       BIGINT         NULL     COMMENT '파일 크기',
+                           content_type    VARCHAR(100)   NULL     COMMENT '컨텐츠 타입',
+                           upload_date     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '업로드일시',
+                           created_by      VARCHAR(10)    NULL     COMMENT '생성자 ID',
+                           is_public       VARCHAR(1)     NOT NULL DEFAULT 'N' COMMENT '공개/비공개 여부',
+                           PRIMARY KEY (file_id),
+                           UNIQUE KEY uk_s3_key (s3_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AWS S3 파일 정보 테이블';
 
 -- 사용자 테이블
-CREATE TABLE USERS (
-                       USER_ID           VARCHAR(10)    NOT NULL COMMENT '사용자 ID (10자리)',
-                       USER_NAME         VARCHAR(100)   NOT NULL COMMENT '사용자명',
-                       PASSWORD          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
-                       EMAIL             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
-                       PHONE             VARCHAR(20)    NULL     COMMENT '전화번호',
-                       USER_TYPE_CODE    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
-                       PROFILE_IMAGE_FILE_ID INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
-                       STATUS_CODE       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
-                       CREATED_BY        VARCHAR(10)    NOT NULL COMMENT '생성자',
-                       CREATED_AT        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-                       UPDATED_BY        VARCHAR(10)    NULL     COMMENT '수정자',
-                       UPDATED_AT        TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
-                       LOGIN_AT          TIMESTAMP      NULL     COMMENT '마지막 로그인 일시',
-                       PRIMARY KEY (USER_ID),
-                       UNIQUE KEY UK_USERS_EMAIL (EMAIL),
-                       KEY IDX_USERS_USER_TYPE (USER_TYPE_CODE),
-                       KEY IDX_USERS_STATUS (STATUS_CODE),
-                       CONSTRAINT FK_USERS_USER_TYPE FOREIGN KEY (USER_TYPE_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                       CONSTRAINT FK_USERS_STATUS FOREIGN KEY (STATUS_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                       CONSTRAINT FK_USERS_PROFILE_IMAGE FOREIGN KEY (PROFILE_IMAGE_FILE_ID) REFERENCES FILE_INFO(FILE_ID)
+CREATE TABLE users (
+                       user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID (10자리)',
+                       user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명',
+                       password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
+                       email             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
+                       phone             VARCHAR(20)    NULL     COMMENT '전화번호',
+                       user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
+                       profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
+                       status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
+                       created_by        VARCHAR(10)    NOT NULL COMMENT '생성자',
+                       created_at        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+                       updated_by        VARCHAR(10)    NULL     COMMENT '수정자',
+                       updated_at        TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+                       login_at          TIMESTAMP      NULL     COMMENT '마지막 로그인 일시',
+                       PRIMARY KEY (user_id),
+                       UNIQUE KEY uk_users_email (email),
+                       KEY idx_users_user_type (user_type_code),
+                       KEY idx_users_status (status_code),
+                       CONSTRAINT fk_users_user_type FOREIGN KEY (user_type_code) REFERENCES common_codes(code_id),
+                       CONSTRAINT fk_users_status FOREIGN KEY (status_code) REFERENCES common_codes(code_id),
+                       CONSTRAINT fk_users_profile_image FOREIGN KEY (profile_image_file_id) REFERENCES file_info(file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 정보 관리 테이블';
 
 -- 사용자 히스토리 테이블
-CREATE TABLE USERS_HIST (
-                            HIST_ID           INT            NOT NULL AUTO_INCREMENT COMMENT '히스토리 ID (자동 증가)',
-                            ACTION_TYPE_CODE  VARCHAR(6)     NOT NULL COMMENT '액션 타입 코드 (생성/수정/삭제)',
-                            USER_ID           VARCHAR(10)    NOT NULL COMMENT '사용자 ID',
-                            USER_NAME         VARCHAR(100)   NOT NULL COMMENT '사용자명 (변경 시점)',
-                            PASSWORD          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호 (변경 시점)',
-                            EMAIL             VARCHAR(100)   NOT NULL COMMENT '이메일 (변경 시점)',
-                            PHONE             VARCHAR(20)    NULL     COMMENT '전화번호 (변경 시점)',
-                            USER_TYPE_CODE    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (변경 시점)',
-                            PROFILE_IMAGE     LONGTEXT       NULL     COMMENT '프로필 이미지 (변경 시점)',
-                            STATUS_CODE       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (변경 시점)',
-                            CREATED_AT        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '히스토리 생성일시',
-                            CHANGED_BY        VARCHAR(10)    NOT NULL COMMENT '변경자 ID',
-                            PRIMARY KEY (HIST_ID),
-                            KEY IDX_USERS_HIST_USER_ID (USER_ID),
-                            KEY IDX_USERS_HIST_ACTION_TYPE (ACTION_TYPE_CODE),
-                            KEY IDX_USERS_HIST_CREATED_AT (CREATED_AT),
-                            CONSTRAINT FK_USERS_HIST_ACTION_TYPE FOREIGN KEY (ACTION_TYPE_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                            CONSTRAINT FK_USERS_HIST_USER_TYPE FOREIGN KEY (USER_TYPE_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                            CONSTRAINT FK_USERS_HIST_STATUS FOREIGN KEY (STATUS_CODE) REFERENCES COMMON_CODES(CODE_ID)
+CREATE TABLE users_hist (
+                            hist_id           INT            NOT NULL AUTO_INCREMENT COMMENT '히스토리 ID (자동 증가)',
+                            action_type_code  VARCHAR(6)     NOT NULL COMMENT '액션 타입 코드 (생성/수정/삭제)',
+                            user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID',
+                            user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명 (변경 시점)',
+                            password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호 (변경 시점)',
+                            email             VARCHAR(100)   NOT NULL COMMENT '이메일 (변경 시점)',
+                            phone             VARCHAR(20)    NULL     COMMENT '전화번호 (변경 시점)',
+                            user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (변경 시점)',
+                            profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (변경 시점)',
+                            status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (변경 시점)',
+                            created_at        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '히스토리 생성일시',
+                            changed_by        VARCHAR(10)    NOT NULL COMMENT '변경자 ID',
+                            PRIMARY KEY (hist_id),
+                            KEY idx_users_hist_user_id (user_id),
+                            KEY idx_users_hist_action_type (action_type_code),
+                            KEY idx_users_hist_created_at (created_at),
+                            CONSTRAINT fk_users_hist_action_type FOREIGN KEY (action_type_code) REFERENCES common_codes(code_id),
+                            CONSTRAINT fk_users_hist_user_type FOREIGN KEY (user_type_code) REFERENCES common_codes(code_id),
+                            CONSTRAINT fk_users_hist_status FOREIGN KEY (status_code) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 정보 변경 히스토리 테이블';
 
 -- 사용자 관계 테이블
-CREATE TABLE USER_REL (
-                          PATIENT_ID        VARCHAR(10)    NOT NULL COMMENT '환자 ID',
-                          FAMILY_ID         VARCHAR(10)    NOT NULL COMMENT '가족 ID',
-                          RELATIONSHIP_CODE VARCHAR(6)     NOT NULL COMMENT '관계 코드 (배우자/아들/딸/손자/손녀/형제/자매)',
-                          STATUS_CODE       VARCHAR(6)     NOT NULL COMMENT '연결 상태 코드 (연결됨/연결대기/연결해제/거부됨)',
-                          CREATED_AT        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '관계 생성일시',
-                          PRIMARY KEY (PATIENT_ID, FAMILY_ID),
-                          KEY IDX_USER_REL_PATIENT (PATIENT_ID),
-                          KEY IDX_USER_REL_FAMILY (FAMILY_ID),
-                          KEY IDX_USER_REL_STATUS (STATUS_CODE),
-                          CONSTRAINT FK_USER_REL_PATIENT FOREIGN KEY (PATIENT_ID) REFERENCES USERS(USER_ID),
-                          CONSTRAINT FK_USER_REL_FAMILY FOREIGN KEY (FAMILY_ID) REFERENCES USERS(USER_ID),
-                          CONSTRAINT FK_USER_REL_RELATIONSHIP FOREIGN KEY (RELATIONSHIP_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                          CONSTRAINT FK_USER_REL_STATUS FOREIGN KEY (STATUS_CODE) REFERENCES COMMON_CODES(CODE_ID)
+CREATE TABLE user_rel (
+                          patient_id        VARCHAR(10)    NOT NULL COMMENT '환자 ID',
+                          family_id         VARCHAR(10)    NOT NULL COMMENT '가족 ID',
+                          relationship_code VARCHAR(6)     NOT NULL COMMENT '관계 코드 (배우자/아들/딸/손자/손녀/형제/자매)',
+                          status_code       VARCHAR(6)     NOT NULL COMMENT '연결 상태 코드 (연결됨/연결대기/연결해제/거부됨)',
+                          created_at        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '관계 생성일시',
+                          PRIMARY KEY (patient_id, family_id),
+                          KEY idx_user_rel_patient (patient_id),
+                          KEY idx_user_rel_family (family_id),
+                          KEY idx_user_rel_status (status_code),
+                          CONSTRAINT fk_user_rel_patient FOREIGN KEY (patient_id) REFERENCES users(user_id),
+                          CONSTRAINT fk_user_rel_family FOREIGN KEY (family_id) REFERENCES users(user_id),
+                          CONSTRAINT fk_user_rel_relationship FOREIGN KEY (relationship_code) REFERENCES common_codes(code_id),
+                          CONSTRAINT fk_user_rel_status FOREIGN KEY (status_code) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 간 관계 정보 테이블 (환자-가족 연결)';
 
 -- 게임 마스터 테이블
-CREATE TABLE GAME_MASTER (
-                             GAME_ID               VARCHAR(10)    NOT NULL COMMENT '게임 ID (G250717001 형식)',
-                             GAME_NAME             VARCHAR(100)   NOT NULL COMMENT '게임명',
-                             GAME_DESC             VARCHAR(200)   NULL     COMMENT '게임 설명',
-                             GAME_COUNT            INT            NOT NULL COMMENT '게임 문제 수',
-                             DIFFICULTY_LEVEL_CODE VARCHAR(6)     NOT NULL COMMENT '난이도 코드 (초급/중급/고급/전문가)',
-                             CREATION_STATUS_CODE  VARCHAR(6)     NOT NULL COMMENT '생성 상태 코드 (대기중/생성중/완료/실패/취소)',
-                             CREATED_BY            VARCHAR(10)    NOT NULL COMMENT '생성자 (가족 또는 관리자)',
-                             CREATED_AT            TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-                             UPDATED_BY            VARCHAR(10)    NULL     COMMENT '수정자',
-                             UPDATED_AT            TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
-                             PRIMARY KEY (GAME_ID),
-                             KEY IDX_GAME_MASTER_STATUS (CREATION_STATUS_CODE),
-                             KEY IDX_GAME_MASTER_CREATED_AT (CREATED_AT),
-                             CONSTRAINT FK_GAME_MASTER_DIFFICULTY FOREIGN KEY (DIFFICULTY_LEVEL_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                             CONSTRAINT FK_GAME_MASTER_CREATION_STATUS FOREIGN KEY (CREATION_STATUS_CODE) REFERENCES COMMON_CODES(CODE_ID)
+CREATE TABLE game_master (
+                             game_id               VARCHAR(10)    NOT NULL COMMENT '게임 ID (G250717001 형식)',
+                             game_name             VARCHAR(100)   NOT NULL COMMENT '게임명',
+                             game_desc             VARCHAR(200)   NULL     COMMENT '게임 설명',
+                             game_count            INT            NOT NULL COMMENT '게임 문제 수',
+                             difficulty_level_code VARCHAR(6)     NOT NULL COMMENT '난이도 코드 (초급/중급/고급/전문가)',
+                             creation_status_code  VARCHAR(6)     NOT NULL COMMENT '생성 상태 코드 (대기중/생성중/완료/실패/취소)',
+                             created_by            VARCHAR(10)    NOT NULL COMMENT '생성자 (가족 또는 관리자)',
+                             created_at            TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+                             updated_by            VARCHAR(10)    NULL     COMMENT '수정자',
+                             updated_at            TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+                             PRIMARY KEY (game_id),
+                             KEY idx_game_master_status (creation_status_code),
+                             KEY idx_game_master_created_at (created_at),
+                             CONSTRAINT fk_game_master_difficulty FOREIGN KEY (difficulty_level_code) REFERENCES common_codes(code_id),
+                             CONSTRAINT fk_game_master_creation_status FOREIGN KEY (creation_status_code) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 마스터 정보 테이블';
 
 -- 게임 상세 테이블
-CREATE TABLE GAME_DETAIL (
-                             GAME_ID        VARCHAR(10)    NOT NULL COMMENT '게임 ID',
-                             GAME_SEQ       INT            NOT NULL COMMENT '게임 순번 (1, 2, 3...)',
-                             GAME_ORDER     INT            NOT NULL COMMENT '게임 진행 순서',
-                             CATEGORY_CODE  VARCHAR(6)     NOT NULL COMMENT '카테고리 코드 (가족/음식/여행/취미/일상/동물/자연)',
-                             FILE_ID        INT            NOT NULL COMMENT '파일 ID (FILE_INFO FK)',
-                             ANSWER_TEXT    VARCHAR(20)    NULL     COMMENT '정답 텍스트',
-                             WRONG_OPTION_1 VARCHAR(20)    NULL     COMMENT '오답 선택지 1',
-                             WRONG_OPTION_2 VARCHAR(20)    NULL     COMMENT '오답 선택지 2',
-                             WRONG_OPTION_3 VARCHAR(20)    NULL     COMMENT '오답 선택지 3',
-                             ANSWER_SCORE   INT            NULL     COMMENT '정답 점수',
-                             WRONG_SCORE_1  INT            NULL     COMMENT '오답 점수 1',
-                             WRONG_SCORE_2  INT            NULL     COMMENT '오답 점수 2',
-                             WRONG_SCORE_3  INT            NULL     COMMENT '오답 점수 3',
-                             USER_ANSWER    VARCHAR(20)    NULL     COMMENT '사용자 답변',
-                             IS_CORRECT     VARCHAR(1) NOT NULL DEFAULT 'N' COMMENT '정답 여부',
-                             ANSWER_TIME    TIMESTAMP      NULL     COMMENT '답변 시간',
-                             CREATED_AT     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
-                             PRIMARY KEY (GAME_ID, GAME_SEQ),
-                             KEY IDX_GAME_DETAIL_CATEGORY (CATEGORY_CODE),
-                             KEY IDX_GAME_DETAIL_ORDER (GAME_ORDER),
-                             CONSTRAINT FK_GAME_DETAIL_MASTER FOREIGN KEY (GAME_ID) REFERENCES GAME_MASTER(GAME_ID),
-                             CONSTRAINT FK_GAME_DETAIL_CATEGORY FOREIGN KEY (CATEGORY_CODE) REFERENCES COMMON_CODES(CODE_ID),
-                             CONSTRAINT FK_GAME_DETAIL_FILE FOREIGN KEY (FILE_ID) REFERENCES FILE_INFO(FILE_ID)
+CREATE TABLE game_detail (
+                             game_id        VARCHAR(10)    NOT NULL COMMENT '게임 ID',
+                             game_seq       INT            NOT NULL COMMENT '게임 순번 (1, 2, 3...)',
+                             game_order     INT            NOT NULL COMMENT '게임 진행 순서',
+                             file_id        INT            NOT NULL COMMENT '파일 ID (FILE_INFO FK)',
+                             answer_text    VARCHAR(20)    NULL     COMMENT '정답 텍스트',
+                             wrong_option_1 VARCHAR(20)    NULL     COMMENT '오답 선택지 1',
+                             wrong_option_2 VARCHAR(20)    NULL     COMMENT '오답 선택지 2',
+                             wrong_option_3 VARCHAR(20)    NULL     COMMENT '오답 선택지 3',
+                             wrong_score_1  INT            NULL     COMMENT '오답 점수 1',
+                             wrong_score_2  INT            NULL     COMMENT '오답 점수 2',
+                             wrong_score_3  INT            NULL     COMMENT '오답 점수 3',
+                             ai_status_code VARCHAR(6)     NOT NULL COMMENT 'AI 상태 코드 (대기중/완료/실패)',
+                             ai_processed_at TIMESTAMP     NULL     COMMENT 'AI 처리 일시',
+                             description    VARCHAR(200)   NULL     COMMENT '문제 설명',
+                             PRIMARY KEY (game_id, game_seq),
+                             KEY idx_game_detail_category (category_code),
+                             KEY idx_game_detail_order (game_order),
+                             CONSTRAINT fk_game_detail_master FOREIGN KEY (game_id) REFERENCES game_master(game_id),
+                             CONSTRAINT fk_game_detail_category FOREIGN KEY (category_code) REFERENCES common_codes(code_id),
+                             CONSTRAINT fk_game_detail_file FOREIGN KEY (file_id) REFERENCES file_info(file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 상세 정보 테이블 (개별 문제)';
 
 -- 게임 플레이어 정답 테이블
-CREATE TABLE GAME_PLAYER_ANSWER (
-                                    GAME_ID         VARCHAR(10)    NOT NULL COMMENT '게임 ID',
-                                    GAME_SEQ        INT            NOT NULL COMMENT '문제 순번',
-                                    PLAYER_ID       VARCHAR(10)    NOT NULL COMMENT '플레이어 ID',
-                                    SELECTED_OPTION INT            NOT NULL COMMENT '선택한 보기 번호 (1~4)',
-                                    IS_CORRECT      VARCHAR(1) NOT NULL     COMMENT '정답 여부 (Y/N)',
-                                    ANSWER_TIME_MS  INT            NULL     COMMENT '답변 소요 시간(ms)',
-                                    SCORE_EARNED    INT            NULL     COMMENT '획득 점수',
-                                    ANSWERED_AT     TIMESTAMP      NULL     COMMENT '답변 일시',
-                                    PRIMARY KEY (GAME_ID, GAME_SEQ, PLAYER_ID),
-                                    CONSTRAINT FK_GPA_GAME_DETAIL FOREIGN KEY (GAME_ID, GAME_SEQ) REFERENCES GAME_DETAIL(GAME_ID, GAME_SEQ),
-                                    CONSTRAINT FK_GPA_PLAYER FOREIGN KEY (PLAYER_ID) REFERENCES USERS(USER_ID)
+CREATE TABLE game_player_answer (
+                                    game_id         VARCHAR(10)    NOT NULL COMMENT '게임 ID',
+                                    game_seq        INT            NOT NULL COMMENT '문제 순번',
+                                    player_id       VARCHAR(10)    NOT NULL COMMENT '플레이어 ID',
+                                    selected_option INT            NOT NULL COMMENT '선택한 보기 번호 (1~4)',
+                                    is_correct      VARCHAR(1) NOT NULL     COMMENT '정답 여부 (Y/N)',
+                                    answer_time_ms  INT            NULL     COMMENT '답변 소요 시간(ms)',
+                                    score_earned    INT            NULL     COMMENT '획득 점수',
+                                    answered_at     TIMESTAMP      NULL     COMMENT '답변 일시',
+                                    PRIMARY KEY (game_id, game_seq, player_id),
+                                    CONSTRAINT fk_gpa_game_detail FOREIGN KEY (game_id, game_seq) REFERENCES game_detail(game_id, game_seq),
+                                    CONSTRAINT fk_gpa_player FOREIGN KEY (player_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 플레이어별 정답 정보 테이블';
 
 -- 게임 플레이어 테이블
-CREATE TABLE GAME_PLAYER (
-                             GAME_ID           VARCHAR(10)    NOT NULL COMMENT '게임 ID',
-                             PLAYER_ID         VARCHAR(10)    NOT NULL COMMENT '플레이어 ID',
-                             TOTAL_SCORE       INT            NULL     COMMENT '총 점수',
-                             CORRECT_COUNT     INT            NULL     COMMENT '정답 개수',
-                             ACCURACY_RATE     DECIMAL(5,2)   NULL     COMMENT '정답률',
-                             GAME_STATUS_CODE  VARCHAR(6)     NOT NULL COMMENT '상태 코드',
-                             START_TIME        TIMESTAMP      NULL     COMMENT '시작 시간',
-                             END_TIME          TIMESTAMP      NULL     COMMENT '종료 시간',
-                             DURATION_SECONDS  INT            NULL     COMMENT '소요 시간(초)',
-                             PRIMARY KEY (GAME_ID, PLAYER_ID),
-                             CONSTRAINT FK_GAME_PLAYER_GAME FOREIGN KEY (GAME_ID) REFERENCES GAME_MASTER(GAME_ID),
-                             CONSTRAINT FK_GAME_PLAYER_PLAYER FOREIGN KEY (PLAYER_ID) REFERENCES USERS(USER_ID),
-                             CONSTRAINT FK_GAME_PLAYER_STATUS FOREIGN KEY (GAME_STATUS_CODE) REFERENCES COMMON_CODES(CODE_ID)
+CREATE TABLE game_player (
+                             game_id           VARCHAR(10)    NOT NULL COMMENT '게임 ID',
+                             player_id         VARCHAR(10)    NOT NULL COMMENT '플레이어 ID',
+                             total_score       INT            NULL     COMMENT '총 점수',
+                             correct_count     INT            NULL     COMMENT '정답 개수',
+                             accuracy_rate     DECIMAL(5,2)   NULL     COMMENT '정답률',
+                             game_status_code  VARCHAR(6)     NOT NULL COMMENT '상태 코드',
+                             start_time        TIMESTAMP      NULL     COMMENT '시작 시간',
+                             end_time          TIMESTAMP      NULL     COMMENT '종료 시간',
+                             duration_seconds  INT            NULL     COMMENT '소요 시간(초)',
+                             PRIMARY KEY (game_id, player_id),
+                             CONSTRAINT fk_game_player_game FOREIGN KEY (game_id) REFERENCES game_master(game_id),
+                             CONSTRAINT fk_game_player_player FOREIGN KEY (player_id) REFERENCES users(user_id),
+                             CONSTRAINT fk_game_player_status FOREIGN KEY (game_status_code) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임별 플레이어 정보 테이블';
 
 -- =====================================================
@@ -190,26 +187,26 @@ CREATE TABLE GAME_PLAYER (
 -- =====================================================
 
 -- 1.1. 사용자 도메인 루트
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('A00001', '사용자', NULL, 'ADMIN');
 
 -- 1.1.1 사용자 유형 (USER_TYPE)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('A10001', '사용자 유형', 'A00001', 'ADMIN');
 
 -- 1.1.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('A20001', '환자', 'A10001', 'ADMIN'),
                                                                          ('A20002', '가족', 'A10001', 'ADMIN'),
                                                                          ('A20003', '관리자', 'A10001', 'ADMIN'),
                                                                          ('A20004', '의료진', 'A10001', 'ADMIN');
 
 -- 1.2.1 계정 상태 (STATUS)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('A10002', '계정 상태', 'A00001', 'ADMIN');
 
 -- 1.2.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('A20005', '활성', 'A10002', 'ADMIN'),
                                                                          ('A20006', '비활성', 'A10002', 'ADMIN'),
                                                                          ('A20007', '정지', 'A10002', 'ADMIN'),
@@ -217,11 +214,11 @@ INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
                                                                          ('A20009', '대기', 'A10002', 'ADMIN');
 
 -- 1.3.1 가족 관계 (RELATIONSHIP)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('A10003', '가족 관계', 'A00001', 'ADMIN');
 
 -- 1.3.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('A20010', '배우자', 'A10003', 'ADMIN'),
                                                                          ('A20011', '아들', 'A10003', 'ADMIN'),
                                                                          ('A20012', '딸', 'A10003', 'ADMIN'),
@@ -232,11 +229,11 @@ INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
                                                                          ('A20017', '기타', 'A10003', 'ADMIN');
 
 -- 1.4.1 연결 상태 (CONNECTION_STATUS)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('A10004', '연결 상태', 'A00001', 'ADMIN');
 
 -- 1.4.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('A20018', '연결됨', 'A10004', 'ADMIN'),
                                                                          ('A20019', '연결 대기', 'A10004', 'ADMIN'),
                                                                          ('A20020', '연결 해제', 'A10004', 'ADMIN'),
@@ -247,26 +244,26 @@ INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
 -- =====================================================
 
 -- 2.1. 게임 도메인 루트
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('B00001', '게임', NULL, 'ADMIN');
 
 -- 2.1.1 게임 난이도 (DIFFICULTY_LEVEL)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('B10001', '게임 난이도', 'B00001', 'ADMIN');
 
 -- 2.1.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('B20001', '초급', 'B10001', 'ADMIN'),
                                                                          ('B20002', '중급', 'B10001', 'ADMIN'),
                                                                          ('B20003', '고급', 'B10001', 'ADMIN'),
                                                                          ('B20004', '전문가', 'B10001', 'ADMIN');
 
 -- 2.2.1 게임 생성 상태 (CREATION_STATUS)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('B10002', '게임 생성 상태', 'B00001', 'ADMIN');
 
 -- 2.2.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('B20005', '대기중', 'B10002', 'ADMIN'),
                                                                          ('B20006', '생성중', 'B10002', 'ADMIN'),
                                                                          ('B20007', '완료', 'B10002', 'ADMIN'),
@@ -274,102 +271,31 @@ INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
                                                                          ('B20009', '취소', 'B10002', 'ADMIN');
 
 -- 2.3.1 게임 진행 상태 (GAME_STATUS)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('B10003', '게임 진행 상태', 'B00001', 'ADMIN');
 
 -- 2.3.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('B20010', '대기', 'B10003', 'ADMIN'),
                                                                          ('B20011', '진행중', 'B10003', 'ADMIN'),
                                                                          ('B20012', '완료', 'B10003', 'ADMIN'),
                                                                          ('B20013', '중단', 'B10003', 'ADMIN'),
                                                                          ('B20014', '오류', 'B10003', 'ADMIN');
 
--- 2.4.1 게임 카테고리 (CATEGORY)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
-VALUES ('B10004', '게임 카테고리', 'B00001', 'ADMIN');
-
--- 2.4.2. 1차 카테고리
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B40001', '가족', 'B10004', 'ADMIN'),
-                                                                         ('B40002', '음식', 'B10004', 'ADMIN'),
-                                                                         ('B40003', '여행', 'B10004', 'ADMIN'),
-                                                                         ('B40004', '취미', 'B10004', 'ADMIN'),
-                                                                         ('B40005', '일상', 'B10004', 'ADMIN'),
-                                                                         ('B40006', '동물', 'B10004', 'ADMIN'),
-                                                                         ('B40007', '자연', 'B10004', 'ADMIN'),
-                                                                         ('B40008', '기타', 'B10004', 'ADMIN');
-
--- 2.4.3. 2차 카테고리 (가족)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B41001', '부모', 'B40001', 'ADMIN'),
-                                                                         ('B41002', '자녀', 'B40001', 'ADMIN'),
-                                                                         ('B41003', '배우자', 'B40001', 'ADMIN'),
-                                                                         ('B41004', '손자녀', 'B40001', 'ADMIN'),
-                                                                         ('B41005', '형제자매', 'B40001', 'ADMIN');
-
--- 2.4.4. 2차 카테고리 (음식)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B42001', '한식', 'B40002', 'ADMIN'),
-                                                                         ('B42002', '중식', 'B40002', 'ADMIN'),
-                                                                         ('B42003', '일식', 'B40002', 'ADMIN'),
-                                                                         ('B42004', '양식', 'B40002', 'ADMIN'),
-                                                                         ('B42005', '디저트', 'B40002', 'ADMIN'),
-                                                                         ('B42006', '음료', 'B40002', 'ADMIN');
-
--- 2.4.5. 2차 카테고리 (여행)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B43001', '국내여행', 'B40003', 'ADMIN'),
-                                                                         ('B43002', '해외여행', 'B40003', 'ADMIN'),
-                                                                         ('B43003', '단체여행', 'B40003', 'ADMIN'),
-                                                                         ('B43004', '가족여행', 'B40003', 'ADMIN');
-
--- 2.4.6. 2차 카테고리 (취미)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B44001', '독서', 'B40004', 'ADMIN'),
-                                                                         ('B44002', '운동', 'B40004', 'ADMIN'),
-                                                                         ('B44003', '음악', 'B40004', 'ADMIN'),
-                                                                         ('B44004', '미술', 'B40004', 'ADMIN'),
-                                                                         ('B44005', '정원가꾸기', 'B40004', 'ADMIN'),
-                                                                         ('B44006', '요리', 'B40004', 'ADMIN');
-
--- 2.4.7. 2차 카테고리 (일상)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B45001', '집안일', 'B40005', 'ADMIN'),
-                                                                         ('B45002', '쇼핑', 'B40005', 'ADMIN'),
-                                                                         ('B45003', '의료', 'B40005', 'ADMIN'),
-                                                                         ('B45004', '교통', 'B40005', 'ADMIN');
-
--- 2.4.8. 2차 카테고리 (동물)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B46001', '반려동물', 'B40006', 'ADMIN'),
-                                                                         ('B46002', '야생동물', 'B40006', 'ADMIN'),
-                                                                         ('B46003', '조류', 'B40006', 'ADMIN'),
-                                                                         ('B46004', '해양생물', 'B40006', 'ADMIN');
-
--- 2.4.9. 2차 카테고리 (자연)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
-                                                                         ('B47001', '산', 'B40007', 'ADMIN'),
-                                                                         ('B47002', '바다', 'B40007', 'ADMIN'),
-                                                                         ('B47003', '강', 'B40007', 'ADMIN'),
-                                                                         ('B47004', '호수', 'B40007', 'ADMIN'),
-                                                                         ('B47005', '꽃', 'B40007', 'ADMIN'),
-                                                                         ('B47006', '나무', 'B40007', 'ADMIN');
-
 -- =====================================================
 -- 3. 시스템 도메인 (C)
 -- =====================================================
 
 -- 3.1. 시스템 도메인 루트
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('C00001', '시스템', NULL, 'ADMIN');
 
 -- 3.1.1 히스토리 액션 타입 (ACTION_TYPE)
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
 VALUES ('C10001', '히스토리 액션 타입', 'C00001', 'ADMIN');
 
 -- 3.1.2 하위 코드들
-INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('C20001', '생성', 'C10001', 'ADMIN'), 
                                                                          ('C20002', '수정', 'C10001', 'ADMIN'),
                                                                          ('C20003', '삭제', 'C10001', 'ADMIN'),
@@ -382,7 +308,7 @@ INSERT INTO COMMON_CODES (CODE_ID, CODE_NAME, PARENT_CODE_ID, CREATED_BY) VALUES
 -- =====================================================
 
 -- 샘플 파일 정보
-INSERT INTO FILE_INFO (ORIGINAL_NAME, S3_KEY, S3_URL, BUCKET_NAME, FILE_SIZE, CONTENT_TYPE, CREATED_BY, IS_PUBLIC) VALUES
+INSERT INTO file_info (original_name, s3_key, s3_url, bucket_name, file_size, content_type, created_by, is_public) VALUES
                                                                                                                        ('family_photo1.jpg', 'games/images/family_photo1_20240717001.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/family_photo1_20240717001.jpg', 'memoryforest-bucket', 1024000, 'image/jpeg', 'U0002', 'N'),
                                                                                                                        ('korean_food1.jpg', 'games/images/korean_food1_20240717002.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/korean_food1_20240717002.jpg', 'memoryforest-bucket', 856000, 'image/jpeg', 'U0002', 'N'),
                                                                                                                        ('mountain1.jpg', 'games/images/mountain1_20240717003.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/mountain1_20240717003.jpg', 'memoryforest-bucket', 1200000, 'image/jpeg', 'U0002', 'N'),
@@ -393,7 +319,7 @@ INSERT INTO FILE_INFO (ORIGINAL_NAME, S3_KEY, S3_URL, BUCKET_NAME, FILE_SIZE, CO
 -- 5. 샘플 사용자 데이터
 -- =====================================================
 
-INSERT INTO USERS (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE, USER_TYPE_CODE, STATUS_CODE, CREATED_BY) VALUES
+INSERT INTO users (user_id, user_name, password, email, phone, user_type_code, status_code, created_by) VALUES
                                                                                                             ('U0001', '김철수', '$2a$10$example.hash', 'patient1@memoryforest.com', '010-1234-5678', 'A20001', 'A20005', 'ADMIN'),
                                                                                                             ('U0002', '이영희', '$2a$10$example.hash', 'family1@memoryforest.com', '010-2345-6789', 'A20002', 'A20005', 'ADMIN'),
                                                                                                             ('U0003', '박관리', '$2a$10$example.hash', 'admin@memoryforest.com', '010-3456-7890', 'A20003', 'A20005', 'ADMIN'),
@@ -403,21 +329,21 @@ INSERT INTO USERS (USER_ID, USER_NAME, PASSWORD, EMAIL, PHONE, USER_TYPE_CODE, S
 -- 6. 샘플 사용자 관계 데이터
 -- =====================================================
 
-INSERT INTO USER_REL (PATIENT_ID, FAMILY_ID, RELATIONSHIP_CODE, STATUS_CODE) VALUES
+INSERT INTO user_rel (patient_id, family_id, relationship_code, status_code) VALUES
     ('U0001', 'U0002', 'A20011', 'A20018');
 
 -- =====================================================
 -- 7. 샘플 게임 데이터
 -- =====================================================
 
-INSERT INTO GAME_MASTER (GAME_ID, GAME_NAME, GAME_DESC, GAME_COUNT, DIFFICULTY_LEVEL_CODE, CREATION_STATUS_CODE, CREATED_BY)
+INSERT INTO game_master (game_id, game_name, game_desc, game_count, difficulty_level_code, creation_status_code, created_by)
 VALUES ('G250717001', '첫 번째 게임', '가족과 함께하는 기억력 게임', 5, 'B20001', 'B20007', 'U0002');
 
 -- =====================================================
 -- 8. 샘플 게임 플레이어 데이터
 -- =====================================================
 
-INSERT INTO GAME_PLAYER (GAME_ID, PLAYER_ID, TOTAL_SCORE, CORRECT_COUNT, ACCURACY_RATE, GAME_STATUS_CODE, START_TIME, END_TIME, DURATION_SECONDS)
+INSERT INTO game_player (game_id, player_id, total_score, correct_count, accuracy_rate, game_status_code, start_time, end_time, duration_seconds)
 VALUES
     ('G250717001', 'U0001', 80, 4, 80.00, 'B20012', '2024-07-17 10:00:00', '2024-07-17 10:10:00', 600);
 
@@ -425,18 +351,19 @@ VALUES
 -- 9. 샘플 게임 상세 데이터
 -- =====================================================
 
-INSERT INTO GAME_DETAIL (GAME_ID, GAME_SEQ, GAME_ORDER, CATEGORY_CODE, FILE_ID, ANSWER_TEXT, WRONG_OPTION_1, WRONG_OPTION_2, WRONG_OPTION_3) VALUES
-                                                                                                                                                 ('G250717001', 1, 1, 'B41001', 1, '엄마', '아빠', '할머니', '할아버지'),
-                                                                                                                                                 ('G250717001', 2, 2, 'B42001', 2, '김치찌개', '된장찌개', '순두부찌개', '부대찌개'),
-                                                                                                                                                 ('G250717001', 3, 3, 'B47001', 3, '북한산', '남산', '관악산', '도봉산'),
-                                                                                                                                                 ('G250717001', 4, 4, 'B46001', 4, '강아지', '고양이', '토끼', '햄스터'),
-                                                                                                                                                 ('G250717001', 5, 5, 'B44001', 5, '책', '신문', '잡지', '노트');
+INSERT INTO game_detail (game_id, game_seq, game_order, file_id, answer_text, ai_status_code, description) 
+VALUES
+                    ('G250717001', 1, 1, 1, '엄마', 'B20005', '가족 중 한 명을 선택하세요.'),
+                    ('G250717001', 2, 2, 2, '김치찌개', 'B20005', '한국 음식 중 한 명을 선택하세요.'),
+                    ('G250717001', 3, 3, 3, '북한산', 'B20005', '한국 산 중 한 명을 선택하세요.'),
+                    ('G250717001', 4, 4, 4, '강아지', 'B20005', '동물 중 한 명을 선택하세요.'),
+                    ('G250717001', 5, 5, 5, '책', 'B20005', '문서 중 한 명을 선택하세요.');
 
 -- =====================================================
 -- 10. 샘플 게임 플레이어 정답 데이터
 -- =====================================================
 
-INSERT INTO GAME_PLAYER_ANSWER (GAME_ID, GAME_SEQ, PLAYER_ID, SELECTED_OPTION, IS_CORRECT, ANSWER_TIME_MS, SCORE_EARNED, ANSWERED_AT)
+INSERT INTO game_player_answer (game_id, game_seq, player_id, selected_option, is_correct, answer_time_ms, score_earned, answered_at)
 VALUES
     ('G250717001', 1, 'U0001', 1, 'Y', 5000, 20, '2024-07-17 10:01:00'),
     ('G250717001', 2, 'U0001', 1, 'Y', 6000, 20, '2024-07-17 10:02:00'),
