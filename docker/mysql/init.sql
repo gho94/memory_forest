@@ -143,10 +143,8 @@ CREATE TABLE game_detail (
                              ai_processed_at TIMESTAMP     NULL     COMMENT 'AI 처리 일시',
                              description    VARCHAR(200)   NULL     COMMENT '문제 설명',
                              PRIMARY KEY (game_id, game_seq),
-                             KEY idx_game_detail_category (category_code),
                              KEY idx_game_detail_order (game_order),
                              CONSTRAINT fk_game_detail_master FOREIGN KEY (game_id) REFERENCES game_master(game_id),
-                             CONSTRAINT fk_game_detail_category FOREIGN KEY (category_code) REFERENCES common_codes(code_id),
                              CONSTRAINT fk_game_detail_file FOREIGN KEY (file_id) REFERENCES file_info(file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임 상세 정보 테이블 (개별 문제)';
 
