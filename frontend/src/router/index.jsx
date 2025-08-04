@@ -30,13 +30,13 @@ function Router() {
         {/* 비밀번호 찾기 추가 필요함 - 백엔드 개발 진행하면서 만들게여 */}
 
         {/* 동행자 */}
-        <Route path="/guardian/dashboard" element={<FamilyDashboardPage />} />
-        <Route path="/guardian/profileadd" element={<PatientProfilePage />} />
-        <Route path="/guardian/detail" element={<PatientDetailPage />} />
+        <Route path="/companion/dashboard" element={<FamilyDashboardPage />} />
+        <Route path="/companion/profileadd" element={<PatientProfilePage />} />
+        <Route path="/companion/detail" element={<PatientDetailPage />} />
         {/* 동행자-게임 */}
-        <Route path="/guardian/games/create" element={<FamilyGameCreatePage />} />
-        <Route path="/guardian/games/complete" element={<FamilyGameCompletePage />} />
-         <Route path="/guardian/games/list" element={<FamilyGameListPage />} />
+        <Route path="/companion/games/create" element={<FamilyGameCreatePage />} />
+        <Route path="/companion/games/complete" element={<FamilyGameCompletePage />} />
+         <Route path="/companion/games/list" element={<FamilyGameListPage />} />
         
         {/* 기록자 */}
         <Route path="/recoder/dashboard" element={<PatientDashboardPage />} />
@@ -46,7 +46,8 @@ function Router() {
         {/* 기록자-게임 */}
         <Route path="/recoder/game" element={<GamePage />} />
         <Route path="/recoder/game/result" element={<GameResultPage />} />
-        <Route path="/recoder/game/result" element={<PatientGameAnswerResultPage/>} />
+        <Route path="/recoder/game/result/:id" element={<PatientGameAnswerResultPage />} />
+
 
 
         {/* 기타 관리자.. 추가예쩡 */}
