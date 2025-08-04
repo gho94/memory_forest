@@ -71,27 +71,27 @@ public class GameDetail {
     private String description;
 
     // DB 명세서에 따라 NUMBER 타입이므로 String이 아닌 Double로 수정
-    @Column(name = "SIMILARITY_SCORE_1")
-    private Double similarityScore1;
+    @Column(name = "WRONG_SCORE_1")
+    private Double wrongScore1;
 
-    @Column(name = "SIMILARITY_SCORE_2")
-    private Double similarityScore2;
+    @Column(name = "WRONG_SCORE_2")
+    private Double wrongScore2;
 
-    @Column(name = "SIMILARITY_SCORE_3")
-    private Double similarityScore3;
+    @Column(name = "WRONG_SCORE_3")
+    private Double wrongScore3;
 
     /**
      * AI 분석 결과를 업데이트하는 메서드
      */
     public void updateAIAnalysisResult(String wrongOption1, String wrongOption2, String wrongOption3,
-                                     Double similarityScore1, Double similarityScore2, Double similarityScore3,
+                                     Double wrongScore1, Double wrongScore2, Double wrongScore3,
                                      String aiStatus, String description) {
         this.wrongOption1 = wrongOption1;
         this.wrongOption2 = wrongOption2;
         this.wrongOption3 = wrongOption3;
-        this.similarityScore1 = similarityScore1;
-        this.similarityScore2 = similarityScore2;
-        this.similarityScore3 = similarityScore3;
+        this.wrongScore1 = wrongScore1;
+        this.wrongScore2 = wrongScore2;
+        this.wrongScore3 = wrongScore3;
         this.aiStatus = aiStatus;
         this.description = description;
         this.aiProcessedAt = LocalDateTime.now();

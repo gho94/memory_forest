@@ -20,9 +20,9 @@ public class AIAnalysisResponse {
     private String wrongOption1;
     private String wrongOption2;
     private String wrongOption3;
-    private Double similarityScore1;
-    private Double similarityScore2;
-    private Double similarityScore3;
+    private Double wrongScore1;
+    private Double wrongScore2;
+    private Double wrongScore3;
     private String aiStatus;
     private String description;
 }

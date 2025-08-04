@@ -1,22 +1,32 @@
 version: "3.8"
 
 services:
+  # === MySQL ===
   mysql-db:
     build:
       context: ./mysql
     container_name: mysql8-container
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: myapp
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: mysql
-    command: --lower_case_table_names=1
+      MYSQL_DATABASE: memory_forest
+      MYSQL_USER: kcc
+      MYSQL_PASSWORD: kcc
+      TZ: Asia/Seoul
+    command: --lower_case_table_names=1 --default-time-zone='+09:00'
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backendnet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -28,18 +38,27 @@ services:
     networks:
       - backendnet
 
+  # === AI Service ===
   ai-service:
     build:
       context: ../ai
       dockerfile: ../docker/ai/Dockerfile
     container_name: ai-service
+    depends_on:
+      mysql-db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
-      - ../ai/models:/app/models  # Word2Vec 모델 마운트
+      - ../ai/models:/app/models
+      - ./airflow/models:/app/models  # Airflow 모델 공유
     environment:
       - MODEL_PATH=/app/models/word2vec_custom.model
       - DB_HOST=mysql-db
+      - DB_NAME=memory_forest
+      - DB_USER=kcc
+      - DB_PASSWORD=kcc
+      - DB_PORT=3306
     networks:
       - backendnet
     healthcheck:
@@ -48,29 +67,35 @@ services:
       timeout: 10s
       retries: 3
 
+  # === Spring Boot Backend ===
   backend:
     build:
       context: ../backend/SpringBoot
       dockerfile: ../../docker/backend/Dockerfile
     container_name: spring-backend
     depends_on:
-      - mysql-db
-      - redis
-      - ai-service
+      mysql-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      ai-service:
+        condition: service_healthy
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: app_user
-      SPRING_DATASOURCE_PASSWORD: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/memory_forest?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: kcc
+      SPRING_DATASOURCE_PASSWORD: kcc
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      AI_SERVICE_URL: http://ai-service:8000  # AI 서비스 URL 추가
+      AI_SERVICE_URL: http://ai-service:8000
     networks:
       - backendnet
       - webnet
 
+  # === React Frontend ===
   frontend:
     build:
       context: ..
@@ -85,6 +110,7 @@ services:
     networks:
       - webnet
 
+  # === NGINX Proxy ===
   nginx:
     image: nginx:stable-alpine
     container_name: nginx-proxy
@@ -99,9 +125,96 @@ services:
     networks:
       - webnet
 
+  # === PostgreSQL for Airflow ===
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - backendnet
+
+  # === Airflow Webserver ===
+  webserver:
+    build:
+      context: ../
+      dockerfile: docker/airflow/Dockerfile 
+    depends_on:
+      - postgres
+      - mysql-db
+    env_file:
+      - ./airflow/.env
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW_UID: 50000
+      # Memory Forest DB 접근을 위한 환경변수
+      DB_HOST: mysql-db
+      DB_NAME: memory_forest
+      DB_USER: kcc
+      DB_PASSWORD: kcc
+      DB_PORT: 3306
+      AI_SERVICE_URL: http://ai-service:8000
+      # 네이버 API (Airflow .env 파일에서도 설정 가능)
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/models:/opt/airflow/models
+      - ./airflow/data:/opt/airflow/data
+    ports:
+      - "8081:8080"
+    command: bash -c "airflow webserver"
+    restart: always
+    networks:
+      - backendnet
+
+  # === Airflow Scheduler ===
+  scheduler:
+    build:
+      context: ../
+      dockerfile: docker/airflow/Dockerfile
+    depends_on:
+      - postgres
+      - mysql-db
+    env_file:
+      - ./airflow/.env
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW_UID: 50000
+      # Memory Forest DB 접근을 위한 환경변수
+      DB_HOST: mysql-db
+      DB_NAME: memory_forest
+      DB_USER: kcc
+      DB_PASSWORD: kcc
+      DB_PORT: 3306
+      AI_SERVICE_URL: http://ai-service:8000
+      # 네이버 API
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/models:/opt/airflow/models
+      - ./airflow/data:/opt/airflow/data
+    command: airflow scheduler
+    restart: always
+    networks:
+      - backendnet
+
 volumes:
   mysql-data:
   redis-data:
+  postgres_db:
 
 networks:
   webnet:

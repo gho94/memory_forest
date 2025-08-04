@@ -1,5 +1,14 @@
 package com.bureung.memoryforest.game.dto.response;
 
-//leb.  Recorder가 푼 결과 요약 (맞은 개수, 점수 등)
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class GamePlayResultResponseDto {
+    private String gameId;
+    private String playerId;
+    private Integer totalScore;
+    private Integer correctCount;
+    private Double accuracyRate;  // 0.0 ~ 100.0
 }

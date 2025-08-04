@@ -27,8 +27,8 @@ public class GameMaster {
     @Column(name = "GAME_COUNT", nullable = false)
     private Integer gameCount;
 
-    @Column(name = "DIFFICULTY_LEVEL", length = 6, nullable = false)
-    private String difficultyLevel; // EASY/NORMAL/HARD
+    @Column(name = "DIFFICULTY_LEVEL_CODE", nullable = false, length = 6)
+    private String difficultyLevel;
 
     @Column(name = "CREATION_STATUS_CODE", length = 6, nullable = false)
     private String creationStatusCode; // CREATING/COMPLETED/PUBLISHED/INACTIVE
