@@ -1,11 +1,11 @@
-package com.bureung.memoryforest.auth.dto;
+// package com.bureung.memoryforest.auth.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+// import lombok.Getter;
+// import lombok.Setter;
 
-@Getter
-@Setter
-public class LoginRequestDto {
-    private String userId;
-    private String password;
-}
+// @Getter
+// @Setter
+// public class LoginRequestDto {
+//     private String userId;
+//     private String password;
+// }
