@@ -5,18 +5,28 @@ services:
     build:
       context: ./mysql
     container_name: mysql8-container
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: myapp
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: mysql
-    command: --lower_case_table_names=1
+      MYSQL_DATABASE: memory_forest
+      MYSQL_USER: kcc
+      MYSQL_PASSWORD: kcc
+      TZ: Asia/Seoul
+    command: --lower_case_table_names=1 --default-time-zone='+09:00'
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backendnet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 30s
+
   redis:
     image: redis:7-alpine
     container_name: redis-container
@@ -33,14 +43,17 @@ services:
       dockerfile: ../../docker/backend/Dockerfile
     container_name: spring-backend
     depends_on:
-      - mysql-db
-      - redis
+      mysql-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/myapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: app_user
-      SPRING_DATASOURCE_PASSWORD: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/memory_forest?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: kcc
+      SPRING_DATASOURCE_PASSWORD: kcc
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379

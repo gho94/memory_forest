@@ -18,7 +18,7 @@ public class GameMaster {
     @Column(name = "GAME_COUNT", nullable = false)
     private int gameCount;
 
-    @Column(name = "DIFFICULTY_LEVEL", nullable = false, length = 6)
+    @Column(name = "DIFFICULTY_LEVEL_CODE", nullable = false, length = 6)
     private String difficultyLevel;
 
     @Column(name = "CREATION_STATUS_CODE", nullable = false, length = 6)
