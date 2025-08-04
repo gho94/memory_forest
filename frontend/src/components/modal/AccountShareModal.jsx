@@ -3,25 +3,32 @@ import '@/assets/css/family.css';
 
 function AccountShareModal({ onClose }) {
   return (
-    <div className="alarm-modal-overlay" onClick={onClose}>
-      <div className="position-relative custom-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="custom-close" onClick={onClose}>&times;</button>
-        <div className="text-center mb-3">
-          <div className="center-group">
-            <div className="logo" aria-label="기억 숲 로고"></div>
-            <div className="title">계정 공유</div>
+    <>
+      {/* 계정 공유 모달 */}
+      <input type="checkbox" id="toggle-account-modal" />
+      <div className="modal-overlay account-modal-overlay">
+        <div className="position-relative custom-modal">
+          <label htmlFor="toggle-account-modal" className="custom-close" onClick={onClose}>
+            &times;
+          </label>
+          <div className="text-center mb-3">
+            <div className="center-group">
+              <div className="logo" aria-label="기억 숲 로고"></div>
+              <div className="title">계정 공유</div>
+            </div>
           </div>
-        </div>
-
-        <div className="modal-body-scroll d-flex flex-column gap-3">
-          <div className="form-group">
-            <label htmlFor="email">이메일 주소</label>
-            <input type="email" className="form-control" id="email" placeholder="example@email.com" />
+          <div className="modal-body-scroll d-flex flex-column gap-3">
+            <div className="qr-code-con">
+              <div className="qr-code">qr</div>
+            </div>
+            <div className="row gx-0 share-icon-con">
+              <div className="col-6 me-4 kakaotalk-icon"></div>
+              <div className="col-6 link-icon"></div>
+            </div>
           </div>
-          <button className="btn btn-primary w-100 mt-3">공유 요청 보내기</button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
