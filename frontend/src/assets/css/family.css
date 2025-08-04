@@ -320,6 +320,7 @@
 .modal-overlay .patient-con .patient-name {
   font-size: 1rem;
   font-weight: 700;
+  margin-right:4px;
 }
 
 .modal-overlay .patient-con .patient-reg-date {
