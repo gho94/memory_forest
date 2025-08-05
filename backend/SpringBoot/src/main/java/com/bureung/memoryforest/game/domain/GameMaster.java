@@ -1,9 +1,15 @@
 package com.bureung.memoryforest.game.domain;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "GAME_MASTER")
+@Getter
+@Setter
+@NoArgsConstructor
 public class GameMaster {
     @Id
     @Column(name = "GAME_ID", length = 10)
@@ -36,6 +42,4 @@ public class GameMaster {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    // 기본 생성자
-    public GameMaster() {}
 }
