@@ -98,7 +98,7 @@ services:
   # === React Frontend ===
   frontend:
     build:
-      context: ..
+      context: ../  # 수정: context 경로
       dockerfile: docker/frontend/Dockerfile
     container_name: react-frontend
     volumes:
@@ -141,8 +141,8 @@ services:
   # === Airflow Webserver ===
   webserver:
     build:
-      context: ../
-      dockerfile: docker/airflow/Dockerfile 
+      context: ./airflow  # 수정: context 경로
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - mysql-db
@@ -179,8 +179,8 @@ services:
   # === Airflow Scheduler ===
   scheduler:
     build:
-      context: ../
-      dockerfile: docker/airflow/Dockerfile
+      context: ./airflow  # 수정: context 경로와 dockerfile 경로
+      dockerfile: Dockerfile
     depends_on:
       - postgres
       - mysql-db

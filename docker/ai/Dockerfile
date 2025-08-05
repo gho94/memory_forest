@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
-# requirements 설치
-COPY requirements.txt .
+# AI 서비스용 requirements 파일 복사 및 설치
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
     numpy==1.24.4 \

@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y curl
 RUN rm /etc/nginx/conf.d/default.conf
 
 # 커스텀 nginx 설정 추가 (docker/frontend에서 ../nginx로 이동)
+COPY ./frontend/ ./ 
 COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # 빌드된 파일들 복사
