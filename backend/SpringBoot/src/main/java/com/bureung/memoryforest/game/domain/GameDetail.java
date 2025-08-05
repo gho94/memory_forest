@@ -74,7 +74,7 @@ public class GameDetail {
     @Column(name = "WRONG_SCORE_1")
     private Double wrongScore1;
 
-    @Column(name = "WRONG_SCORE_2")
+    @Column(name = "WRONG_SCORE_2")  
     private Double wrongScore2;
 
     @Column(name = "WRONG_SCORE_3")
@@ -111,6 +111,7 @@ public class GameDetail {
      */
     public void markAIAnalyzing() {
         this.aiStatus = "ANALYZING";
+        this.description = "AI 분석 진행중";
         this.aiProcessedAt = LocalDateTime.now();
     }
 

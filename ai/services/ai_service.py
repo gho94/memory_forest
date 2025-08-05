@@ -1,4 +1,4 @@
-# ai/services/ai_service.py 완성된 코드
+# ai/services/ai_service.py 수정
 import os
 import re
 import random
