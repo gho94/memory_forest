@@ -18,7 +18,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # AI 서비스용 requirements 파일 복사 및 설치
-COPY requirements.txt ./requirements.txt
+COPY ai/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
     numpy==1.24.4 \
@@ -26,11 +26,14 @@ RUN pip install --no-cache-dir --upgrade pip && \
     gensim==4.3.2 \
     && pip install --no-cache-dir -r requirements.txt
 
-# 앱 코드 복사
-COPY . .
+# ai 폴더 전체 복사
+COPY ai/ ./
 
 # 모델 디렉토리 생성
 RUN mkdir -p /app/models
+
+# PYTHONPATH 설정
+ENV PYTHONPATH=/app
 
 EXPOSE 8000
 

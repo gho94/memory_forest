@@ -28,7 +28,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
     gensim==4.3.2 \
     && pip install --no-cache-dir -r /requirements.txt
 
-
 # 모델 디렉토리 생성
 RUN mkdir -p /opt/airflow/models
 

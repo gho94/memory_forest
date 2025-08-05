@@ -41,8 +41,8 @@ services:
   # === AI Service ===
   ai-service:
     build:
-      context: ../ai
-      dockerfile: ../docker/ai/Dockerfile
+      context: ../  # 프로젝트 루트로 변경
+      dockerfile: docker/ai/Dockerfile
     container_name: ai-service
     depends_on:
       mysql-db:
@@ -50,8 +50,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../ai/models:/app/models
-      - ./airflow/models:/app/models  # Airflow 모델 공유
+      - ../ai/models:/app/models  # ai 폴더의 models 직접 마운트
     environment:
       - MODEL_PATH=/app/models/word2vec_custom.model
       - DB_HOST=mysql-db
@@ -70,8 +69,8 @@ services:
   # === Spring Boot Backend ===
   backend:
     build:
-      context: ../backend/SpringBoot
-      dockerfile: ../../docker/backend/Dockerfile
+      context: ../  # 프로젝트 루트로 변경
+      dockerfile: docker/backend/Dockerfile
     container_name: spring-backend
     depends_on:
       mysql-db:
@@ -98,11 +97,9 @@ services:
   # === React Frontend ===
   frontend:
     build:
-      context: ../  # 수정: context 경로
+      context: ../  # 프로젝트 루트
       dockerfile: docker/frontend/Dockerfile
     container_name: react-frontend
-    volumes:
-      - ../frontend:/app
     depends_on:
       - backend
     ports:
@@ -141,7 +138,7 @@ services:
   # === Airflow Webserver ===
   webserver:
     build:
-      context: ./airflow  # 수정: context 경로
+      context: ./airflow
       dockerfile: Dockerfile
     depends_on:
       - postgres
@@ -149,8 +146,8 @@ services:
     env_file:
       - ./airflow/.env
     environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -162,16 +159,16 @@ services:
       DB_PASSWORD: kcc
       DB_PORT: 3306
       AI_SERVICE_URL: http://ai-service:8000
-      # 네이버 API (Airflow .env 파일에서도 설정 가능)
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      # 네이버 API
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/models:/opt/airflow/models
       - ./airflow/data:/opt/airflow/data
     ports:
       - "8081:8080"
-    command: bash -c "airflow webserver"
+    command: bash -c "airflow db init && airflow webserver"
     restart: always
     networks:
       - backendnet
@@ -179,16 +176,17 @@ services:
   # === Airflow Scheduler ===
   scheduler:
     build:
-      context: ./airflow  # 수정: context 경로와 dockerfile 경로
+      context: ./airflow
       dockerfile: Dockerfile
     depends_on:
       - postgres
       - mysql-db
+      - webserver
     env_file:
       - ./airflow/.env
     environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW_UID: 50000
@@ -200,8 +198,8 @@ services:
       DB_PORT: 3306
       AI_SERVICE_URL: http://ai-service:8000
       # 네이버 API
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/models:/opt/airflow/models
