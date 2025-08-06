@@ -294,6 +294,12 @@
   display: flex;
 }
 
+.alarm-modal-overlay .text-center{
+  color: #054e26;
+  font-weight: bold;
+  font-size: 15px;
+}
+
 .modal-overlay .center-group {
   margin: 0 auto;
   display: flex;
