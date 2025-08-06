@@ -2,7 +2,10 @@ package com.bureung.memoryforest.game.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
+import lombok.ToString;
 import java.time.LocalDateTime;
 
 @Entity
