@@ -294,6 +294,12 @@
   display: flex;
 }
 
+.alarm-modal-overlay .text-center{
+  color: #054e26;
+  font-weight: bold;
+  font-size: 15px;
+}
+
 .modal-overlay .center-group {
   margin: 0 auto;
   display: flex;
@@ -320,6 +326,7 @@
 .modal-overlay .patient-con .patient-name {
   font-size: 1rem;
   font-weight: 700;
+  margin-right:4px;
 }
 
 .modal-overlay .patient-con .patient-reg-date {

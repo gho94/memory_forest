@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # === MySQL ===
   mysql-db:
     build:
       context: ./mysql
@@ -90,6 +89,8 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       AI_SERVICE_URL: http://ai-service:8000
+    volumes:
+      - ../backend/SpringBoot/src:/app/src
     networks:
       - backendnet
       - webnet
@@ -98,12 +99,18 @@ services:
   frontend:
     build:
       context: ../  # 프로젝트 루트
-      dockerfile: docker/frontend/Dockerfile
+      dockerfile: docker/frontend/Dockerfile.dev #leb. docker/frontend/Dockerfile.dev->docker/frontend/Dockerfile
     container_name: react-frontend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules  # leb. I'm gonna erase it when I distribute it later
+    environment: #leb. Delete when deploying
+      - CHOKIDAR_USEPOLLING=true  # Force file change detection
+      - WATCHPACK_POLLING=true
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "3000:3000" #leb.I'm going to change it to 3000:80 when I distribute it
     networks:
       - webnet
 

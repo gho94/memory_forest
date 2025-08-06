@@ -1,14 +1,12 @@
 package com.bureung.memoryforest.game.application;
 
+import com.bureung.memoryforest.game.domain.GameMaster;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 
-import com.bureung.memoryforest.game.domain.GameMaster;
-
-/**
- * 게임 마스터 관리 서비스 인터페이스
- */
 public interface GameMasterService {
     GameMaster getGameById(String gameId);
     GameMaster saveGame(GameMaster gameMaster);
@@ -28,4 +26,6 @@ public interface GameMasterService {
     void markGamesAsError(List<String> gameIds, String errorDescription);
     String requestBatchAnalysisByDifficulty(String difficulty, int limit);
     Map<String, Object> getProcessingStatistics();
+    List<GameMaster> getGamesByGameName(String gameName);
+    Optional<GameMaster> getGamesByGameId(String gameId);
 }
