@@ -1,1 +1,6 @@
 .idea/
+.vscode
+*.pyc
+Readme.md
+tatus
+./docker/airflow/.env
