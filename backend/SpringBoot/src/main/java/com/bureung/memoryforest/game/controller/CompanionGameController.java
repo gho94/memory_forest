@@ -1,9 +1,12 @@
 package com.bureung.memoryforest.game.controller;
 
 import com.bureung.memoryforest.game.application.GameMasterService;
+import com.bureung.memoryforest.game.application.GameQueryService;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.dto.request.GameCreateRequestDto;
+import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.request.UpdateStatusRequestDto;
+import com.bureung.memoryforest.game.dto.response.GameDashboardResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.Map;
 public class CompanionGameController {
     
     private final GameMasterService gameMasterService;
+    private final GameQueryService gameQueryService;
 
     /**
      * 게임 단건 조회
@@ -342,5 +346,11 @@ public class CompanionGameController {
             return ResponseEntity.badRequest()
                 .body(Map.of("error", "상태 변경 실패: " + e.getMessage()));
         }
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<GameDashboardResponseDto> getDashboard(GameDashboardRequestDto request) {
+        GameDashboardResponseDto response = gameQueryService.getDashboardStats(request);
+        return ResponseEntity.ok(response);
     }
 }

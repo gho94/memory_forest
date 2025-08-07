@@ -2,37 +2,45 @@ package com.bureung.memoryforest.game.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class GamePlayerId implements Serializable {
+@Getter
+@Setter
+@NoArgsConstructor
+public class GamePlayerAnswerId implements Serializable {
 
     @Column(name = "game_id", length = 10)
     private String gameId;
 
+    @Column(name = "game_seq")
+    private Integer gameSeq;
+
     @Column(name = "player_id", length = 10)
     private String playerId;
 
-    public GamePlayerId() {}
-
-    public GamePlayerId(String gameId, String playerId) {
+    public GamePlayerAnswerId(String gameId, Integer gameSeq, String playerId) {
         this.gameId = gameId;
+        this.gameSeq = gameSeq;
         this.playerId = playerId;
     }
 
-    // equals & hashCode 필수
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GamePlayerId)) return false;
-        GamePlayerId that = (GamePlayerId) o;
+        if (!(o instanceof GamePlayerAnswerId)) return false;
+        GamePlayerAnswerId that = (GamePlayerAnswerId) o;
         return Objects.equals(gameId, that.gameId) &&
+                Objects.equals(gameSeq, that.gameSeq) &&
                 Objects.equals(playerId, that.playerId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gameId, playerId);
+        return Objects.hash(gameId, gameSeq, playerId);
     }
 }
