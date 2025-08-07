@@ -1,7 +1,6 @@
-.idea/
+.idea
 .vscode
 *.pyc
 Readme.md
 tatus
-./docker/airflow/.env
-./docker/airflow/dags/_pycache
+docker/airflow/.env
