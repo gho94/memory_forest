@@ -1,17 +1,22 @@
 FROM eclipse-temurin:21-jdk-alpine as builder
 WORKDIR /app
 
-COPY gradle/wrapper /app/gradle/wrapper
-COPY settings.gradle /app/settings.gradle
-COPY build.gradle /app/build.gradle
-COPY gradlew /app/gradlew
+# Gradle 래퍼와 설정 파일 복사
+COPY backend/SpringBoot/gradle/wrapper /app/gradle/wrapper
+COPY backend/SpringBoot/settings.gradle /app/settings.gradle
+COPY backend/SpringBoot/build.gradle /app/build.gradle
+COPY backend/SpringBoot/gradlew /app/gradlew
 
-# 의존성 설치 (캐시 활용)
-RUN ./gradlew build -x test
+# 권한 설정
+RUN chmod +x ./gradlew
 
-# 소스 코드 복사 (변경이 자주 되는 파일들)
-COPY src /app/src
+# 의존성 다운로드 (캐시 활용)
+RUN ./gradlew dependencies
 
+# 소스 코드 복사
+COPY backend/SpringBoot/src /app/src
+
+# 빌드 실행
 RUN ./gradlew build -x test
 
 FROM eclipse-temurin:21-jdk-alpine

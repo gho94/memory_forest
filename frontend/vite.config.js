@@ -12,6 +12,11 @@ export default defineConfig({
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
   },
   server: {
+    host: '0.0.0.0',  // leb.Delete when deploying
+    port: 3000,       // leb.Delete when deploying
+    watch: {
+      usePolling: true  // leb.Delete when deploying
+    },
     headers: {
       "Cross-Origin-Opener-Policy" : "same-origin",
       "Cross-Origin-Embedder-Policy" : "require-corp",

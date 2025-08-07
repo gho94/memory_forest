@@ -37,16 +37,47 @@ services:
     networks:
       - backendnet
 
+  # === AI Service ===
+  ai-service:
+    build:
+      context: ../  # 프로젝트 루트로 변경
+      dockerfile: docker/ai/Dockerfile
+    container_name: ai-service
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../ai/models:/app/models  # ai 폴더의 models 직접 마운트
+    environment:
+      - MODEL_PATH=/app/models/word2vec_custom.model
+      - DB_HOST=mysql-db
+      - DB_NAME=memory_forest
+      - DB_USER=kcc
+      - DB_PASSWORD=kcc
+      - DB_PORT=3306
+    networks:
+      - backendnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # === Spring Boot Backend ===
   backend:
     build:
-      context: ../backend/SpringBoot
-      dockerfile: ../../docker/backend/Dockerfile
+      context: ../  # 프로젝트 루트로 변경
+      dockerfile: docker/backend/Dockerfile
     container_name: spring-backend
     depends_on:
       mysql-db:
         condition: service_healthy
       redis:
         condition: service_started
+      ai-service:
+        condition: service_healthy
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -57,26 +88,33 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      AI_SERVICE_URL: http://ai-service:8000
     volumes:
       - ../backend/SpringBoot/src:/app/src
     networks:
       - backendnet
       - webnet
 
+  # === React Frontend ===
   frontend:
     build:
-      context: ..
-      dockerfile: docker/frontend/Dockerfile
+      context: ../  # 프로젝트 루트
+      dockerfile: docker/frontend/Dockerfile.dev #leb. docker/frontend/Dockerfile.dev->docker/frontend/Dockerfile
     container_name: react-frontend
     volumes:
       - ../frontend:/app
+      - /app/node_modules  # leb. I'm gonna erase it when I distribute it later
+    environment: #leb. Delete when deploying
+      - CHOKIDAR_USEPOLLING=true  # Force file change detection
+      - WATCHPACK_POLLING=true
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "3000:3000" #leb.I'm going to change it to 3000:80 when I distribute it
     networks:
       - webnet
 
+  # === NGINX Proxy ===
   nginx:
     image: nginx:stable-alpine
     container_name: nginx-proxy
@@ -90,9 +128,98 @@ services:
       - frontend
     networks:
       - webnet
+
+  # === PostgreSQL for Airflow ===
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - backendnet
+
+  # === Airflow Webserver ===
+  webserver:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - mysql-db
+    env_file:
+      - ./airflow/.env
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW_UID: 50000
+      # Memory Forest DB 접근을 위한 환경변수
+      DB_HOST: mysql-db
+      DB_NAME: memory_forest
+      DB_USER: kcc
+      DB_PASSWORD: kcc
+      DB_PORT: 3306
+      AI_SERVICE_URL: http://ai-service:8000
+      # 네이버 API
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/models:/opt/airflow/models
+      - ./airflow/data:/opt/airflow/data
+    ports:
+      - "8081:8080"
+    command: bash -c "airflow db init && airflow webserver"
+    restart: always
+    networks:
+      - backendnet
+
+  # === Airflow Scheduler ===
+  scheduler:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - mysql-db
+      - webserver
+    env_file:
+      - ./airflow/.env
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
+      AIRFLOW_UID: 50000
+      # Memory Forest DB 접근을 위한 환경변수
+      DB_HOST: mysql-db
+      DB_NAME: memory_forest
+      DB_USER: kcc
+      DB_PASSWORD: kcc
+      DB_PORT: 3306
+      AI_SERVICE_URL: http://ai-service:8000
+      # 네이버 API
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/models:/opt/airflow/models
+      - ./airflow/data:/opt/airflow/data
+    command: airflow scheduler
+    restart: always
+    networks:
+      - backendnet
+
 volumes:
   mysql-data:
   redis-data:
+  postgres_db:
 
 networks:
   webnet:

@@ -180,6 +180,18 @@ CREATE TABLE game_player (
                              CONSTRAINT fk_game_player_status FOREIGN KEY (game_status_code) REFERENCES common_codes(code_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게임별 플레이어 정보 테이블';
 
+
+CREATE TABLE alarms (
+                        alarm_id   INT AUTO_INCREMENT COMMENT '알람 ID',
+                        player_id  VARCHAR(10)        NOT NULL COMMENT '플레이어 ID',
+                        game_id    VARCHAR(10)        NOT NULL COMMENT '게임 ID',
+                        is_read    VARCHAR(1) DEFAULT 'N' NOT NULL COMMENT '읽음 여부(Y/N)',
+                        created_at TIMESTAMP           NOT NULL COMMENT '생성 일시',
+                        PRIMARY KEY (alarm_id),
+                        KEY idx_player_game (player_id, game_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='알람 테이블';
+
+
 -- =====================================================
 -- 1. 사용자 도메인 (A)
 -- =====================================================
