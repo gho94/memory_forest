@@ -537,6 +537,10 @@
   cursor: pointer;
 }
 
+.guardian-con .date-input.readonly {
+  background-color:#f0f0f0;
+}
+
 .guardian-con
   .date-input
   input[type="date"]::-webkit-calendar-picker-indicator {
@@ -570,6 +574,7 @@
 }
 
 .guardian-con .icon-btn.trash-btn {
+  display: none;
   background-image: url(../../../public/images/trash_icon.svg);
 }
 
@@ -617,14 +622,154 @@
   max-height: 460px;
 }
 
-.guardian-con .chart-con > div {
+.guardian-con .chart-con .chart {
   border: 1px solid rgba(108, 154, 139, 0.5);
   background-color: #fff;
   margin: 0 1rem 15px 1rem;
-  height: 300px;
+  height: 365px;
+  border-radius: 5px;
+  padding-top:15px;
+}
+
+.guardian-con .chart-con .game-result {
+  border: 1px solid rgba(108, 154, 139, 0.5);
+  background-color: #fff;
+  margin: 0 1rem 15px 1rem;
   border-radius: 5px;
 }
 
+.guardian-con .chart-con .no-game-message {
+  text-align: center;
+  padding: 40px 20px;
+  font-weight: 700;
+}
+
+.guardian-con .chart-con .game-result .game-item {
+  background: white;
+  border-radius: 12px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.guardian-con .chart-con .game-result .game-item:last-child{
+  margin-bottom: 0;
+}
+
+.guardian-con .chart-con .game-result .game-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.guardian-con .chart-con .game-result .game-image{
+  width: 78px;
+  height: 78px;
+  background-image: url(../../../public/images/no_image_default.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.guardian-con .chart-con .game-result .question-image {
+  width: 80px;
+  height: 80px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.guardian-con .chart-con .game-result .options-container {
+  flex: 1;
+}
+
+.guardian-con .chart-con .game-result .question-number {
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.guardian-con .chart-con .game-result .options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.guardian-con .chart-con .game-result .option-btn {
+  padding: 12px 8px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 정답을 맞춘 경우 */
+.guardian-con .chart-con .game-result .correct-selected {
+  background-color: #6bae6e;
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+/* 정답을 틀렸을 때 - 정답 표시 */
+.guardian-con .chart-con .game-result .correct-answer {
+  background-color: #b8e9ba;
+  color: white;
+}
+
+/* 정답을 틀렸을 때 - 내가 선택한 오답 */
+.guardian-con .chart-con .game-result .wrong-selected {
+  background-color: #ff5d51;
+  color: white;
+}
+
+/* 선택하지 않은 일반 옵션 */
+.guardian-con .chart-con .game-result .normal-option {
+  background: #f8f8f8;
+  color: #666;
+  border-color: #e0e0e0;
+}
+
+.guardian-con .chart-con .game-result .user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.guardian-con .chart-con .game-result .score {
+  font-weight: 600;
+  color: #333;
+}
+
+/* 애니메이션 효과 */
+.guardian-con .chart-con .game-result .correct-selected {
+  animation: successPulse 1.5s ease-in-out infinite;
+}
+
+.guardian-con .chart-con .game-result .wrong-selected {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+.guardian-con .chart-con .game-result .game-date {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
 .patient-signup-form {
   padding: 70px 20px;
 }
@@ -953,4 +1098,38 @@ textarea::placeholder {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* 모바일 최적화 */
+@media (max-width: 480px) {
+  .guardian-con .chart-con .game-result .game-content {
+    gap: 12px;
+  }
+
+  .guardian-con .chart-con .game-result .question-image {
+    width: 70px;
+    height: 70px;
+  }
+
+  .guardian-con .chart-con .game-result .option-btn {
+    padding: 3px 6px;
+    font-size: 12px;
+  }
 }
