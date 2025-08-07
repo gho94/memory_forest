@@ -1,133 +1,189 @@
 # data/utils/preprocessing_utils.py
-import logging
 import os
-import shutil
-from datetime import datetime, timedelta
-from data.utils.preprocessing_utils import TextPreprocessor
+import json
+import logging
+import re
+from typing import List, Dict, Optional
+from collections import Counter
+import sys
 
-def preprocess_texts(**context):
-    logging.info("=== 텍스트 전처리 시작 ===")
+sys.path.append('/opt/airflow/dags')
+from common.config import DATA_BASE_PATH
+
+class TextPreprocessor:
+    """텍스트 전처리 클래스"""
     
-    crawl_info = context['task_instance'].xcom_pull(
-        task_ids='crawl_naver_blogs', key='crawl_results'
-    ) or {}
-
-    folder_date = crawl_info.get('folder_date', context['ds_nodash'])
-
-    preprocessor = TextPreprocessor()
-    processed_data = preprocessor.process_crawled_data(folder_date)
-
-    if processed_data is None:
-        raise ValueError("전처리 실패: 크롤링 데이터를 찾을 수 없습니다.")
-
-    logging.info(f"전처리 완료: {processed_data['processed_count']}개 문장 처리")
-    context['task_instance'].xcom_push(key='preprocessing_results', value=processed_data)
-    return processed_data
-
-def validate_processed_data(**context):
-    logging.info("=== 데이터 검증 시작 ===")
-
-    preprocessing_info = context['task_instance'].xcom_pull(
-        task_ids='preprocess_texts', key='preprocessing_results'
-    ) or {}
-
-    validation_results = {
-        'total_sentences': preprocessing_info.get('processed_count', 0),
-        'avg_sentence_length': preprocessing_info.get('avg_length', 0),
-        'unique_words': preprocessing_info.get('unique_words', 0),
-        'validation_passed': False
-    }
-
-    if (validation_results['total_sentences'] >= 1000 and
-        validation_results['avg_sentence_length'] >= 10 and
-        validation_results['unique_words'] >= 500):
-        validation_results['validation_passed'] = True
-        logging.info("데이터 검증 통과")
-    else:
-        logging.warning(f"데이터 품질 기준 미달: {validation_results}")
-
-    context['task_instance'].xcom_push(key='validation_results', value=validation_results)
-    return validation_results
-
-def cleanup_old_data(**context):
-    logging.info("=== 오래된 데이터 정리 시작 ===")
+    def __init__(self):
+        self.stopwords = self._load_stopwords()
+        
+    def process_crawled_data(self, folder_date: str) -> Optional[Dict]:
+        """크롤링된 데이터 전처리"""
+        
+        folder_path = os.path.join(DATA_BASE_PATH, folder_date)
+        raw_file_path = os.path.join(folder_path, 'crawled_sentences.txt')
+        
+        if not os.path.exists(raw_file_path):
+            logging.error(f"크롤링 파일을 찾을 수 없습니다: {raw_file_path}")
+            return None
+        
+        # 원본 데이터 로드
+        with open(raw_file_path, 'r', encoding='utf-8') as f:
+            sentences = [line.strip() for line in f if line.strip()]
+        
+        logging.info(f"원본 문장 수: {len(sentences)}")
+        
+        # 전처리 실행
+        processed_sentences = []
+        unique_words = set()
+        
+        for sentence in sentences:
+            processed = self._preprocess_sentence(sentence)
+            if processed:
+                processed_sentences.append(processed)
+                # 단어 추출
+                words = processed.split()
+                unique_words.update(words)
+        
+        # 전처리된 데이터 저장
+        processed_file_path = os.path.join(folder_path, 'processed_sentences.txt')
+        with open(processed_file_path, 'w', encoding='utf-8') as f:
+            for sentence in processed_sentences:
+                f.write(sentence + '\n')
+        
+        # 통계 정보 계산
+        total_length = sum(len(s) for s in processed_sentences)
+        avg_length = total_length / len(processed_sentences) if processed_sentences else 0
+        
+        # 처리 결과 저장
+        result = {
+            'processed_count': len(processed_sentences),
+            'unique_words': len(unique_words),
+            'avg_length': round(avg_length, 2),
+            'processed_file_path': processed_file_path
+        }
+        
+        # 메타데이터 저장
+        self._save_processing_metadata(folder_path, result, unique_words)
+        
+        logging.info(f"전처리 완료: {result}")
+        return result
     
-    data_base_path = "/opt/airflow/data"
-    cutoff_date = datetime.now() - timedelta(days=7)
-    deleted_folders = []
-
-    for folder_name in os.listdir(data_base_path):
-        folder_path = os.path.join(data_base_path, folder_name)
-
-        if not os.path.isdir(folder_path):
-            continue
-
-        try:
-            folder_date = datetime.strptime(folder_name, "%Y%m%d")
-            if folder_date < cutoff_date:
-                shutil.rmtree(folder_path)
-                deleted_folders.append(folder_name)
-                logging.info(f"삭제된 폴더: {folder_name}")
-        except ValueError:
-            continue
-
-    logging.info(f"정리 완료: {len(deleted_folders)}개 폴더 삭제")
-    return deleted_folders
-
-def send_collection_summary(**context):
-    logging.info("=== 데이터 수집 요약 생성 ===")
-
-    failed_words = context['task_instance'].xcom_pull(
-        task_ids='collect_failed_words', key='failed_words'
-    ) or []
-
-    crawl_info = context['task_instance'].xcom_pull(
-        task_ids='crawl_naver_blogs', key='crawl_results'
-    ) or {}
-
-    preprocessing_info = context['task_instance'].xcom_pull(
-        task_ids='preprocess_texts', key='preprocessing_results'
-    ) or {}
-
-    validation_info = context['task_instance'].xcom_pull(
-        task_ids='validate_processed_data', key='validation_results'
-    ) or {}
-
-    summary = {
-        'execution_date': context['ds'],
-        'dag_run_id': context['dag_run'].run_id,
-        'failed_words_count': len(failed_words),
-        'total_sentences_crawled': crawl_info.get('total_sentences', 0),
-        'keywords_used': crawl_info.get('keywords_count', 0),
-        'sentences_processed': preprocessing_info.get('processed_count', 0),
-        'unique_words_found': preprocessing_info.get('unique_words', 0),
-        'validation_passed': validation_info.get('validation_passed', False),
-        'data_quality_score': _calculate_quality_score(preprocessing_info, validation_info)
-    }
-
-    logging.info(f"데이터 수집 파이프라인 요약: {summary}")
-    return summary
-
-def _calculate_quality_score(preprocessing_info, validation_info):
-    base_score = 0
-
-    if validation_info.get('validation_passed', False):
-        base_score += 50
-
-    sentence_count = preprocessing_info.get('processed_count', 0)
-    if sentence_count >= 5000:
-        base_score += 30
-    elif sentence_count >= 3000:
-        base_score += 20
-    elif sentence_count >= 1000:
-        base_score += 10
-
-    unique_words = preprocessing_info.get('unique_words', 0)
-    if unique_words >= 2000:
-        base_score += 20
-    elif unique_words >= 1000:
-        base_score += 10
-    elif unique_words >= 500:
-        base_score += 5
-
-    return min(base_score, 100)
+    def _preprocess_sentence(self, sentence: str) -> Optional[str]:
+        """개별 문장 전처리"""
+        
+        # 1. 기본 정제
+        sentence = sentence.strip()
+        if len(sentence) < 5:
+            return None
+        
+        # 2. 불필요한 문자 제거
+        sentence = re.sub(r'[^\w\s가-힣]', ' ', sentence)
+        sentence = re.sub(r'\s+', ' ', sentence)
+        
+        # 3. 영어/숫자만 있는 문장 제외
+        korean_chars = re.findall(r'[가-힣]', sentence)
+        if len(korean_chars) < 3:
+            return None
+        
+        # 4. 불용어 제거
+        words = sentence.split()
+        filtered_words = [word for word in words if word not in self.stopwords]
+        
+        if len(filtered_words) < 2:
+            return None
+        
+        return ' '.join(filtered_words)
+    
+    def _load_stopwords(self) -> set:
+        """불용어 목록 로드"""
+        # 기본 불용어 (실제 서비스에서는 파일에서 로드)
+        stopwords = {
+            '그리고', '그런데', '하지만', '그러나', '또한', '따라서',
+            '이제', '이미', '아직', '벌써', '이번', '다음', '지난',
+            '정말', '너무', '매우', '아주', '완전', '진짜', '좀',
+            '것', '수', '때', '곳', '더', '덜', '좀', '뭔가', '뭔',
+            '어떤', '어떻게', '왜', '언제', '어디서', '무엇',
+            '있다', '없다', '이다', '아니다', '되다', '하다'
+        }
+        return stopwords
+    
+    def _save_processing_metadata(self, folder_path: str, result: Dict, unique_words: set):
+        """전처리 메타데이터 저장"""
+        
+        # 단어 빈도 계산 (상위 100개)
+        word_frequency = Counter()
+        
+        processed_file_path = result['processed_file_path']
+        with open(processed_file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                words = line.strip().split()
+                word_frequency.update(words)
+        
+        top_words = dict(word_frequency.most_common(100))
+        
+        metadata = {
+            'processing_date': os.path.basename(folder_path),
+            'statistics': result,
+            'top_words': top_words,
+            'unique_word_count': len(unique_words),
+            'sample_sentences': self._get_sample_sentences(processed_file_path, 10)
+        }
+        
+        metadata_file_path = os.path.join(folder_path, 'processing_metadata.json')
+        with open(metadata_file_path, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+    
+    def _get_sample_sentences(self, file_path: str, count: int) -> List[str]:
+        """샘플 문장 추출"""
+        with open(file_path, 'r', encoding='utf-8') as f:
+            sentences = f.readlines()
+        
+        # 적절한 길이의 문장들을 샘플로 선택
+        sample_sentences = []
+        for sentence in sentences[:count*3]:  # 여유롭게 읽어서
+            sentence = sentence.strip()
+            if 20 <= len(sentence) <= 100:  # 적절한 길이
+                sample_sentences.append(sentence)
+                if len(sample_sentences) >= count:
+                    break
+        
+        return sample_sentences
+    
+    def validate_processed_data(self, folder_date: str) -> Dict:
+        """전처리된 데이터 검증"""
+        
+        folder_path = os.path.join(DATA_BASE_PATH, folder_date)
+        processed_file_path = os.path.join(folder_path, 'processed_sentences.txt')
+        
+        if not os.path.exists(processed_file_path):
+            return {'valid': False, 'reason': 'processed file not found'}
+        
+        # 파일 읽기
+        with open(processed_file_path, 'r', encoding='utf-8') as f:
+            sentences = [line.strip() for line in f if line.strip()]
+        
+        # 검증 기준
+        validation_result = {
+            'valid': True,
+            'sentence_count': len(sentences),
+            'avg_length': sum(len(s) for s in sentences) / len(sentences) if sentences else 0,
+            'issues': []
+        }
+        
+        # 최소 문장 수 체크
+        if len(sentences) < 1000:
+            validation_result['issues'].append(f'문장 수 부족: {len(sentences)} < 1000')
+        
+        # 평균 길이 체크
+        if validation_result['avg_length'] < 10:
+            validation_result['issues'].append(f'평균 문장 길이 부족: {validation_result["avg_length"]:.1f} < 10')
+        
+        # 중복 문장 비율 체크
+        unique_sentences = set(sentences)
+        duplicate_ratio = (len(sentences) - len(unique_sentences)) / len(sentences) * 100
+        if duplicate_ratio > 30:
+            validation_result['issues'].append(f'중복 문장 비율 높음: {duplicate_ratio:.1f}% > 30%')
+        
+        validation_result['valid'] = len(validation_result['issues']) == 0
+        
+        return validation_result

@@ -15,23 +15,19 @@ router = APIRouter()
 
 @router.post("/analyze", response_model=AIAnalysisResponse)
 async def analyze_answer(request: AIAnalysisRequest):
-    """답변 분석 (난이도별 지원)"""
+    """답변 분석 (난이도별 지원) - 상세 로깅 포함"""
+    
+    # 요청 정보 상세 로깅
+    logger.info("=== AI 분석 요청 수신 ===")
+    logger.info(f"Request 객체: {request}")
+    logger.info(f"game_id: {request.game_id}")
+    logger.info(f"game_seq: {request.game_seq}") 
+    logger.info(f"answer_text: '{request.answer_text}'")
+    logger.info(f"difficulty_level: {request.difficulty_level}")
     
     # 모델 로드 확인
     if not any(ai_service.models.values()) and ai_service.model is None:
         logger.error("모델이 로드되지 않았습니다.")
-        raise HTTPException(status_code=503, detail="Model not loaded")
-
-    difficulty = getattr(request, 'difficulty_level', 'NORMAL')
-    
-    logger.info(f"AI 분석 요청: game_id={request.game_id}, game_seq={request.game_seq}, "
-                f"answer_text={request.answer_text}, difficulty={difficulty}")
-
-    # 난이도별 분석 시도
-    result = ai_service.generate_wrong_options_with_difficulty(request.answer_text, difficulty)
-
-    if result["status"] == "FAILED":
-        logger.error(f"AI 분석 실패: {result.get('error', 'Unknown error')}")
         return AIAnalysisResponse(
             game_id=request.game_id,
             game_seq=request.game_seq,
@@ -42,27 +38,81 @@ async def analyze_answer(request: AIAnalysisRequest):
             wrong_score_2=0.0,
             wrong_score_3=0.0,
             ai_status="FAILED",
-            description=result.get('error', 'AI 분석 실패')
+            description="Model not loaded"
         )
 
-    wrong_options = result["wrong_options"]
-    wrong_scores = result["wrong_scores"]
-    difficulty_used = result.get("difficulty_used", difficulty)
+    difficulty = getattr(request, 'difficulty_level', 'NORMAL')
+    
+    logger.info(f"AI 분석 시작: game_id={request.game_id}, game_seq={request.game_seq}, "
+                f"answer_text='{request.answer_text}', difficulty={difficulty}")
 
-    logger.info(f"AI 분석 완료 (난이도: {difficulty_used}): options={wrong_options}, scores={wrong_scores}")
+    try:
+        # 난이도별 분석 시도
+        result = ai_service.generate_wrong_options_with_difficulty(request.answer_text, difficulty)
+        
+        logger.info(f"AI 서비스 결과: {result}")
 
-    return AIAnalysisResponse(
-        game_id=request.game_id,
-        game_seq=request.game_seq,
-        wrong_option_1=wrong_options[0] if len(wrong_options) > 0 else "",
-        wrong_option_2=wrong_options[1] if len(wrong_options) > 1 else "",
-        wrong_option_3=wrong_options[2] if len(wrong_options) > 2 else "",
-        wrong_score_1=round(wrong_scores[0], 4) if len(wrong_scores) > 0 else 0.0,
-        wrong_score_2=round(wrong_scores[1], 4) if len(wrong_scores) > 1 else 0.0,
-        wrong_score_3=round(wrong_scores[2], 4) if len(wrong_scores) > 2 else 0.0,
-        ai_status="COMPLETED",
-        description=f"AI 분석 완료 (난이도: {difficulty_used})"
-    )
+        if result["status"] == "FAILED":
+            logger.error(f"AI 분석 실패: {result.get('error', 'Unknown error')}")
+            response = AIAnalysisResponse(
+                game_id=request.game_id,
+                game_seq=request.game_seq,
+                wrong_option_1="",
+                wrong_option_2="",
+                wrong_option_3="",
+                wrong_score_1=0.0,
+                wrong_score_2=0.0,
+                wrong_score_3=0.0,
+                ai_status="FAILED",
+                description=result.get('error', 'AI 분석 실패')
+            )
+            logger.info(f"실패 응답 생성: {response}")
+            return response
+
+        wrong_options = result["wrong_options"]
+        wrong_scores = result["wrong_scores"]
+        difficulty_used = result.get("difficulty_used", difficulty)
+
+        logger.info(f"AI 분석 완료 (난이도: {difficulty_used})")
+        logger.info(f"wrong_options: {wrong_options}")
+        logger.info(f"wrong_scores: {wrong_scores}")
+
+        # 안전한 인덱스 접근
+        response = AIAnalysisResponse(
+            game_id=request.game_id,
+            game_seq=request.game_seq,
+            wrong_option_1=wrong_options[0] if len(wrong_options) > 0 else "",
+            wrong_option_2=wrong_options[1] if len(wrong_options) > 1 else "",
+            wrong_option_3=wrong_options[2] if len(wrong_options) > 2 else "",
+            wrong_score_1=round(float(wrong_scores[0]), 4) if len(wrong_scores) > 0 else 0.0,
+            wrong_score_2=round(float(wrong_scores[1]), 4) if len(wrong_scores) > 1 else 0.0,
+            wrong_score_3=round(float(wrong_scores[2]), 4) if len(wrong_scores) > 2 else 0.0,
+            ai_status="COMPLETED",
+            description=f"AI 분석 완료 (난이도: {difficulty_used})"
+        )
+        
+        logger.info("=== AI 분석 응답 생성 완료 ===")
+        logger.info(f"최종 응답: {response}")
+        logger.info(f"응답 JSON: {response.model_dump_json()}")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"AI 분석 중 예외 발생: {e}", exc_info=True)
+        error_response = AIAnalysisResponse(
+            game_id=request.game_id,
+            game_seq=request.game_seq,
+            wrong_option_1="",
+            wrong_option_2="",
+            wrong_option_3="",
+            wrong_score_1=0.0,
+            wrong_score_2=0.0,
+            wrong_score_3=0.0,
+            ai_status="FAILED",
+            description=f"AI 분석 중 예외 발생: {str(e)}"
+        )
+        logger.info(f"예외 처리 응답: {error_response}")
+        return error_response
 
 @router.post("/batch/process")
 async def batch_process(request: BatchProcessRequest, background_tasks: BackgroundTasks):

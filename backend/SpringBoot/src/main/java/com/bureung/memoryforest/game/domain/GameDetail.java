@@ -107,21 +107,42 @@ public class GameDetail {
     }
 
     /**
-     * AI 분석 진행 중 상태로 변경
+     * AI 분석 진행 중 상태로 변경 - aiProcessedAt 설정 제거
      */
     public void markAIAnalyzing() {
         this.aiStatus = "ANALYZING";
         this.description = "AI 분석 진행중";
-        this.aiProcessedAt = LocalDateTime.now();
+        // aiProcessedAt은 완료 시에만 설정하도록 주석 처리
+        // this.aiProcessedAt = LocalDateTime.now();
     }
 
     /**
      * AI 분석이 필요한지 확인
      */
     public boolean needsAIAnalysis() {
-        return this.answerText != null && 
-               !this.answerText.trim().isEmpty() && 
-               ("PENDING".equals(this.aiStatus) || "FAILED".equals(this.aiStatus));
+        // 1. answerText가 없으면 분석 불가
+        if (this.answerText == null || this.answerText.trim().isEmpty()) {
+            return false;
+        }
+        
+        // 2. aiStatus가 null이면 분석 필요
+        if (this.aiStatus == null) {
+            return true;
+        }
+        
+        // 3. 상태별 분석 필요 여부 - ANALYZING 상태 추가로 제외
+        switch (this.aiStatus.toUpperCase()) {
+            case "COMPLETED":
+                return false;  // 이미 완료됨
+            case "ANALYZING":
+                return false;  // 현재 진행 중 - 중복 처리 방지
+            case "PENDING":
+            case "FAILED":
+            case "":
+                return true;   // 분석 필요
+            default:
+                return true;   // 알 수 없는 상태는 분석 필요로 간주
+        }
     }
 
     /**
