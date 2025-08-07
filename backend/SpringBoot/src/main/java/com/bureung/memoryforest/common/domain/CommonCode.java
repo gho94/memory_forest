@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 @Table(name = "common_codes")
 @Getter
@@ -23,18 +24,20 @@ public class CommonCode {
     @Column(name = "parent_code_id", nullable = true, length = 6)
     private String parentCodeID;
 
-    @Column(name = "user_yn", nullable = true, length = 1)
-    private String userYn;
+    @Column(name = "use_yn", nullable = false, length = 1)
+    private String useYn;
 
-    @Column(name = "created_by", nullable = true, length = 10)
+    @Column(name = "created_by", nullable = false, length = 10)
     private String createdBy;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_by", nullable = true, length = 10)
     private String updatedBy;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 }

@@ -6,13 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bureung.memoryforest.common.application.CommonCodeService;
-import com.bureung.memoryforest.common.domain.CommonCode;
-import com.bureung.memoryforest.common.dto.request.CommonCodeCreateRequestDto;
+import com.bureung.memoryforest.common.dto.request.CommonCodeRequestDto;
+import com.bureung.memoryforest.common.dto.response.CommonCodeResDto;
 import com.bureung.memoryforest.common.dto.response.CommonCodeResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,44 +25,64 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/common-codes")
 public class CommonCodeController {
     
-    private final CommonCodeService commonCodeService;
-    
     @Autowired
-    public CommonCodeController(CommonCodeService commonCodeService) {
-        this.commonCodeService = commonCodeService;
-    }
-    
-    /**
-     * 모든 공통코드 조회
-     */
-    @GetMapping
-    public ResponseEntity<List<CommonCode>> getAllCommonCodes() {
-        log.info("모든 공통코드 조회 API 호출");
+    CommonCodeService commonCodeService;
+
+    @GetMapping("/tree")
+    public ResponseEntity<List<CommonCodeResponseDto>> getCommonCodes() {
+        log.info("공통코드 조회 API 호출");
         try {
-            List<CommonCode> commonCodes = commonCodeService.getAllCommonCodes();
-            log.info("조회된 공통코드 개수: {}", commonCodes.size());
-            return ResponseEntity.ok(commonCodes);
+            List<CommonCodeResponseDto> treeData = commonCodeService.getCommonCodes();
+            log.info("공통코드 조회 완료");
+            return ResponseEntity.ok(treeData);
         } catch (Exception e) {
             log.error("공통코드 조회 중 오류 발생", e);
             return ResponseEntity.internalServerError().build();
         }
     }
     
-    /**
-     * 공통코드 생성
-     */
     @PostMapping
-    public ResponseEntity<CommonCodeResponseDto> createCommonCode(@RequestBody CommonCodeCreateRequestDto requestDto) {
+    public ResponseEntity<CommonCodeResponseDto> createCommonCode(@RequestBody CommonCodeRequestDto requestDto) {
         log.info("공통코드 생성 API 호출: {}", requestDto);
         try {
             CommonCodeResponseDto responseDto = commonCodeService.createCommonCode(requestDto);
-            log.info("공통코드 생성 완료: {}", responseDto.getCodeID());
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
             log.error("공통코드 생성 중 유효성 검사 오류: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             log.error("공통코드 생성 중 오류 발생", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @PutMapping("/{codeId}")
+    public ResponseEntity<CommonCodeResponseDto> updateCommonCode(
+            @PathVariable String codeId, 
+            @RequestBody CommonCodeRequestDto requestDto) {
+        log.info("공통코드 수정 API 호출: codeId={}, requestDto={}", codeId, requestDto);
+        try {
+            CommonCodeResponseDto responseDto = commonCodeService.updateCommonCode(codeId, requestDto);
+            return ResponseEntity.ok(responseDto);
+        } catch (IllegalArgumentException e) {
+            log.error("공통코드 수정 중 유효성 검사 오류: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("공통코드 수정 중 오류 발생", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CommonCodeResDto>> getCommonCodesByParentCodeId(
+            @RequestParam(required = false) String parentCodeID) {
+        log.info("공통코드 조회 API 호출: parentCodeID={}", parentCodeID);
+        try {
+            List<CommonCodeResDto> commonCodes = commonCodeService.getCommonCodesByParentCodeId(parentCodeID);
+            log.info("공통코드 조회 완료");
+            return ResponseEntity.ok(commonCodes);
+        } catch (Exception e) {
+            log.error("공통코드 조회 중 오류 발생", e);
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommonCodeCreateRequestDto {
-    
-    private String codeID;
+public class CommonCodeRequestDto {    
     private String codeName;
     private String parentCodeID;
-    private String userYn;
-    private String createdBy;
-} 
+    private String useYn;
+}
