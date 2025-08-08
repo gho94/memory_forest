@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
@@ -11,16 +10,76 @@ import WeeklyAccuracyChart from '@/components/charts/WeeklyAccuracyChart';
 import GamePlayerDetailItem from '@/components/game/GamePlayerDetailItem';
 import AlarmModal from '@/components/modal/AlarmModal';
 
+// 간단한 스켈레톤 컴포넌트들
+const StatSkeleton = () => (
+    <div style={{
+      background: '#f0f0f0',
+      borderRadius: '4px',
+      height: '15px',
+      width: '40px',
+      display: 'inline-block',
+      opacity: 0.7
+    }}></div>
+);
+
+const ChartSkeleton = () => (
+    <div style={{
+      borderRadius: '8px',
+      height: '300px',
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#999',
+      fontSize: '14px'
+    }}>
+      차트 로딩 중...
+    </div>
+);
+
+const GameItemSkeleton = () => (
+    <div className="game-item" style={{marginBottom: '15px'}}>
+      <div style={{
+        background: '#f0f0f0',
+        borderRadius: '4px',
+        height: '16px',
+        width: '200px',
+        marginBottom: '10px'
+      }}></div>
+      <div style={{
+        background: '#f0f0f0',
+        borderRadius: '4px',
+        height: '14px',
+        width: '100%',
+        marginBottom: '15px'
+      }}></div>
+      <div style={{display: 'flex', gap: '10px'}}>
+        {[...Array(4)].map((_, i) => (
+            <div key={i} style={{
+              background: '#f0f0f0',
+              borderRadius: '4px',
+              height: '40px',
+              width: '80px'
+            }}></div>
+        ))}
+      </div>
+    </div>
+);
+
 //leb. user 완성되면 하드코딩한 user name 바꿔줘야 함.
 function PatientDetailPage() {
-  const [searchParams] = useSearchParams();
   const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({
+    stats: true,
+    chart: true,
+    games: true
+  });
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const userId = searchParams.get('userId') || 'U0002';
-  const gameId = searchParams.get('gameId');
+  const userId = 'U0002'; // Mock - 원래는 searchParams.get('userId') || 'U0002';
+  const gameId = null; // Mock - 원래는 searchParams.get('gameId');
+
   const parseSearchDate = (searchDateStr) => {
     if (!searchDateStr) return null;
 
@@ -35,7 +94,8 @@ function PatientDetailPage() {
 
   const fetchDashboardData = async (params = {}) => {
     try {
-      setLoading(true);
+      // 로딩 상태를 세분화해서 관리
+      setLoading({ stats: true, chart: true, games: true });
 
       const queryParams = new URLSearchParams({
         userId,
@@ -47,6 +107,19 @@ function PatientDetailPage() {
       const response = await fetch(`${window.API_BASE_URL}/companion/game/dashboard?${queryParams}`);
       const data = await response.json();
       setDashboardData(data);
+
+      // 단계적으로 로딩 해제 (자연스러운 UX를 위해)
+      setTimeout(() => {
+        setLoading(prev => ({ ...prev, stats: false }));
+      }, 200);
+
+      setTimeout(() => {
+        setLoading(prev => ({ ...prev, chart: false }));
+      }, 500);
+
+      setTimeout(() => {
+        setLoading(prev => ({ ...prev, games: false }));
+      }, 800);
 
       if (data.searchDate) {
         const endDateStr = parseSearchDate(data.searchDate);
@@ -61,8 +134,8 @@ function PatientDetailPage() {
       }
     } catch (error) {
       console.error('Dashboard API 호출 실패:', error);
-    } finally {
-      setLoading(false);
+      // 에러가 나도 로딩 상태는 해제
+      setLoading({ stats: false, chart: false, games: false });
     }
   };
 
@@ -288,15 +361,7 @@ function PatientDetailPage() {
     printWindow.document.close();
   };
 
-  if (loading) {
-    return <div className="loading">로딩 중...</div>;
-  }
-
-  if (!dashboardData) {
-    return <div className="error">데이터를 불러올 수 없습니다.</div>;
-  }
-
-  const { stats, gameList, searchDate } = dashboardData;
+  const { stats, gameList, searchDate } = dashboardData || {};
   const chartData = generateChartData();
 
   return (
@@ -311,17 +376,29 @@ function PatientDetailPage() {
             </div>
           </div>
 
-          {/* 통계 영역 */}
+          {/* 통계 영역 - 스켈레톤 또는 실제 데이터 */}
           <div className="patient-activity-con row">
-            <div className="col-6">오늘 : <span>{stats.todayScore}</span>점 (<span>{stats.todayAccuracy}</span>%)</div>
-            <div className="col-6">이번주 참여율 : <span>{stats.weeklyParticipation}</span>%</div>
-            <div className="col-6">어제 : <span>{stats.yesterdayScore}</span>점 (<span>{stats.yesterdayAccuracy}</span>%)</div>
-            <div className="col-6">전체 정답률 : <span>{stats.overallAccuracy}</span>%</div>
-            <div className="col-6">일주일 정답률 : <span>{stats.weeklyAccuracy}</span>%</div>
-            <div className="col-6">주간 정답률 : <span>{stats.weeklyAccuracyDiff > 0 ? '+' : ''}{stats.weeklyAccuracyDiff}</span>%</div>
+            <div className="col-6">
+              오늘 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.todayScore}</span>점 (<span>{stats?.todayAccuracy}</span>%)</>}
+            </div>
+            <div className="col-6">
+              이번주 참여율 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.weeklyParticipation}</span>%</>}
+            </div>
+            <div className="col-6">
+              어제 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.yesterdayScore}</span>점 (<span>{stats?.yesterdayAccuracy}</span>%)</>}
+            </div>
+            <div className="col-6">
+              전체 정답률 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.overallAccuracy}</span>%</>}
+            </div>
+            <div className="col-6">
+              일주일 정답률 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracy}</span>%</>}
+            </div>
+            <div className="col-6">
+              주간 정답률 : {loading.stats ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracyDiff > 0 ? '+' : ''}{stats?.weeklyAccuracyDiff}</span>%</>}
+            </div>
           </div>
 
-          {/* 날짜 선택기 */}
+          {/* 날짜 선택기 - 항상 표시 */}
           <div className="date-picker-wrapper">
             <label className="date-input readonly">
               <input
@@ -346,20 +423,33 @@ function PatientDetailPage() {
           {/* 차트 및 게임 결과 */}
           <div className="chart-con">
             <div className="chart">
-              <WeeklyAccuracyChart
-                  chartData={chartData.data}
-                  categories={chartData.categories}
-              />
+              {loading.chart ? (
+                  <ChartSkeleton />
+              ) : (
+                  <WeeklyAccuracyChart
+                      chartData={chartData.data}
+                      categories={chartData.categories}
+                  />
+              )}
             </div>
             <div className="game-result">
-              <div className="game-date">{searchDate}</div>
-              {gameList?.length > 0 ?
+              <div className="game-date">{searchDate || ''}</div>
+              {loading.games ? (
+                  // 게임 로딩 중일 때 스켈레톤
+                  <>
+                    <GameItemSkeleton />
+                    <GameItemSkeleton />
+                    <GameItemSkeleton />
+                  </>
+              ) : gameList?.length > 0 ? (
+                  // 실제 게임 데이터
                   gameList.map((game, index) => (
                       <GamePlayerDetailItem key={`${game.gameId}-${game.gameSeq}`} game={game} />
                   ))
-                  :
+              ) : (
+                  // 게임이 없을 때
                   <div className="no-game-message">진행된 게임이 존재하지 않습니다.</div>
-              }
+              )}
             </div>
           </div>
         </main>
@@ -368,6 +458,5 @@ function PatientDetailPage() {
       </div>
   );
 }
-
 
 export default PatientDetailPage;
