@@ -1,9 +1,6 @@
 package com.bureung.memoryforest.common.application.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bureung.memoryforest.common.application.CommonCodeService;
 import com.bureung.memoryforest.common.domain.CommonCode;
 import com.bureung.memoryforest.common.dto.request.CommonCodeRequestDto;
-import com.bureung.memoryforest.common.dto.response.CommonCodeResDto;
 import com.bureung.memoryforest.common.dto.response.CommonCodeResponseDto;
 import com.bureung.memoryforest.common.repository.CommonCodeRepository;
 
@@ -28,44 +24,19 @@ public class CommonCodeServiceImpl implements CommonCodeService {
     CommonCodeRepository commonCodeRepository;
     
     @Override
-        public List<CommonCodeResponseDto> getCommonCodes() {
-        List<CommonCode> allCodes = commonCodeRepository.findAll();
+    public List<CommonCodeResponseDto> getCommonCodesByParentCodeId(String parentCodeId) {
+        List<CommonCode> commonCodes = commonCodeRepository.findByParentCodeIDOrderByCodeID(parentCodeId);
         
-        Map<String, CommonCodeResponseDto> codeMap = new HashMap<>();
-        List<CommonCodeResponseDto> rootNodes = new ArrayList<>();
-        
-        for (CommonCode code : allCodes) {
-            CommonCodeResponseDto treeNode = CommonCodeResponseDto.builder()
-                    .id(code.getCodeID())
-                    .label(code.getCodeName())
-                    .parentCodeID(code.getParentCodeID())
-                    .children(new ArrayList<>())
-                    .build();
-            
-            codeMap.put(code.getCodeID(), treeNode);
-        }
-        
-        for (CommonCodeResponseDto node : codeMap.values()) {
-            if (node.getParentCodeID() == null || node.getParentCodeID().isEmpty()) {
-                rootNodes.add(node);
-            } else {
-                CommonCodeResponseDto parent = codeMap.get(node.getParentCodeID());
-                if (parent != null) {
-                    parent.getChildren().add(node);
-                }
-            }
-        }
-        
-        rootNodes.sort((a, b) -> a.getId().compareTo(b.getId()));
-        for (CommonCodeResponseDto rootNode : rootNodes) {
-            if (rootNode.getChildren() != null && !rootNode.getChildren().isEmpty()) {
-                rootNode.getChildren().sort((a, b) -> a.getId().compareTo(b.getId()));
-            }
-        }
-        
-        return rootNodes;
+        return commonCodes.stream()
+                .map(code -> CommonCodeResponseDto.builder()
+                        .codeId(code.getCodeID())
+                        .codeName(code.getCodeName())
+                        .parentCodeId(code.getParentCodeID())
+                        .useYn(code.getUseYn())
+                        .build())
+                .collect(Collectors.toList());
     }
-    
+
     @Override
     @Transactional
     public CommonCodeResponseDto createCommonCode(CommonCodeRequestDto requestDto) {  
@@ -83,33 +54,14 @@ public class CommonCodeServiceImpl implements CommonCodeService {
         CommonCode savedCommonCode = commonCodeRepository.save(commonCode);
         
         return CommonCodeResponseDto.builder()
-                .id(savedCommonCode.getCodeID())
-                .label(savedCommonCode.getCodeName())
-                .parentCodeID(savedCommonCode.getParentCodeID())
-                .build();
-    }
-    
-    @Override
-    @Transactional
-    public CommonCodeResponseDto updateCommonCode(String codeId, CommonCodeRequestDto requestDto) {
-        CommonCode existingCode = commonCodeRepository.findById(codeId)
-                .orElseThrow(() -> new IllegalArgumentException("코드를 찾을 수 없습니다: " + codeId));
-        
-        existingCode.setCodeName(requestDto.getCodeName());
-        existingCode.setUseYn(requestDto.getUseYn() == null ? "Y" : requestDto.getUseYn());
-        existingCode.setUpdatedBy("ADMIN");
-        
-        CommonCode updatedCode = commonCodeRepository.save(existingCode);
-        
-        return CommonCodeResponseDto.builder()
-                .id(updatedCode.getCodeID())
-                .label(updatedCode.getCodeName())
-                .parentCodeID(updatedCode.getParentCodeID())
-                .useYn(updatedCode.getUseYn())
+                .codeId(savedCommonCode.getCodeID())
+                .codeName(savedCommonCode.getCodeName())
+                .parentCodeId(savedCommonCode.getParentCodeID())
+                .useYn(savedCommonCode.getUseYn())
                 .build();
     }
 
-
+    //#region 공통 코드 ID 생성
     private String generateCodeId(String parentCodeId) {
         String header;
         
@@ -149,18 +101,25 @@ public class CommonCodeServiceImpl implements CommonCodeService {
         
         return codeHeader;
     }
-
+    //#endregion
+    
     @Override
-    public List<CommonCodeResDto> getCommonCodesByParentCodeId(String parentCodeId) {
-        List<CommonCode> commonCodes = commonCodeRepository.findByParentCodeIDOrderByCodeID(parentCodeId);
+    @Transactional
+    public CommonCodeResponseDto updateCommonCode(String codeId, CommonCodeRequestDto requestDto) {
+        CommonCode existingCode = commonCodeRepository.findById(codeId)
+                .orElseThrow(() -> new IllegalArgumentException("코드를 찾을 수 없습니다: " + codeId));
         
-        return commonCodes.stream()
-                .map(code -> CommonCodeResDto.builder()
-                        .codeId(code.getCodeID())
-                        .codeName(code.getCodeName())
-                        .parentCodeId(code.getParentCodeID())
-                        .useYn(code.getUseYn())
-                        .build())
-                .collect(Collectors.toList());
+        existingCode.setCodeName(requestDto.getCodeName());
+        existingCode.setUseYn(requestDto.getUseYn() == null ? "Y" : requestDto.getUseYn());
+        existingCode.setUpdatedBy("ADMIN");
+        
+        CommonCode updatedCode = commonCodeRepository.save(existingCode);
+        
+        return CommonCodeResponseDto.builder()
+                .codeId(updatedCode.getCodeID())
+                .codeName(updatedCode.getCodeName())
+                .parentCodeId(updatedCode.getParentCodeID())
+                .useYn(updatedCode.getUseYn())
+                .build();
     }
 }

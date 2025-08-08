@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bureung.memoryforest.common.application.CommonCodeService;
 import com.bureung.memoryforest.common.dto.request.CommonCodeRequestDto;
-import com.bureung.memoryforest.common.dto.response.CommonCodeResDto;
 import com.bureung.memoryforest.common.dto.response.CommonCodeResponseDto;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,19 +27,20 @@ public class CommonCodeController {
     @Autowired
     CommonCodeService commonCodeService;
 
-    @GetMapping("/tree")
-    public ResponseEntity<List<CommonCodeResponseDto>> getCommonCodes() {
-        log.info("공통코드 조회 API 호출");
+    @GetMapping
+    public ResponseEntity<List<CommonCodeResponseDto>> getCommonCodesByParentCodeId(
+            @RequestParam(required = false) String parentCodeID) {
+        log.info("공통코드 조회 API 호출: parentCodeID={}", parentCodeID);
         try {
-            List<CommonCodeResponseDto> treeData = commonCodeService.getCommonCodes();
+            List<CommonCodeResponseDto> commonCodes = commonCodeService.getCommonCodesByParentCodeId(parentCodeID);
             log.info("공통코드 조회 완료");
-            return ResponseEntity.ok(treeData);
+            return ResponseEntity.ok(commonCodes);
         } catch (Exception e) {
             log.error("공통코드 조회 중 오류 발생", e);
             return ResponseEntity.internalServerError().build();
         }
     }
-    
+
     @PostMapping
     public ResponseEntity<CommonCodeResponseDto> createCommonCode(@RequestBody CommonCodeRequestDto requestDto) {
         log.info("공통코드 생성 API 호출: {}", requestDto);
@@ -73,17 +73,4 @@ public class CommonCodeController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<CommonCodeResDto>> getCommonCodesByParentCodeId(
-            @RequestParam(required = false) String parentCodeID) {
-        log.info("공통코드 조회 API 호출: parentCodeID={}", parentCodeID);
-        try {
-            List<CommonCodeResDto> commonCodes = commonCodeService.getCommonCodesByParentCodeId(parentCodeID);
-            log.info("공통코드 조회 완료");
-            return ResponseEntity.ok(commonCodes);
-        } catch (Exception e) {
-            log.error("공통코드 조회 중 오류 발생", e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
 } 

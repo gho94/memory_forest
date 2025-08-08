@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonCodeRequestDto {    
+    private String codeID;
     private String codeName;
     private String parentCodeID;
     private String useYn;

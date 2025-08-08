@@ -1,7 +1,4 @@
 package com.bureung.memoryforest.common.dto.response;
-
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +8,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommonCodeResponseDto {    
-    private String id;
-    private String label;
-    private String parentCodeID;
-    private String useYn;
-    private List<CommonCodeResponseDto> children;
-} 
+public class CommonCodeResponseDto {
+    private String codeId;
+    private String codeName;
+    private String parentCodeId;
+    private String useYn;    
+}
