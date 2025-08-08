@@ -18,7 +18,6 @@ import PatientRecord from '@/user/patient/PatientRecord';
 import GamePage from '@/game/patient/GamePage';
 import GameResultPage from '@/game/patient/GameResultPage';
 import PatientGameAnswerResultPage from '@/game/patient/PatientGameAnswerResultPage';
-import CommonCodeTreePage from '@/user/common/CommonCodeTreePage';
 import CommonCodePage from '@/user/common/CommonCodePage';
 
 function Router() {
@@ -50,10 +49,8 @@ function Router() {
         <Route path="/recoder/game/result" element={<GameResultPage />} />
         <Route path="/recoder/game/result/:id" element={<PatientGameAnswerResultPage />} />
 
-        <Route path="/tree" element={<CommonCodeTreePage />} />
-        <Route path="/common-code" element={<CommonCodePage />} />
-
         {/* 기타 관리자.. 추가예쩡 */}
+        <Route path="/common-code" element={<CommonCodePage />} />
 
       </Routes>
     </BrowserRouter>
