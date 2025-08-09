@@ -408,4 +408,14 @@ public class GameMasterServiceImpl implements GameMasterService  {
 
         return statusCounts;
     }
+
+    @Override
+    public Optional<GameMaster> getOldestUnplayedGameByPlayerId(String playerId) {
+        return gameMasterRepository.findOldestUnplayedGameByPlayerId(playerId);
+    }
+
+    @Override
+    public int getGameCountByGameId(String gameId){
+        return gameMasterRepository.findGameCountByGameId(gameId).orElse(0);
+    }
 }

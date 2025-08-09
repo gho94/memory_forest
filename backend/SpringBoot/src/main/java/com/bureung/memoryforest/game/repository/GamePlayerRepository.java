@@ -2,7 +2,6 @@ package com.bureung.memoryforest.game.repository;
 
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.domain.GamePlayerId;
-import com.bureung.memoryforest.game.dto.response.GameWeeklyAccuracyChartDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -77,4 +76,7 @@ public interface GamePlayerRepository extends JpaRepository<GamePlayer, GamePlay
             "AND gp.id.gameId = :gameId")
     Optional<LocalDate> findGameEndDate(@Param("userId") String userId,
                                         @Param("gameId") String gameId);
+
+    Optional<GamePlayer> findByIdPlayerIdAndEndTimeIsNullAndStartTimeIsNotNull(String playerId);
+    Optional<GamePlayer> findFirstByIdPlayerIdAndEndTimeIsNotNullOrderByEndTimeDesc(String playerId);
 }

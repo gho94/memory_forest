@@ -19,4 +19,9 @@ public class GamePlayerAnswerServiceImpl implements GamePlayerAnswerService {
     public List<GamePlayerDetailResponseDto> getTodayGameAnswers(String userId, LocalDate targetDate) {
         return gamePlayerAnswerRepository.findTodayGameAnswers(userId, targetDate);
     }
+
+    @Override
+    public int getCountByGameIdAndPlayerId(String gameId, String playerId){
+        return gamePlayerAnswerRepository.countByIdGameIdAndIdPlayerId(gameId, playerId).orElse(0);
+    }
 }

@@ -30,7 +30,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void sendGameCompletionAlarm(String gameId) {
         log.info("게임 완료 알람 발송 시작 - gameId: {}", gameId);
-
+//        String userId = (String) session.getAttribute("userId");
         String playerId = "U0001"; //leb. I'll change user id of session
 
         // 게임 정보 조회 (가족 정보 포함)
