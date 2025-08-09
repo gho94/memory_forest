@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,27 +22,24 @@ import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.common.application.CommonCodeService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class GameServiceImpl implements GameService {
 
-    @Autowired
-    GameMasterRepository gameMasterRepository;
+    private final GameMasterRepository gameMasterRepository;
 
-    @Autowired
-    GamePlayerRepository gamePlayerRepository;
+    private final GamePlayerRepository gamePlayerRepository;  
 
-    @Autowired
-    GameDetailRepository gameDetailRepository;
+    private final GameDetailRepository gameDetailRepository;
 
-    @Autowired
-    GamePlayerAnswerRepository gamePlayerAnswerRepository;
+    private final GamePlayerAnswerRepository gamePlayerAnswerRepository;
 
-    @Autowired
-    CommonCodeService commonCodeService;
+    private final CommonCodeService commonCodeService;
 
     @Override
     public List<GameMaster> getAllGame() {
