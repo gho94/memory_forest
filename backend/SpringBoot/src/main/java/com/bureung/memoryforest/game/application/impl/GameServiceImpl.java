@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bureung.memoryforest.game.application.GameService;
 import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
 import com.bureung.memoryforest.game.dto.request.GameDetailDto;
-import com.bureung.memoryforest.game.domain.GameDetail2;
-import com.bureung.memoryforest.game.repository.GameDetail2Repository;
-import com.bureung.memoryforest.game.repository.GameMaster2Repository;
-import com.bureung.memoryforest.game.domain.GameMaster2;
+import com.bureung.memoryforest.game.domain.GameDetail;
+import com.bureung.memoryforest.game.repository.GameDetailRepository;
+import com.bureung.memoryforest.game.repository.GameMasterRepository;
+import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.common.application.CommonCodeService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,29 +25,29 @@ import lombok.extern.slf4j.Slf4j;
 public class GameServiceImpl implements GameService {
 
     @Autowired
-    GameMaster2Repository gameMasterRepository;
+    GameMasterRepository gameMasterRepository;
 
     @Autowired
-    GameDetail2Repository gameDetailRepository;
+    GameDetailRepository gameDetailRepository;
 
     @Autowired
     CommonCodeService commonCodeService;
 
     @Override
-    public List<GameMaster2> getAllGame() {
+    public List<GameMaster> getAllGame() {
         return gameMasterRepository.findAll();
     }
 
     @Override
-    public List<GameDetail2> getGameDetail(String gameId) {
+    public List<GameDetail> getGameDetail(String gameId) {
         return gameDetailRepository.findByGameId(gameId);
     }
 
     @Override
-    public GameMaster2 createGame(GameCreateReqDto gameCreateReqDto) {
+    public GameMaster createGame(GameCreateReqDto gameCreateReqDto) {
         String gameId = generateGameId();
         
-        GameMaster2 gameMaster = GameMaster2.builder()
+        GameMaster gameMaster = GameMaster.builder()
                 .gameId(gameId)
                 .gameName(gameCreateReqDto.getGameName())
                 .gameDesc(gameCreateReqDto.getGameDesc())
@@ -73,7 +73,7 @@ public class GameServiceImpl implements GameService {
     private void createGameDetail(String gameId, List<GameDetailDto> gameDetails) {
         int gameSeq = 1;
         for (GameDetailDto gameDetail : gameDetails) {
-            GameDetail2 gameDetail2 = GameDetail2.builder()
+            GameDetail gameDetail2 = GameDetail.builder()
                 .gameId(gameId)
                 .gameSeq(gameSeq)
                 .gameOrder(gameSeq)

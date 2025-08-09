@@ -28,8 +28,8 @@ public interface GameMasterRepository extends JpaRepository<GameMaster, String> 
 
     Optional<GameMaster> findByGameId(String gameId);
 
-    // 특정 날짜의 최대 게임 ID 조회 (게임 ID 생성용)
-    @Query("SELECT MAX(g.gameId) FROM GameMaster g WHERE g.gameId LIKE CONCAT('G', :dateStr, '%')")
+    // TODO : 게임 ID를 substring 으로 비교하는게 좋을지 검토
+    @Query(value = "SELECT MAX(game_id) FROM game_master WHERE game_id LIKE CONCAT('G', :dateStr, '%')", nativeQuery = true)
     String findMaxGameIdByDate(@Param("dateStr") String dateStr);
 
     @Query("SELECT gm.gameCount FROM GameMaster gm WHERE gm.gameId = :gameId")

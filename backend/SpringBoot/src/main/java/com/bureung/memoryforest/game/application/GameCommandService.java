@@ -66,14 +66,14 @@ public class GameCommandService {
                 .gameId(gameId)
                 .gameSeq(1)
                 .gameOrder(1)
-                .categoryCode(categoryCode)
-                .originalName(file.getOriginalFilename())
-                .fileName(fileName)
-                .filePath(filePath.toString())
-                .fileSize(file.getSize())
-                .mimeType(file.getContentType())
+                //.categoryCode(categoryCode)
+                //.originalName(file.getOriginalFilename())
+                //.fileName(fileName)
+                //.filePath(filePath.toString())
+                //.fileSize(file.getSize())
+                //.mimeType(file.getContentType())
                 .answerText(answerText)
-                .aiStatus("PENDING")
+                .aiStatusCode("PENDING")
                 .build();
 
         gameDetailRepository.save(gameDetail);
