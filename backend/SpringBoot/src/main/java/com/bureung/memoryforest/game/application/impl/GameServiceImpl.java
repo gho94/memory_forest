@@ -12,7 +12,13 @@ import com.bureung.memoryforest.game.application.GameService;
 import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
 import com.bureung.memoryforest.game.dto.request.GameDetailDto;
 import com.bureung.memoryforest.game.domain.GameDetail;
+import com.bureung.memoryforest.game.domain.GamePlayer;
+import com.bureung.memoryforest.game.domain.GamePlayerAnswer;
+import com.bureung.memoryforest.game.domain.GamePlayerAnswerId;
+import com.bureung.memoryforest.game.domain.GamePlayerId;
 import com.bureung.memoryforest.game.repository.GameDetailRepository;
+import com.bureung.memoryforest.game.repository.GamePlayerAnswerRepository;
+import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.common.application.CommonCodeService;
@@ -28,7 +34,13 @@ public class GameServiceImpl implements GameService {
     GameMasterRepository gameMasterRepository;
 
     @Autowired
+    GamePlayerRepository gamePlayerRepository;
+
+    @Autowired
     GameDetailRepository gameDetailRepository;
+
+    @Autowired
+    GamePlayerAnswerRepository gamePlayerAnswerRepository;
 
     @Autowired
     CommonCodeService commonCodeService;
@@ -55,12 +67,14 @@ public class GameServiceImpl implements GameService {
                 .difficultyLevelCode(getDifficultyLevelCode())
                 .creationStatusCode(getCreationStatusCode())
                 .createdBy("ADMIN") // TODO: 로그인 기능 추가 후 수정
+                .updatedAt(null)
                 .build();
                 
         gameMasterRepository.save(gameMaster);
+        createGamePlayer(gameId, gameCreateReqDto.getSelectedPatients());
 
         // 게임 디테일 생성
-        createGameDetail(gameId, gameCreateReqDto.getGameDetails());
+        createGameDetail(gameId, gameCreateReqDto);
 
         // TODO: 게임 생성 이후에 AI 분석 요청
         // AI 관련 컬럼값 변경 
@@ -70,10 +84,21 @@ public class GameServiceImpl implements GameService {
         return gameMaster;
     }
 
-    private void createGameDetail(String gameId, List<GameDetailDto> gameDetails) {
+    private void createGamePlayer(String gameId, List<String> selectedPatients) {
+        for (String patientId : selectedPatients) {
+            GamePlayer gamePlayer = GamePlayer.builder()
+                .id(new GamePlayerId(gameId, patientId))
+                .gameStatusCode(getGameStatusCode())
+                .build();
+            gamePlayerRepository.save(gamePlayer);
+        }
+    }
+
+    private void createGameDetail(String gameId, GameCreateReqDto gameCreateReqDto) {
+        List<GameDetailDto> gameDetails = gameCreateReqDto.getGameDetails();
         int gameSeq = 1;
         for (GameDetailDto gameDetail : gameDetails) {
-            GameDetail gameDetail2 = GameDetail.builder()
+            GameDetail gameDetailEntity = GameDetail.builder()
                 .gameId(gameId)
                 .gameSeq(gameSeq)
                 .gameOrder(gameSeq)
@@ -83,8 +108,20 @@ public class GameServiceImpl implements GameService {
                 .aiStatusCode(getAiStatusCode())
                 .build();
 
-            gameDetailRepository.save(gameDetail2);
+            gameDetailRepository.save(gameDetailEntity);
+            createGamePlayerAnswer(gameId, gameDetailEntity, gameCreateReqDto.getSelectedPatients());
             gameSeq++;
+        }
+    }
+
+    private void createGamePlayerAnswer(String gameId, GameDetail gameDetail, List<String> selectedPatients) {
+        for (String patientId : selectedPatients) {
+            GamePlayerAnswer gamePlayerAnswer = GamePlayerAnswer.builder()
+                .id(new GamePlayerAnswerId(gameId, gameDetail.getGameSeq(), patientId))
+                .selectedOption(0)
+                .isCorrect("N")
+                .build();
+            gamePlayerAnswerRepository.save(gamePlayerAnswer);
         }
     }
 
@@ -131,6 +168,22 @@ public class GameServiceImpl implements GameService {
         //                                                                          ('B20007', '완료', 'B10002', 'ADMIN'),
         //                                                                          ('B20008', '실패', 'B10002', 'ADMIN'),
         return getCommonCode("B10002");
+    }
+
+    private String getGameStatusCode() {
+        // TODO: 게임 진행 상태
+        // -- 2.3.1 게임 진행 상태 (GAME_STATUS)
+        // INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
+        // VALUES ('B10003', '게임 진행 상태', 'B00001', 'ADMIN');
+
+        // -- 2.3.2 하위 코드들
+        // INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
+        //                                                                          ('B20010', '대기', 'B10003', 'ADMIN'),
+        //                                                                          ('B20011', '진행중', 'B10003', 'ADMIN'),
+        //                                                                          ('B20012', '완료', 'B10003', 'ADMIN'),
+        //                                                                          ('B20013', '중단', 'B10003', 'ADMIN'),
+        //                                                                          ('B20014', '오류', 'B10003', 'ADMIN');
+        return getCommonCode("B10003");
     }
 
     private String getAiStatusCode() {

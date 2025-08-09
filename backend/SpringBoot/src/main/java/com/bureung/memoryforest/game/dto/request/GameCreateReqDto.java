@@ -11,4 +11,5 @@ public class GameCreateReqDto {
     private String gameDesc;
     private List<GameDetailDto> gameDetails;
     private Integer totalProblems;
+    private List<String> selectedPatients;
 }
