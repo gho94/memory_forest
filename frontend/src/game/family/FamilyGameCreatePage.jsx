@@ -88,7 +88,7 @@ function FamilyGameCreatePage() {
     formData.append('isPublic', 'true');
 
     try {
-      const response = await fetch('http://localhost:8080/api/files/upload', {
+      const response = await fetch(`${window.API_BASE_URL}/api/files/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -125,7 +125,7 @@ function FamilyGameCreatePage() {
     console.log('gameData:', gameData);
 
     try {
-      const response = await fetch('http://localhost:8080/api/game', {
+      const response = await fetch(`${window.API_BASE_URL}/api/game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,11 @@ function FamilyGameCreatePage() {
         const result = await response.json();
         alert('게임이 성공적으로 생성되었습니다!');
         console.log('게임 생성 성공:', result);
-        navigate('/companion/games/complete');
+        navigate('/companion/games/complete', {
+          state: {
+            gameData: gameData
+          }
+        });
       } else {
         console.error('게임 생성 실패');
         alert('게임 생성에 실패했습니다.');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
 import '@/assets/css/family.css';
@@ -9,6 +9,11 @@ import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 
 function FamilyGameCompletePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { gameData } = location.state || {};
+  console.log('gameData:', gameData);
+  const gameTitle = gameData.gameName || 'untitled';
+  const totalProblems = gameData.totalProblems || 0;
 
   const handleGoToList = () => {
     navigate('/companion/dashboard');
@@ -24,9 +29,9 @@ function FamilyGameCompletePage() {
         <div className="signup-form game-signup-form game-complete-gap">
           <div className="row game-result-con">
             <div className="col-5 desc-title">게임 제목</div>
-            <div className="col-7">untitled10</div>
+            <div className="col-7">{gameTitle}</div>
             <div className="col-5 desc-title">문제 개수</div>
-            <div className="col-7">10</div>
+            <div className="col-7">{totalProblems}</div>
           </div>
 
           <div>
