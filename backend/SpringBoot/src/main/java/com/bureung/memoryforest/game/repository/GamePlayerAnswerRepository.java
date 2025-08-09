@@ -25,7 +25,7 @@ public interface GamePlayerAnswerRepository extends JpaRepository<GamePlayerAnsw
             "gd.wrongOption1, " +
             "gd.wrongOption2, " +
             "gd.wrongOption3, " +
-            "gd.filePath, " +
+            "gd.fileId, " +
             "'완료') " +
             "FROM GamePlayerAnswer gpa " +
             "JOIN GameDetail gd ON gpa.id.gameId = gd.gameId AND gpa.id.gameSeq = gd.gameSeq " +

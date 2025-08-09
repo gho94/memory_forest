@@ -9,76 +9,57 @@ import java.time.LocalDateTime;
  * 각 게임의 개별 문제/이미지 데이터를 관리
  */
 @Entity
-@Table(name = "GAME_DETAIL")
+@Table(name = "game_detail")
 @IdClass(GameDetailId.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"filePath"})
 public class GameDetail {
-
     @Id
-    @Column(name = "GAME_ID", length = 10, nullable = false)
+    @Column(name = "game_id", nullable = false, length = 10)
     private String gameId;
 
     @Id
-    @Column(name = "GAME_SEQ", nullable = false)
+    @Column(name = "game_seq", nullable = false)
     private Integer gameSeq;
 
-    @Column(name = "GAME_ORDER", nullable = false)
+    @Column(name = "game_order", nullable = false)
     private Integer gameOrder;
 
-    @Column(name = "CATEGORY_CODE", length = 6, nullable = false)
-    private String categoryCode;
+    @Column(name = "file_id", nullable = false)
+    private Integer fileId;
 
-    @Column(name = "ORIGINAL_NAME", nullable = false, length = 255)
-    private String originalName;
-
-    @Column(name = "FILE_NAME", nullable = false, length = 255)
-    private String fileName;
-
-    @Column(name = "FILE_PATH", length = 500, nullable = false)
-    private String filePath;
-
-    @Column(name = "FILE_SIZE", nullable = false)
-    private Long fileSize;
-
-    @Column(name = "MIME_TYPE", length = 50, nullable = false)
-    private String mimeType;
-
-    @Column(name = "ANSWER_TEXT", length = 20)
+    @Column(name = "answer_text", nullable = true, length = 20)
     private String answerText;
 
-    @Column(name = "WRONG_OPTION_1", length = 20)
+    @Column(name = "wrong_option_1", nullable = true, length = 20)
     private String wrongOption1;
 
-    @Column(name = "WRONG_OPTION_2", length = 20)
+    @Column(name = "wrong_option_2", nullable = true, length = 20)
     private String wrongOption2;
 
-    @Column(name = "WRONG_OPTION_3", length = 20)
+    @Column(name = "wrong_option_3", nullable = true, length = 20)
     private String wrongOption3;
 
-    @Column(name = "AI_STATUS", length = 10, nullable = false)
-    @Builder.Default
-    private String aiStatus = "PENDING";
+    @Column(name = "wrong_score_1", nullable = true)
+    private Integer wrongScore1;
 
-    @Column(name = "AI_PROCESSED_AT")
+    @Column(name = "wrong_score_2", nullable = true)
+    private Integer wrongScore2;
+
+    @Column(name = "wrong_score_3", nullable = true)
+    private Integer wrongScore3;
+
+    @Column(name = "ai_status_code", nullable = false, length = 6)
+    private String aiStatusCode;
+
+    @Column(name = "ai_processed_at", nullable = true)  
     private LocalDateTime aiProcessedAt;
 
-    @Column(name = "DESCRIPTION", length = 500)
+    @Column(name = "description", nullable = true, length = 200)
     private String description;
-
-    // DB 명세서에 따라 NUMBER 타입이므로 String이 아닌 Double로 수정
-    @Column(name = "WRONG_SCORE_1")
-    private Double wrongScore1;
-
-    @Column(name = "WRONG_SCORE_2")  
-    private Double wrongScore2;
-
-    @Column(name = "WRONG_SCORE_3")
-    private Double wrongScore3;
 
     /**
      * AI 분석 결과를 업데이트하는 메서드
@@ -89,10 +70,10 @@ public class GameDetail {
         this.wrongOption1 = wrongOption1;
         this.wrongOption2 = wrongOption2;
         this.wrongOption3 = wrongOption3;
-        this.wrongScore1 = wrongScore1;
-        this.wrongScore2 = wrongScore2;
-        this.wrongScore3 = wrongScore3;
-        this.aiStatus = aiStatus;
+        this.wrongScore1 = wrongScore1.intValue();
+        this.wrongScore2 = wrongScore2.intValue();
+        this.wrongScore3 = wrongScore3.intValue();
+        this.aiStatusCode = aiStatus;
         this.description = description;
         this.aiProcessedAt = LocalDateTime.now();
     }
@@ -101,7 +82,7 @@ public class GameDetail {
      * AI 분석 실패 처리
      */
     public void markAIAnalysisFailed(String errorMessage) {
-        this.aiStatus = "FAILED";
+        this.aiStatusCode = "FAILED";
         this.description = errorMessage;
         this.aiProcessedAt = LocalDateTime.now();
     }
@@ -110,7 +91,7 @@ public class GameDetail {
      * AI 분석 진행 중 상태로 변경
      */
     public void markAIAnalyzing() {
-        this.aiStatus = "ANALYZING";
+        this.aiStatusCode = "ANALYZING";
         this.description = "AI 분석 진행중";
         this.aiProcessedAt = LocalDateTime.now();
     }
@@ -121,14 +102,14 @@ public class GameDetail {
     public boolean needsAIAnalysis() {
         return this.answerText != null && 
                !this.answerText.trim().isEmpty() && 
-               ("PENDING".equals(this.aiStatus) || "FAILED".equals(this.aiStatus));
+               ("PENDING".equals(this.aiStatusCode) || "FAILED".equals(this.aiStatusCode));
     }
 
     /**
      * AI 분석이 완료되었는지 확인
      */
     public boolean isAIAnalysisCompleted() {
-        return "COMPLETED".equals(this.aiStatus) && 
+        return "COMPLETED".equals(this.aiStatusCode) && 
                this.wrongOption1 != null && 
                this.wrongOption2 != null && 
                this.wrongOption3 != null;

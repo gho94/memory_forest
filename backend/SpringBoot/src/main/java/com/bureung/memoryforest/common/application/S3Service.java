@@ -1,4 +1,4 @@
-package com.bureung.memoryforest.file.application;
+package com.bureung.memoryforest.common.application;
 
 import org.springframework.web.multipart.MultipartFile;
 

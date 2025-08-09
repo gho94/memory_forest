@@ -25,8 +25,8 @@ const CommonCodePage = () => {
         try {
             setLoading(true);
             const url = parentCodeID 
-                ? `http://localhost:8080/api/common-codes?parentCodeID=${parentCodeID}`
-                : 'http://localhost:8080/api/common-codes';            
+                ? `${window.API_BASE_URL}/api/common-codes?parentCodeID=${parentCodeID}`
+                : `${window.API_BASE_URL}/api/common-codes`;            
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('데이터를 가져오는데 실패했습니다.');
@@ -45,7 +45,7 @@ const CommonCodePage = () => {
         e.preventDefault();
         if (codeName) {
             try {
-                const response = await fetch('http://localhost:8080/api/common-codes', {
+                const response = await fetch(`${window.API_BASE_URL}/api/common-codes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const CommonCodePage = () => {
         e.preventDefault();
         if (codeName && editingCode) {
             try {
-                const response = await fetch(`http://localhost:8080/api/common-codes/${editingCode.codeId}`, {
+                const response = await fetch(`${window.API_BASE_URL}/api/common-codes/${editingCode.codeId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

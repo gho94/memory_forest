@@ -138,7 +138,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
     @Override
     @Transactional(readOnly = true)
     public List<GameMaster> getGamesByAIStatus(String aiStatus) {
-        List<GameDetail> details = gameDetailRepository.findByAiStatus(aiStatus);
+        List<GameDetail> details = gameDetailRepository.findByAiStatusCode(aiStatus);
 
         return details.stream()
                 .map(detail -> getGameById(detail.getGameId()))
@@ -209,8 +209,8 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("FAILED".equals(detail.getAiStatus()) || "ERROR".equals(detail.getAiStatus())) {
-                        detail.setAiStatus("PENDING");
+                    if ("FAILED".equals(detail.getAiStatusCode()) || "ERROR".equals(detail.getAiStatusCode())) {
+                        detail.setAiStatusCode("PENDING");
                         detail.setDescription("재처리 대상으로 변경됨");
                         detail.setAiProcessedAt(null);
                         gameDetailRepository.save(detail);
@@ -234,7 +234,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("PENDING".equals(detail.getAiStatus())) {
+                    if ("PENDING".equals(detail.getAiStatusCode())) {
                         detail.markAIAnalyzing();
                         gameDetailRepository.save(detail);
                     }
@@ -257,8 +257,8 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("PROCESSING".equals(detail.getAiStatus()) || "ANALYZING".equals(detail.getAiStatus())) {
-                        detail.setAiStatus("COMPLETED");
+                    if ("PROCESSING".equals(detail.getAiStatusCode()) || "ANALYZING".equals(detail.getAiStatusCode())) {
+                        detail.setAiStatusCode("COMPLETED");
                         detail.setDescription("AI 분석 완료");
                         gameDetailRepository.save(detail);
                     }
@@ -384,7 +384,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
     }
 
     private Map<String, Long> countByAiStatusGrouped() {
-        List<Object[]> results = gameDetailRepository.findAiStatusCounts();
+        List<Object[]> results = gameDetailRepository.findAiStatusCodeCounts();
         Map<String, Long> statusCounts = new HashMap<>();
 
         for (Object[] result : results) {
@@ -397,7 +397,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
     }
 
     private Map<String, Long> countByAiStatusAndDifficultyGrouped(String difficultyCode) {
-        List<Object[]> results = gameDetailRepository.findAiStatusCountsByDifficulty(difficultyCode);
+        List<Object[]> results = gameDetailRepository.findAiStatusCodeCountsByDifficulty(difficultyCode);
         Map<String, Long> statusCounts = new HashMap<>();
 
         for (Object[] result : results) {
