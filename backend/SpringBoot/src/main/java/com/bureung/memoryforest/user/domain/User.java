@@ -2,8 +2,13 @@ package com.bureung.memoryforest.user.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "USERS")
@@ -12,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements UserDetails{ //UserDetail이라는 인터페이스를 스프링 시큐리티에서 제공하는거라고 하네용 ~
     @Id
     @Column(name = "USER_ID", length = 10, nullable = false)
     private String userId;
@@ -52,4 +57,52 @@ public class User {
     
     @Column(name = "LOGIN_AT")
     private LocalDateTime loginAt;
+
+
+    // UserDetails 인터페이스 구현하는 부분임다.
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // userTypeCode를 기반으로 권한 설정
+        return List.of(new SimpleGrantedAuthority("ROLE_" + userTypeCode)); //시큐리티 규칙이라고 함.. 권한은 ROLE_
+    }
+
+    @Override
+    public String getUsername() {
+        return this.userId; // userId를 username으로 - 시큐리티는 로그인시 입력하는 id값을 username으로 인식하는 규칙..
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+
+
+    // A20005 - 활성, A20006  - 비활성 , A20007  - 정지 , A20008  - 삭제 ( 음 만들어준 공통코드 발췌 )
+    @Override
+    public boolean isAccountNonLocked() {
+        // STATUS_CODE가 "A20005"(활성)인 경우만 잠김 해제
+        return "A20005".equals(this.statusCode);
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // STATUS_CODE가 "A20005"(활성)인 경우만 활성화
+        return "A20005".equals(this.statusCode);
+    }
+
+    public String getUserName() {
+        return this.userName;
+    }
+
 }

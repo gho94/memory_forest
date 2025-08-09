@@ -37,3 +37,6 @@ out/
 .vscode/
 
 application-aws.properties
+
+### gmail - 계정정보
+application-email.properties
