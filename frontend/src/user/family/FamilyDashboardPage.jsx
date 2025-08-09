@@ -38,6 +38,11 @@ function FamilyDashboardPage() {
   }, [location.state]);
 
   const handleNextStep = () => {
+    if (selectedPatients.length === 0) {
+      alert('환자를 선택해주세요.');
+      return;
+    }
+    
     navigate('/companion/games/create', { 
       state: { 
         gameTitle: gameTitle, 
