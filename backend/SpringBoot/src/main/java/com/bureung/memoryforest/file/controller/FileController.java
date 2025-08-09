@@ -37,7 +37,7 @@ public class FileController {
      * 파일 ID로 파일 정보 조회
      */
     @GetMapping("/{fileId}")
-    public ResponseEntity<FileUploadResponseDto> getFileById(@PathVariable Integer fileId) {
+    public ResponseEntity<FileUploadResponseDto> getFileById(@PathVariable("fileId") Integer fileId) {
         FileUploadResponseDto fileInfo = fileService.getFileById(fileId);
         if (fileInfo == null) {
             return ResponseEntity.notFound().build();
