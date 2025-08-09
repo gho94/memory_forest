@@ -129,8 +129,9 @@ async def analyze_answer(request: AIAnalysisRequest):
             wrong_score_2=0,
             wrong_score_3=0,
             ai_status="FAILED",
-            description=result.get('error', 'AI 분석 실패')
+            description="Model not loaded"
         )
+        return response.model_dump(by_alias=True)
 
     # 성공한 경우 데이터 처리
     wrong_options = result["wrong_options"]
