@@ -1,9 +1,9 @@
 const GamePlayerDetailItem = ({ game }) => {
     const allOptions = [
-        { text: game.answerText, isCorrect: true },
-        { text: game.wrongOption1, isCorrect: false },
-        { text: game.wrongOption2, isCorrect: false },
-        { text: game.wrongOption3, isCorrect: false }
+        { text: game.answerText, name: game.isCorrect === 'Y' ? 'correct-selected' : 'correct-answer' },
+        { text: game.wrongOption1, name: game.isCorrect === 'Y' || game.selectedOption !== 2 ? 'normal-option' : 'wrong-selected' },
+        { text: game.wrongOption2, name: game.isCorrect === 'Y' || game.selectedOption !== 3 ? 'normal-option' : 'wrong-selected' },
+        { text: game.wrongOption3, name: game.isCorrect === 'Y' || game.selectedOption !== 4 ? 'normal-option' : 'wrong-selected' }
     ].filter(option => option.text); // null/undefined 제거
 
     // Fisher-Yates 셔플 알고리즘
@@ -18,12 +18,6 @@ const GamePlayerDetailItem = ({ game }) => {
 
     const shuffledOptions = shuffleArray(allOptions);
 
-    // 셔플된 배열에서 정답의 인덱스 찾기
-    const correctAnswerIndex = shuffledOptions.findIndex(option => option.isCorrect);
-
-    // 사용자가 선택한 인덱스 (API에서 selectedOption 받아와야 함)
-    const userSelectedIndex = (game.selectedOption || 1) - 1;
-
     return (
         <div className="game-item">
             <div className="game-content">
@@ -35,26 +29,8 @@ const GamePlayerDetailItem = ({ game }) => {
                     </div>
                     <div className="options-grid">
                         {shuffledOptions.map((option, index) => {
-                            let className = "option-btn normal-option";
-
-                            if (game.isCorrect === 'Y') {
-                                // 정답인 경우: 사용자가 선택한 옵션이 정답
-                                if (index === userSelectedIndex) {
-                                    className = "option-btn correct-selected";
-                                }
-                            } else {
-                                // 오답인 경우
-                                if (index === correctAnswerIndex) {
-                                    // 정답 옵션
-                                    className = "option-btn correct-answer";
-                                } else if (index === userSelectedIndex) {
-                                    // 사용자가 잘못 선택한 옵션
-                                    className = "option-btn wrong-selected";
-                                }
-                            }
-
                             return (
-                                <div key={index} className={className}>
+                                <div key={index} className={'option-btn '+option.name}>
                                     {option.text}
                                 </div>
                             );
