@@ -1,3 +1,5 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
 import '@/assets/css/family.css';
@@ -6,6 +8,12 @@ import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 // import AlarmModal from '@/components/modal/AlarmModal';
 
 function FamilyGameCompletePage() {
+  const navigate = useNavigate();
+
+  const handleGoToList = () => {
+    navigate('/companion/dashboard');
+  };
+
  return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
@@ -28,7 +36,7 @@ function FamilyGameCompletePage() {
               <div className="col-6 link-icon"></div>
             </div>
           </div>
-          <button type="button" className="btn btn-login">목록으로</button>
+          <button type="button" className="btn btn-login" onClick={handleGoToList}>목록으로</button>
         </div>
       </main>
       

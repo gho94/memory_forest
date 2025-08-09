@@ -37,7 +37,7 @@ function Router() {
         {/* 동행자-게임 */}
         <Route path="/companion/games/create" element={<FamilyGameCreatePage />} />
         <Route path="/companion/games/complete" element={<FamilyGameCompletePage />} />
-         <Route path="/companion/games/list" element={<FamilyGameListPage />} />
+        <Route path="/companion/games/list" element={<FamilyGameListPage />} />
         
         {/* 기록자 */}
         <Route path="/recoder/dashboard" element={<PatientDashboardPage />} />
