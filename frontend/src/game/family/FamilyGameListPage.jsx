@@ -37,7 +37,7 @@ function FamilyGameListPage() {
     if (!fileId) return null;
     
     try {
-      const response = await fetch(`http://localhost:8080/api/files/${fileId}`);
+      const response = await fetch(`${window.API_BASE_URL}/api/files/${fileId}`);
       if (!response.ok) {
         console.error('파일 조회 실패:', fileId);
         return null;
@@ -56,7 +56,7 @@ function FamilyGameListPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/companion/games/list?gameId=${gameId}`);
+      const response = await fetch(`${window.API_BASE_URL}/companion/games/list?gameId=${gameId}`);
       if (!response.ok) {
         throw new Error('데이터를 가져오는데 실패했습니다.');
       }

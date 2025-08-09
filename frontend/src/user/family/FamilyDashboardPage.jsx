@@ -61,7 +61,7 @@ function FamilyDashboardPage() {
   const fetchGameList = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/companion/dashboard');
+      const response = await fetch(`${window.API_BASE_URL}/companion/dashboard`);
       if (!response.ok) {
         throw new Error('데이터를 가져오는데 실패했습니다.');
       }
