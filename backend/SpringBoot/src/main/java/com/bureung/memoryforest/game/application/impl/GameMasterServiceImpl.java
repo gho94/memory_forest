@@ -171,14 +171,14 @@ public class GameMasterServiceImpl implements GameMasterService  {
                             detail.getGameId(), detail.getGameSeq(), response.getAiStatus(), response.getDescription());
 
                     if ("COMPLETED".equals(response.getAiStatus())) {
-                        detail.updateAIAnalysisResult(
+                        detail.updateAIAnalysisResult(  // ← detail 변수 사용
                             response.getWrongOption1(),
-                            response.getWrongOption2(),
+                            response.getWrongOption2(), 
                             response.getWrongOption3(),
-                            response.getWrongScore1(),
-                            response.getWrongScore2(),
-                            response.getWrongScore3(),
-                            response.getAiStatus(),
+                            response.getWrongScore1() != null ? response.getWrongScore1().intValue() : 0,
+                            response.getWrongScore2() != null ? response.getWrongScore2().intValue() : 0,
+                            response.getWrongScore3() != null ? response.getWrongScore3().intValue() : 0,
+                            "COMPLETED",  // ← 문자열 상태 사용 (기존 방식 유지)
                             response.getDescription()
                         );
                         log.info("AI 분석 결과 DB 업데이트 완료: gameId={}, gameSeq={}", detail.getGameId(), detail.getGameSeq());
@@ -186,7 +186,6 @@ public class GameMasterServiceImpl implements GameMasterService  {
                         detail.markAIAnalysisFailed(response.getDescription());
                         log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}, reason={}", detail.getGameId(), detail.getGameSeq(), response.getDescription());
                     }
-
                     gameDetailRepository.save(detail);
                 }
             }

@@ -1,22 +1,24 @@
 package com.bureung.memoryforest.ai;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * AI 분석 요청 DTO (난이도 지원)
- */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class AIAnalysisRequest {
-    private String answerText;
+    
+    @JsonProperty("gameId")  // FastAPI의 snake_case에 맞춰 JSON 매핑
     private String gameId;
-    private int gameSeq;
-    private String difficultyLevel; // 난이도 필드 추가
+    
+    @JsonProperty("gameSeq")
+    private Integer gameSeq;
+    
+    @JsonProperty("answerText") 
+    private String answerText;
+    
+    @JsonProperty("difficultyLevel")
+    private String difficultyLevel;
 }

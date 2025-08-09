@@ -37,52 +37,53 @@ public class GameCommandService {
      * 게임 생성 (파일 업로드와 함께)
      */
     public String createGame(String categoryCode, MultipartFile file, String answerText,
-                             String gameName, String gameDesc, String difficultyLevel, String createdBy) throws IOException {
+                         String gameName, String gameDesc, String difficultyLevel, String createdBy) throws IOException {
 
-        String gameId = generateGameId();
+    String gameId = generateGameId();
 
-        // 난이도 코드 매핑
-        String difficultyCode = mapDifficultyLevelToCode(difficultyLevel);
+    // 난이도 코드 매핑
+    String difficultyCode = mapDifficultyLevelToCode(difficultyLevel);
 
-        // GameMaster 생성
-        GameMaster gameMaster = GameMaster.builder()
-                .gameId(gameId)
-                .gameName(gameName)
-                .gameDesc(gameDesc)
-                .gameCount(1)
-                .difficultyLevelCode(difficultyCode)
-                .creationStatusCode("CREATING")
-                .createdBy(createdBy)
-                .build();
+    // GameMaster 생성
+    GameMaster gameMaster = GameMaster.builder()
+            .gameId(gameId)
+            .gameName(gameName)
+            .gameDesc(gameDesc)
+            .gameCount(1)
+            .difficultyLevelCode(difficultyCode)
+            .creationStatusCode("CREATING")
+            .createdBy(createdBy)
+            .build();
 
-        gameMasterRepository.save(gameMaster);
+    gameMasterRepository.save(gameMaster);
 
-        // 파일 저장
-        String fileName = saveFile(file);
-        Path filePath = Paths.get(UPLOAD_DIR + fileName);
+    // 파일 저장
+    String fileName = saveFile(file);
+    Path filePath = Paths.get(UPLOAD_DIR + fileName);
 
-        // GameDetail 생성
-        GameDetail gameDetail = GameDetail.builder()
-                .gameId(gameId)
-                .gameSeq(1)
-                .gameOrder(1)
-                .categoryCode(categoryCode)
-                .originalName(file.getOriginalFilename())
-                .fileName(fileName)
-                .filePath(filePath.toString())
-                .fileSize(file.getSize())
-                .mimeType(file.getContentType())
-                .answerText(answerText)
-                .aiStatus("PENDING")
-                .build();
+    // GameDetail 생성 - 기존 구조 유지하면서 수정
+    GameDetail gameDetail = GameDetail.builder()
+            .gameId(gameId)
+            .gameSeq(1)
+            .gameOrder(1)
+            .categoryCode(categoryCode)  // ✅ 기존 필드 유지
+            .originalName(file.getOriginalFilename())
+            .fileName(fileName)
+            .filePath(filePath.toString())
+            .fileSize(file.getSize())
+            .mimeType(file.getContentType())
+            .answerText(answerText)
+            .aiStatus("PENDING")  // ✅ 기존 방식 유지
+            .description("게임 생성됨")
+            .build();
 
-        gameDetailRepository.save(gameDetail);
+    gameDetailRepository.save(gameDetail);
 
-        // AI 분석 비동기 요청
-        requestAIAnalysis(gameId, 1, answerText, difficultyLevel);
+    // AI 분석 비동기 요청
+    requestAIAnalysis(gameId, 1, answerText, difficultyLevel);
 
-        log.info("게임 생성 완료: gameId={}, gameName={}", gameId, gameName);
-        return gameId;
+    log.info("게임 생성 완료: gameId={}, gameName={}", gameId, gameName);
+    return gameId;
     }
 
     /**

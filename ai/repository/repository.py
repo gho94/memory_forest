@@ -122,14 +122,25 @@ def update_game_ai_result(game_id: str, game_seq: int, ai_result: Dict) -> bool:
             ai_processed_at = NOW()
         WHERE game_id = %s AND game_seq = %s
         """
-        
+        score1 = ai_result.get('wrong_score_1', 0)
+        score2 = ai_result.get('wrong_score_2', 0)
+        score3 = ai_result.get('wrong_score_3', 0)
+
+        # float이면 정수로 변환, 아니면 그대로 사용
+        if isinstance(score1, float):
+            score1 = int(score1)
+        if isinstance(score2, float):
+            score2 = int(score2)
+        if isinstance(score3, float):
+            score3 = int(score3)
+
         values = (
             ai_result.get('wrong_option_1', ''),
             ai_result.get('wrong_option_2', ''),
             ai_result.get('wrong_option_3', ''),
-            ai_result.get('wrong_score_1', 0.0),
-            ai_result.get('wrong_score_2', 0.0), 
-            ai_result.get('wrong_score_3', 0.0),
+            score1,  # 정수로 변환된 점수
+            score2,  # 정수로 변환된 점수
+            score3,
             ai_result.get('ai_status', 'FAILED'),
             ai_result.get('description', ''),
             game_id,
@@ -139,12 +150,9 @@ def update_game_ai_result(game_id: str, game_seq: int, ai_result: Dict) -> bool:
         cursor.execute(query, values)
         connection.commit()
         
-        if cursor.rowcount > 0:
-            logger.info(f"AI 결과 업데이트 성공: {game_id}-{game_seq}")
-            return True
-        else:
-            logger.warning(f"업데이트할 행이 없음: {game_id}-{game_seq}")
-            return False
+        affected_rows = cursor.rowcount
+        logger.info(f"게임 AI 결과 업데이트 완료: {game_id}/{game_seq} (영향받은 행: {affected_rows})")
+        return affected_rows > 0
             
     except Exception as e:
         logger.error(f"AI 결과 업데이트 실패: {game_id}-{game_seq}, 에러: {e}")

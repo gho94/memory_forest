@@ -27,15 +27,12 @@ public interface GameDetailRepository extends JpaRepository<GameDetail, GameDeta
     // 게임 ID로 문제 개수 조회
     long countByGameId(String gameId);
     
-    // AI 분석 상태별 조회
+    // AI 분석 상태별 조회 (✅ aiStatus 필드 사용)
     List<GameDetail> findByAiStatus(String aiStatus);
     
     // AI 분석 대기 중인 항목들 조회
     @Query("SELECT g FROM GameDetail g WHERE g.aiStatus = 'PENDING' AND g.answerText IS NOT NULL AND g.answerText != ''")
     List<GameDetail> findPendingAIAnalysis();
-    
-    // 카테고리별 게임 조회
-    List<GameDetail> findByCategoryCodeOrderByGameIdDesc(String categoryCode);
     
     // 게임 ID로 첫 번째 문제 조회
     @Query("SELECT g FROM GameDetail g WHERE g.gameId = :gameId AND g.gameSeq = 1")
@@ -53,11 +50,11 @@ public interface GameDetailRepository extends JpaRepository<GameDetail, GameDeta
     @Query("SELECT COUNT(g) FROM GameDetail g WHERE g.aiProcessedAt >= :dateTime")
     Long countRecentlyProcessed(@Param("dateTime") LocalDateTime dateTime);
     
-    // AI 상태별 개수 집계
+    // AI 상태별 개수 집계 (✅ aiStatus 필드 사용)
     @Query("SELECT g.aiStatus, COUNT(g) FROM GameDetail g GROUP BY g.aiStatus")
     List<Object[]> findAiStatusCounts();
     
-    // 난이도별 AI 상태별 개수 집계 (GameMaster와 조인)
+    // 난이도별 AI 상태별 개수 집계
     @Query("""
         SELECT gd.aiStatus, COUNT(gd)
         FROM GameDetail gd 
