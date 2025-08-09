@@ -12,7 +12,7 @@ function FamilyGameCreatePage() {
   const location = useLocation();
   const [problems, setProblems] = useState([]);
   const [gameTitle, setGameTitle] = useState('');
-  
+  const [selectedPatients, setSelectedPatients] = useState([]);
   const totalProblems = problems.length;
   const progressPercentage = Math.min((totalProblems / 10) * 100, 100);
 
@@ -20,7 +20,8 @@ function FamilyGameCreatePage() {
     gameName: gameTitle,
     gameDesc: '',
     gameDetails: problems,
-    totalProblems: totalProblems
+    totalProblems: totalProblems,
+    selectedPatients: selectedPatients
   }  
   const [currentProblem, setCurrentProblem] = useState({
     fileId: null,
@@ -36,6 +37,7 @@ function FamilyGameCreatePage() {
   useEffect(() => {
     if (location.state && location.state.gameTitle) {
       setGameTitle(location.state.gameTitle);
+      setSelectedPatients(location.state.selectedPatients);
     }
   }, [location.state]);
 

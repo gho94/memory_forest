@@ -16,6 +16,15 @@ function FamilyDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [gameList, setGameList] = useState([]);
+  
+  // 샘플 환자 데이터
+  const [samplePatients, setSamplePatients] = useState([
+    { userId: 'U0001', userName: '김철수', age: 78, relation: '부', selected: false },
+    { userId: 'U0002', userName: '이영희', age: 75, relation: '모', selected: false },
+    { userId: 'U0003', userName: '박민수', age: 82, relation: '할아버지', selected: false }
+  ]);
+  
+  const [selectedPatients, setSelectedPatients] = useState([]);
 
   useEffect(() => {
     if (location.state) {
@@ -30,7 +39,10 @@ function FamilyDashboardPage() {
 
   const handleNextStep = () => {
     navigate('/companion/games/create', { 
-      state: { gameTitle: gameTitle } 
+      state: { 
+        gameTitle: gameTitle, 
+        selectedPatients: selectedPatients 
+      } 
     });
   };
 
@@ -79,6 +91,24 @@ function FamilyDashboardPage() {
   useEffect(() => {
     fetchGameList();
   }, []);
+
+  const handlePatientSelection = (patientId) => {
+    setSamplePatients(prev => 
+      prev.map(patient => 
+        patient.userId === patientId 
+          ? { ...patient, selected: !patient.selected }
+          : patient
+      )
+    );
+    
+    setSelectedPatients(prev => {
+      if (prev.includes(patientId)) {
+        return prev.filter(id => id !== patientId);
+      } else {
+        return [...prev, patientId];
+      }
+    });
+  };
 
   return (
     <div className="app-container d-flex flex-column">
@@ -239,15 +269,20 @@ function FamilyDashboardPage() {
           </div>
           <div className="game-modal-title mb-1">게임 대상</div>
           <div className="modal-body-scroll d-flex flex-column gap-3">
-            {[1,2,3].map((i) => (
-              <div key={i} className="account-info align-items-start d-flex gap-2">
+            {samplePatients.map((patient) => (
+              <div key={patient.userId} className="account-info align-items-start d-flex gap-2">
                 <div>
-                  <input type="checkbox" className="modal-checkbox" />
+                  <input 
+                    type="checkbox" 
+                    className="modal-checkbox"
+                    checked={patient.selected}
+                    onChange={() => handlePatientSelection(patient.userId)}
+                  />
                 </div>
                 <div>
                   <div className="patient-con">
-                    <span className="patient-name">환자01</span>
-                    <span className="patient-reg-date">(78세, 부)</span>
+                    <span className="patient-name">{patient.userName}</span>
+                    <span className="patient-reg-date">({patient.age}세, {patient.relation})</span>
                   </div>
                 </div>
               </div>
