@@ -72,8 +72,22 @@ const CommonCodePage = () => {
         navigate(`/common-code?parentCodeID=${codeId}`);
     };
 
-    const handleBackClick = () => {
-        navigate('/common-code');
+    const handleBackClick = async () => {
+        try {
+            const response = await fetch(`${window.API_BASE_URL}/api/common-codes/${parentCodeID}`);            
+            if (response.ok) {
+                const currentCode = await response.json();
+                if (currentCode.parentCodeId) {
+                    navigate(`/common-code?parentCodeID=${currentCode.parentCodeId}`);
+                } else {
+                    navigate('/common-code');
+                }
+            } else {
+                navigate('/common-code');
+            }
+        } catch (err) {
+            navigate('/common-code');
+        }
     };
 
     const handleEditClick = (code, e) => {
@@ -149,13 +163,18 @@ const CommonCodePage = () => {
                 <div className="game-list-wrap">
                     <div className="game-list-con">                        
                             {commonCodeData.map((code) => (
-                             <div className="game-item" key={code.codeId}>
-                                 <div className="game-number">{commonCodeData.indexOf(code) + 1}</div>
+                             <div className="game-item" key={code.codeId}>                                
                                  <div className="game-box" onClick={() => handleCodeClick(code.codeId)} style={{ cursor: 'pointer' }}>                                     
+                                     <div className="game-title">{code.codeId}</div>
                                      <div className="game-title">{code.codeName}</div>
-                                     <div className="game-title">{code.parentCodeId}</div>
-                                     <div className="game-answer">{code.useYn}</div>
                                      <div className="game-texts"></div>
+                                     <div>
+                                        <input 
+                                            type="checkbox" 
+                                            className="modal-checkbox"
+                                            checked={code.useYn === 'Y'}
+                                        />
+                                    </div>
                                      <button className="game-edit-btn" onClick={(e) => handleEditClick(code, e)}>수정</button>
                                  </div>
                              </div>
