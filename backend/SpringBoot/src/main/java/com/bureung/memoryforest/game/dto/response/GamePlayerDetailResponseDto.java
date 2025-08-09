@@ -10,6 +10,7 @@ import java.nio.file.Path;
 public class GamePlayerDetailResponseDto {
     private String gameId;
     private Integer gameSeq;
+    private Integer selectedOption;
     private String isCorrect;
     private String gameTitle;
     private Integer scoreEarned;
