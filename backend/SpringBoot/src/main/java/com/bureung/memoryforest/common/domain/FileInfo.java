@@ -3,7 +3,7 @@ package com.bureung.memoryforest.common.domain;
 import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "file_info")
@@ -16,7 +16,7 @@ public class FileInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_id")
-    private Integer fileID;    
+    private Integer fileId;    
 
     @Column(name = "original_name", nullable = false, length = 255) 
     private String originalName;
@@ -36,6 +36,7 @@ public class FileInfo {
     @Column(name = "content_type", nullable = true, length = 100)
     private String contentType;
 
+    @CreationTimestamp
     @Column(name = "upload_date", nullable = false)
     private LocalDateTime uploadDate;
 

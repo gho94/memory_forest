@@ -86,8 +86,6 @@ function FamilyGameCreatePage() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('createdBy', 'admin');
-    formData.append('isPublic', 'true');
 
     try {
       const response = await fetch(`${window.API_BASE_URL}/api/files/upload`, {
