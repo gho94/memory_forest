@@ -19,8 +19,6 @@ import PatientChartPage from '@/user/patient/PatientChartPage';
 import PatientMyPage from '@/user/patient/PatientMyPage';
 import PatientRecord from '@/user/patient/PatientRecord';
 import GamePage from '@/game/patient/GamePage';
-import GameResultPage from '@/game/patient/GameResultPage';
-import PatientGameAnswerResultPage from '@/game/patient/PatientGameAnswerResultPage';
 import CommonCodePage from '@/user/common/CommonCodePage';
 
 function Router() {
@@ -46,14 +44,12 @@ function Router() {
         <Route path="/companion/games/list" element={<FamilyGameListPage />} />
         
         {/* 기록자 */}
-        <Route path="/recoder/dashboard" element={<PatientDashboardPage />} />
-        <Route path="/recoder/chart" element={<PatientChartPage />} />
-        <Route path="/recoder/mypage" element={<PatientMyPage />} />
-        <Route path="/recoder/record" element={<PatientRecord />} />
+        <Route path="/recorder/dashboard" element={<PatientDashboardPage />} />
+        <Route path="/recorder/chart" element={<PatientChartPage />} />
+        <Route path="/recorder/mypage" element={<PatientMyPage />} />
+        <Route path="/recorder/record" element={<PatientRecord />} />
         {/* 기록자-게임 */}
-        <Route path="/recoder/game" element={<GamePage />} />
-        <Route path="/recoder/game/result" element={<GameResultPage />} />
-        <Route path="/recoder/game/result/:id" element={<PatientGameAnswerResultPage />} />
+        <Route path="/recorder/game" element={<GamePage />} />
 
         {/* 기타 관리자.. 추가예쩡 */}
         <Route path="/common-code" element={<CommonCodePage />} />

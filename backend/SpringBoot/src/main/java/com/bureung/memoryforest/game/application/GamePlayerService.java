@@ -1,11 +1,13 @@
 package com.bureung.memoryforest.game.application;
 
 import com.bureung.memoryforest.game.domain.GamePlayer;
+import com.bureung.memoryforest.game.dto.response.GamePlayResultResponseDto;
 import com.bureung.memoryforest.game.dto.response.GameWeeklyAccuracyChartDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 //leb. Recorder가 게임을 실제 플레이할 때 처리하는 로직 (퀴즈 응답, 채점 등)
@@ -61,4 +63,8 @@ public interface GamePlayerService {
      * 가장 최근에 푼 게임 조회
      */
     Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId);
+
+    GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId);
+    int getCountByPlayerId(String playerId);
+    Map<String, Object> getPlayerStats(String playerId);
 }

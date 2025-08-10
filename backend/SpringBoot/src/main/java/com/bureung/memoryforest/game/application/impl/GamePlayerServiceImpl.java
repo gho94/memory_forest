@@ -1,7 +1,9 @@
 package com.bureung.memoryforest.game.application.impl;
 
+import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
 import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.domain.GamePlayer;
+import com.bureung.memoryforest.game.dto.response.GamePlayResultResponseDto;
 import com.bureung.memoryforest.game.dto.response.GameWeeklyAccuracyChartDto;
 import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GamePlayerServiceImpl implements GamePlayerService {
     private final GamePlayerRepository gamePlayerRepository;
+    private final GamePlayerAnswerService gamePlayerAnswerService;
 
     @Override
     public Optional<GamePlayer> getGamesByGameIdAndPlayerId(String gameId, String playerId) {
@@ -94,5 +98,30 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     @Override
     public Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId){
         return gamePlayerRepository.findFirstByIdPlayerIdAndEndTimeIsNotNullOrderByEndTimeDesc(playerId);
+    }
+
+    @Override
+    public GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId){
+        GamePlayResultResponseDto response = gamePlayerAnswerService.getGamePlayAnswerResultSummary(gameId, playerId).orElseThrow(() -> new RuntimeException("게임을 찾을 수 없습니다: " + gameId));
+        GamePlayer gamePlayer = getGamesByGameIdAndPlayerId(gameId, playerId).orElseThrow();
+        gamePlayer.setTotalScore(response.getTotalScore());
+        gamePlayer.setAccuracyRate(response.getAccuracyRate());
+        gamePlayer.setDurationSeconds(response.getDurationSeconds());
+        gamePlayer.setCorrectCount(response.getCorrectCount());
+        gamePlayerRepository.save(gamePlayer);
+        return response;
+    }
+
+    @Override
+    public int getCountByPlayerId(String playerId){
+        return gamePlayerRepository.countByIdPlayerIdAndEndTimeIsNotNull(playerId).orElse(0);
+    }
+
+    @Override
+    public Map<String, Object> getPlayerStats(String playerId){
+        return Map.of(
+                "totalGames", getCountByPlayerId(playerId),
+                "averageAccuracy", getOverallAccuracyRate(playerId)
+        );
     }
 }
