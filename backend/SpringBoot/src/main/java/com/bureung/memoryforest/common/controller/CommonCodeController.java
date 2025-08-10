@@ -41,6 +41,24 @@ public class CommonCodeController {
         }
     }
 
+    @GetMapping("/{codeId}")
+    public ResponseEntity<CommonCodeResponseDto> getCommonCodeById(@PathVariable String codeId) {
+        log.info("공통코드 개별 조회 API 호출: codeId={}", codeId);
+        try {
+            CommonCodeResponseDto commonCode = commonCodeService.getCommonCodeById(codeId);
+            if (commonCode != null) {
+                log.info("공통코드 개별 조회 완료");
+                return ResponseEntity.ok(commonCode);
+            } else {
+                log.warn("공통코드를 찾을 수 없음: codeId={}", codeId);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("공통코드 개별 조회 중 오류 발생", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<CommonCodeResponseDto> createCommonCode(@RequestBody CommonCodeRequestDto requestDto) {
         log.info("공통코드 생성 API 호출: {}", requestDto);

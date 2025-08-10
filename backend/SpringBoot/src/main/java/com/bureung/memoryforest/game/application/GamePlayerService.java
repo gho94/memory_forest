@@ -51,4 +51,14 @@ public interface GamePlayerService {
      * 게임 종료 날짜 조회
      */
     LocalDate getGameEndDate(String userId, String gameId);
+
+    /**
+     * 진행중인 게임 조회
+     */
+    Optional<GamePlayer> getInProgressGameByPlayerId(String playerId);
+
+    /**
+     * 가장 최근에 푼 게임 조회
+     */
+    Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId);
 }

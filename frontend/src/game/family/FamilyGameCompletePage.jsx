@@ -1,3 +1,5 @@
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
 import '@/assets/css/family.css';
@@ -6,6 +8,17 @@ import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 // import AlarmModal from '@/components/modal/AlarmModal';
 
 function FamilyGameCompletePage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { gameData } = location.state || {};
+  console.log('gameData:', gameData);
+  const gameTitle = gameData.gameName || 'untitled';
+  const totalProblems = gameData.totalProblems || 0;
+
+  const handleGoToList = () => {
+    navigate('/companion/dashboard');
+  };
+
  return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
@@ -16,9 +29,9 @@ function FamilyGameCompletePage() {
         <div className="signup-form game-signup-form game-complete-gap">
           <div className="row game-result-con">
             <div className="col-5 desc-title">게임 제목</div>
-            <div className="col-7">untitled10</div>
+            <div className="col-7">{gameTitle}</div>
             <div className="col-5 desc-title">문제 개수</div>
-            <div className="col-7">10</div>
+            <div className="col-7">{totalProblems}</div>
           </div>
 
           <div>
@@ -28,7 +41,7 @@ function FamilyGameCompletePage() {
               <div className="col-6 link-icon"></div>
             </div>
           </div>
-          <button type="button" className="btn btn-login">목록으로</button>
+          <button type="button" className="btn btn-login" onClick={handleGoToList}>목록으로</button>
         </div>
       </main>
       

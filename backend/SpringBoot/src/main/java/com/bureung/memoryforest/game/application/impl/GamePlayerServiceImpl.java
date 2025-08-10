@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -83,5 +84,15 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     @Override
     public LocalDate getGameEndDate(String userId, String gameId) {
         return gamePlayerRepository.findGameEndDate(userId, gameId).orElse(null);
+    }
+
+    @Override
+    public Optional<GamePlayer> getInProgressGameByPlayerId (String playerId){
+        return gamePlayerRepository.findByIdPlayerIdAndEndTimeIsNullAndStartTimeIsNotNull(playerId);
+    }
+
+    @Override
+    public Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId){
+        return gamePlayerRepository.findFirstByIdPlayerIdAndEndTimeIsNotNullOrderByEndTimeDesc(playerId);
     }
 }

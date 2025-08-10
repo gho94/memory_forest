@@ -4,7 +4,6 @@ import com.bureung.memoryforest.ai.AIAnalysisRequest;
 import com.bureung.memoryforest.ai.AIAnalysisResponse;
 import com.bureung.memoryforest.ai.AIClientService;
 import com.bureung.memoryforest.game.application.GameMasterService;
-import com.bureung.memoryforest.game.application.impl.GameMasterServiceImpl;
 import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.repository.GameDetailRepository;
@@ -38,21 +37,21 @@ public class GameMasterServiceImpl implements GameMasterService  {
     // 난이도 코드 매핑 메서드들
     private String mapDifficultyCodeToLevel(String difficultyCode) {
         switch (difficultyCode) {
-            case "D10001": return "EASY";
-            case "D10002": return "NORMAL";
-            case "D10003": return "HARD";
-            case "D10004": return "EXPERT";
+            case "B20001": return "EASY";    // 초급
+            case "B20002": return "NORMAL";  // 중급
+            case "B20003": return "HARD";    // 고급
+            case "B20004": return "EXPERT";  // 전문가
             default: return "NORMAL";
         }
     }
 
     private String mapDifficultyLevelToCode(String difficultyLevel) {
         switch (difficultyLevel.toUpperCase()) {
-            case "EASY": return "D10001";
-            case "NORMAL": return "D10002";
-            case "HARD": return "D10003";
-            case "EXPERT": return "D10004";
-            default: return "D10002"; // 기본값: NORMAL
+            case "EASY": return "B20001";    // 초급
+            case "NORMAL": return "B20002";  // 중급
+            case "HARD": return "B20003";    // 고급
+            case "EXPERT": return "B20004";  // 전문가
+            default: return "B20002"; // 기본값: NORMAL
         }
     }
 
@@ -104,7 +103,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 .gameDesc(gameDesc)
                 .gameCount(gameCount)
                 .difficultyLevelCode(mapDifficultyLevelToCode(difficultyLevel))
-                .creationStatusCode("CREATING")
+                .creationStatusCode("B20006") // 생성중
                 .createdBy(createdBy)
                 .build();
 
@@ -138,7 +137,9 @@ public class GameMasterServiceImpl implements GameMasterService  {
     @Override
     @Transactional(readOnly = true)
     public List<GameMaster> getGamesByAIStatus(String aiStatus) {
-        List<GameDetail> details = gameDetailRepository.findByAiStatus(aiStatus);
+        // 문자열 상태를 상태 코드로 변환
+        String aiStatusCode = mapAIStatusToCode(aiStatus);
+        List<GameDetail> details = gameDetailRepository.findByAiStatusCode(aiStatusCode);
 
         return details.stream()
                 .map(detail -> getGameById(detail.getGameId()))
@@ -173,12 +174,12 @@ public class GameMasterServiceImpl implements GameMasterService  {
                     if ("COMPLETED".equals(response.getAiStatus())) {
                         detail.updateAIAnalysisResult(
                             response.getWrongOption1(),
-                            response.getWrongOption2(),
+                            response.getWrongOption2(), 
                             response.getWrongOption3(),
-                            response.getWrongScore1(),
-                            response.getWrongScore2(),
-                            response.getWrongScore3(),
-                            response.getAiStatus(),
+                            response.getWrongScore1() != null ? response.getWrongScore1().intValue() : 0,
+                            response.getWrongScore2() != null ? response.getWrongScore2().intValue() : 0,
+                            response.getWrongScore3() != null ? response.getWrongScore3().intValue() : 0,
+                            "B20007",  // 완료 상태 코드
                             response.getDescription()
                         );
                         log.info("AI 분석 결과 DB 업데이트 완료: gameId={}, gameSeq={}", detail.getGameId(), detail.getGameSeq());
@@ -186,7 +187,6 @@ public class GameMasterServiceImpl implements GameMasterService  {
                         detail.markAIAnalysisFailed(response.getDescription());
                         log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}, reason={}", detail.getGameId(), detail.getGameSeq(), response.getDescription());
                     }
-
                     gameDetailRepository.save(detail);
                 }
             }
@@ -209,8 +209,8 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("FAILED".equals(detail.getAiStatus()) || "ERROR".equals(detail.getAiStatus())) {
-                        detail.setAiStatus("PENDING");
+                    if ("B20008".equals(detail.getAiStatusCode()) || "B20009".equals(detail.getAiStatusCode())) { // 실패 또는 취소
+                        detail.setAiStatusCode("B20005"); // 대기중으로 변경
                         detail.setDescription("재처리 대상으로 변경됨");
                         detail.setAiProcessedAt(null);
                         gameDetailRepository.save(detail);
@@ -234,7 +234,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("PENDING".equals(detail.getAiStatus())) {
+                    if ("B20005".equals(detail.getAiStatusCode())) { // 대기중
                         detail.markAIAnalyzing();
                         gameDetailRepository.save(detail);
                     }
@@ -257,8 +257,8 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
-                    if ("PROCESSING".equals(detail.getAiStatus()) || "ANALYZING".equals(detail.getAiStatus())) {
-                        detail.setAiStatus("COMPLETED");
+                    if ("B20006".equals(detail.getAiStatusCode())) { // 생성중/진행중
+                        detail.setAiStatusCode("B20007"); // 완료
                         detail.setDescription("AI 분석 완료");
                         gameDetailRepository.save(detail);
                     }
@@ -267,7 +267,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 // 게임 마스터 상태도 업데이트
                 GameMaster gameMaster = gameMasterRepository.findById(gameId).orElse(null);
                 if (gameMaster != null) {
-                    gameMaster.setCreationStatusCode("COMPLETED");
+                    gameMaster.setCreationStatusCode("B20007"); // 완료
                     gameMasterRepository.save(gameMaster);
                 }
             }
@@ -295,7 +295,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 // 게임 마스터 상태도 업데이트
                 GameMaster gameMaster = gameMasterRepository.findById(gameId).orElse(null);
                 if (gameMaster != null) {
-                    gameMaster.setCreationStatusCode("FAILED");
+                    gameMaster.setCreationStatusCode("B20008"); // 실패
                     gameMasterRepository.save(gameMaster);
                 }
             }
@@ -324,6 +324,16 @@ public class GameMasterServiceImpl implements GameMasterService  {
     }
 
     @Override
+    public int getGameCountByGameId(String gameId) {
+        return gameMasterRepository.findGameCountByGameId(gameId).orElse(0);
+    }
+
+    @Override
+    public Optional<GameMaster> getOldestUnplayedGameByPlayerId(String playerId) {
+        return gameMasterRepository.findOldestUnplayedGameByPlayerId(playerId);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getProcessingStatistics() {
         try {
@@ -336,7 +346,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
             // 난이도별 통계
             Map<String, Map<String, Long>> difficultyStats = new HashMap<>();
 
-            for (String difficultyCode : Arrays.asList("D10001", "D10002", "D10003", "D10004")) {
+            for (String difficultyCode : Arrays.asList("B20001", "B20002", "B20003", "B20004")) {
                 String difficulty = mapDifficultyCodeToLevel(difficultyCode);
                 Map<String, Long> stats = countByAiStatusAndDifficultyGrouped(difficultyCode);
                 difficultyStats.put(difficulty, stats);
@@ -366,7 +376,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 .allMatch(GameDetail::isAIAnalysisCompleted);
 
         if (allCompleted && !gameDetails.isEmpty()) {
-            updateGameStatus(gameId, "COMPLETED", "SYSTEM");
+            updateGameStatus(gameId, "B20007", "SYSTEM"); // 완료 상태
         }
     }
 
@@ -384,28 +394,54 @@ public class GameMasterServiceImpl implements GameMasterService  {
     }
 
     private Map<String, Long> countByAiStatusGrouped() {
-        List<Object[]> results = gameDetailRepository.findAiStatusCounts();
+        List<Object[]> results = gameDetailRepository.findAiStatusCodeCounts();
         Map<String, Long> statusCounts = new HashMap<>();
 
         for (Object[] result : results) {
-            String status = (String) result[0];
+            String statusCode = (String) result[0];
             Long count = (Long) result[1];
-            statusCounts.put(status, count);
+            // 상태 코드를 문자열로 변환해서 저장
+            String statusString = mapAICodeToStatus(statusCode);
+            statusCounts.put(statusString, count);
         }
 
         return statusCounts;
     }
 
     private Map<String, Long> countByAiStatusAndDifficultyGrouped(String difficultyCode) {
-        List<Object[]> results = gameDetailRepository.findAiStatusCountsByDifficulty(difficultyCode);
+        List<Object[]> results = gameDetailRepository.findAiStatusCodeCountsByDifficulty(difficultyCode);
         Map<String, Long> statusCounts = new HashMap<>();
 
         for (Object[] result : results) {
-            String status = (String) result[0];
+            String statusCode = (String) result[0];
             Long count = (Long) result[1];
-            statusCounts.put(status, count);
+            // 상태 코드를 문자열로 변환해서 저장
+            String statusString = mapAICodeToStatus(statusCode);
+            statusCounts.put(statusString, count);
         }
 
         return statusCounts;
+    }
+
+    // AI 상태 문자열을 상태 코드로 변환
+    private String mapAIStatusToCode(String aiStatus) {
+        switch (aiStatus) {
+            case "PENDING": return "B20005";
+            case "PROCESSING": return "B20006";
+            case "COMPLETED": return "B20007";
+            case "FAILED": return "B20008";
+            default: return "B20005";
+        }
+    }
+
+    // AI 상태 코드를 문자열로 변환
+    private String mapAICodeToStatus(String statusCode) {
+        switch (statusCode) {
+            case "B20005": return "PENDING";
+            case "B20006": return "PROCESSING";
+            case "B20007": return "COMPLETED";
+            case "B20008": return "FAILED";
+            default: return "PENDING";
+        }
     }
 }
