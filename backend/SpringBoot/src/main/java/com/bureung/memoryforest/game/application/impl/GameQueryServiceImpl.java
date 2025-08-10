@@ -5,10 +5,7 @@ import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
-import com.bureung.memoryforest.game.dto.response.GameDashboardResponseDto;
-import com.bureung.memoryforest.game.dto.response.GameDashboardStatsResponseDto;
-import com.bureung.memoryforest.game.dto.response.GameRecorderDashboardResponseDto;
-import com.bureung.memoryforest.game.dto.response.GameStageResponseDto;
+import com.bureung.memoryforest.game.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -36,14 +34,13 @@ public class GameQueryServiceImpl implements GameQueryService {
         String userId = request.getUserId();
 
         // endDate 우선순위: 1. param의 endDate, 2. gameId의 end_time, 3. 오늘 날짜
-        LocalDate endDate = determineEndDate(request, userId);
-        LocalDate startDate = request.getStartDate() != null ? request.getStartDate() : endDate.minusDays(6);
+        Map<String, LocalDate> dates = determineDates(request, userId);
 
         return GameDashboardResponseDto.builder()
                 .stats(buildDashboardStats(userId))
-                .weeklyChart(gamePlayerService.getWeeklyAccuracyChart(userId, startDate, endDate))
-                .gameList(gamePlayerAnswerService.getTodayGameAnswers(userId, endDate))
-                .searchDate(endDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일", Locale.KOREAN)))
+                .weeklyChart(gamePlayerService.getWeeklyAccuracyChart(userId, dates.get("startDate"), dates.get("endDate")))
+                .gameList(gamePlayerAnswerService.getTodayGameAnswers(userId, dates.get("endDate")))
+                .searchDate(dates.get("endDate").format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일", Locale.KOREAN)))
                 .build();
     }
 
@@ -212,6 +209,23 @@ public class GameQueryServiceImpl implements GameQueryService {
                 .wrongOption3(gameDetail.getWrongOption3())
                 .currentProgress(currentProgress)
                 .totalQuestions(totalQuestions)
+                .build();
+    }
+
+    public Map<String, LocalDate> determineDates(GameDashboardRequestDto request, String playerId) {
+        LocalDate endDate = determineEndDate(request, playerId);
+        LocalDate startDate = request.getStartDate() != null ? request.getStartDate() : endDate.minusDays(6);
+        return Map.of("startDate", startDate, "endDate", endDate);
+    }
+
+    @Override
+    public GameDashboardResponseDto getWeeklyAccuracyChartForRecorder(String gameId, String playerId){
+        GameDashboardRequestDto request = new GameDashboardRequestDto();
+        request.setGameId(gameId);
+        Map<String, LocalDate> dates = determineDates(request, playerId);
+        return GameDashboardResponseDto.builder()
+                .weeklyChart(gamePlayerService.getWeeklyAccuracyChart(playerId, dates.get("startDate"), dates.get("endDate")))
+                .searchDate(dates.get("endDate").format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일", Locale.KOREAN)))
                 .build();
     }
 }

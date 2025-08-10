@@ -1,40 +1,52 @@
+import React from 'react';
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
 import PatientFooter from '@/components/layout/footer/PatientFooter';
+import GamePlayerChartItem from '@/components/game/GamePlayerChartItem';
+import GamePlayerChartStatsItem from '@/components/game/GamePlayerChartStatsItem';
+import { useChartDataLogic } from '@/hooks/game/common/useChartDataLogic';
+import { useChartState } from '@/hooks/game/common/useChartState';
 
 function PatientChartPage() {
+  // URL에서 gameId 추출
+  const queryParams = new URLSearchParams(location.search);
+  const gameIdFromUrl = queryParams.get('gameId');
+  const showToggleButton = !!gameIdFromUrl;
+
+  // 커스텀 훅으로 상태 및 로직 관리
+  const {
+    includeGameId,
+    dashboardData,
+    statsData,
+    loading,
+    handleToggleGameId
+  } = useChartState(gameIdFromUrl);
+
+  // 차트 데이터 변환
+  const chartData = useChartDataLogic(dashboardData);
+
   return (
-    <div className="app-container d-flex flex-column">
-      <PatientHeader />
+      <div className="app-container d-flex flex-column">
+        <PatientHeader />
+        <main className="content-area patient-con game-result-area">
+          <div className="greeting">나의 진행도</div>
 
-      <main className="content-area patient-con game-result-area">
-        <div className="greeting">나의 진행도</div>
+          <GamePlayerChartItem
+              loading={loading}
+              chartData={chartData}
+              includeGameId={includeGameId}
+              showToggleButton={showToggleButton}
+              onToggleGameId={handleToggleGameId}
+          />
 
-        <section className="content-con">
-          <div className="chart-con">
-            {/* 진행도 차트 들어갈 자리 */}
-          </div>
-        </section>
-
-        <div className="row">
-          <div className="col-6">
-            <section className="content-con">
-              <div className="result-number">234</div>
-              <div className="result-text">총 게임 횟수</div>
-            </section>
-          </div>
-          <div className="col-6">
-            <section className="content-con">
-              <div className="result-number">82</div>
-              <div className="result-text">평균<br />점수</div>
-            </section>
-          </div>
-        </div>
-      </main>
-
-      <PatientFooter />
-    </div>
+          <GamePlayerChartStatsItem
+              loading={loading}
+              statsData={statsData}
+          />
+        </main>
+        <PatientFooter />
+      </div>
   );
 }
 

@@ -8,9 +8,9 @@ import AlarmModal from '@/components/modal/AlarmModal';
 import GamePlayerStatItem from '@/components/game/GamePlayerStatItem';
 import GamePlayerDatePickerItem from '@/components/game/GamePlayerDatePickerItem';
 import GamePlayerChartAndGameItem from '@/components/game/GamePlayerChartAndGameItem';
-import { usePatientDashboardLogic } from '@/hooks/game/usePatientDashboardLogic';
-import { useChartDataLogic } from '@/hooks/game/useChartDataLogic';
-import { usePDFGenerator } from '@/hooks/game/usePDFGenerator';
+import { usePatientDashboardLogic } from '@/hooks/game/family/usePatientDashboardLogic';
+import { useChartDataLogic } from '@/hooks/game/common/useChartDataLogic';
+import { usePDFGenerator } from '@/hooks/game/family/usePDFGenerator';
 
 function PatientDetailPage() {
   const {

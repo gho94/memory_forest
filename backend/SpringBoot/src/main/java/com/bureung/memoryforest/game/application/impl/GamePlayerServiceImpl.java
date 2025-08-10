@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -109,5 +110,18 @@ public class GamePlayerServiceImpl implements GamePlayerService {
         gamePlayer.setCorrectCount(response.getCorrectCount());
         gamePlayerRepository.save(gamePlayer);
         return response;
+    }
+
+    @Override
+    public int getCountByPlayerId(String playerId){
+        return gamePlayerRepository.countByIdPlayerIdAndEndTimeIsNotNull(playerId).orElse(0);
+    }
+
+    @Override
+    public Map<String, Object> getPlayerStats(String playerId){
+        return Map.of(
+                "totalGames", getCountByPlayerId(playerId),
+                "averageAccuracy", getOverallAccuracyRate(playerId)
+        );
     }
 }

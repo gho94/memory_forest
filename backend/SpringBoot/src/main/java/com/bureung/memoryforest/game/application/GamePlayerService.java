@@ -7,6 +7,7 @@ import com.bureung.memoryforest.game.dto.response.GameWeeklyAccuracyChartDto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 //leb. Recorder가 게임을 실제 플레이할 때 처리하는 로직 (퀴즈 응답, 채점 등)
@@ -64,4 +65,6 @@ public interface GamePlayerService {
     Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId);
 
     GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId);
+    int getCountByPlayerId(String playerId);
+    Map<String, Object> getPlayerStats(String playerId);
 }

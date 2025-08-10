@@ -4,9 +4,8 @@ import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
 import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.application.GameQueryService;
 import com.bureung.memoryforest.game.dto.request.CreateGamePlayerAnswerRequestDto;
-import com.bureung.memoryforest.game.dto.response.GamePlayResultResponseDto;
-import com.bureung.memoryforest.game.dto.response.GameRecorderDashboardResponseDto;
-import com.bureung.memoryforest.game.dto.response.GameStageResponseDto;
+import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
+import com.bureung.memoryforest.game.dto.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -76,8 +77,8 @@ public class RecorderGameController {
     }
 
     @GetMapping("/result/{gameId}")
-    public ResponseEntity<GamePlayResultResponseDto> getGamePlayResult(@PathVariable String gameId, HttpServletRequest httpRequest){
-        try{
+    public ResponseEntity<GamePlayResultResponseDto> getGamePlayResult(@PathVariable String gameId, HttpServletRequest httpRequest) {
+        try {
             HttpSession session = httpRequest.getSession();
             String playerId = (String) session.getAttribute("user_id");
             playerId = "U0002";  // TODO : leb. I'll change user id of session
@@ -85,6 +86,34 @@ public class RecorderGameController {
             return ResponseEntity.ok(gamePlayResult);
         } catch (Exception e) {
             log.error("게임 결과 오류", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/chart/stats")
+    public ResponseEntity<Map<String, Object>> getPlayerStats(HttpServletRequest httpRequest) {
+        try {
+            HttpSession session = httpRequest.getSession();
+            String playerId = (String) session.getAttribute("user_id");
+            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            Map<String, Object> response = gamePlayerService.getPlayerStats(playerId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("기본 통계 결과 오류", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/chart/weekly-chart")
+    public ResponseEntity<GameDashboardResponseDto> getWeeklyChart(@RequestParam(required = false) String gameId, HttpServletRequest httpRequest) {
+        try {
+            HttpSession session = httpRequest.getSession();
+            String playerId = (String) session.getAttribute("user_id");
+            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            GameDashboardResponseDto response = gameQueryService.getWeeklyAccuracyChartForRecorder(gameId, playerId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("차트 결과 오류", e);
             return ResponseEntity.badRequest().build();
         }
     }

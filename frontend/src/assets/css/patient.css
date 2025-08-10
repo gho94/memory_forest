@@ -28,6 +28,10 @@
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.07);
 }
 
+.patient-con .content-con.chart-section {
+  padding: 4px 20px;
+}
+
 .patient-con .content-con.game-img-con {
   max-height: 340px;
   padding: 15px;
@@ -90,6 +94,42 @@
 
 .patient-con .content-con .chart-con {
   min-height: 270px;
+  max-height: 315px;
+}
+
+.patient-con .chart-con .chart-header .toggle-button-con .toggle-button{
+  padding: 1px 8px;
+  font-weight: 900;
+  font-size: 17px;
+  background-color: #ffffff;
+  color: #6c9a8b;
+  border: 1px solid rgb(173 173 173);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.patient-con .chart-con .chart-header .toggle-button-con{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-con .chart-con .chart-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  position: relative;
+  top: 20px
+}
+
+.patient-con .chart-con .chart-header > h3{
+  margin: 0;
+  color: #444;
+  font-size: 23px;
+  font-weight: bold;
 }
 
 .patient-con .content-con .information-con {

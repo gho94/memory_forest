@@ -2,7 +2,7 @@ import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
 import PatientFooter from '@/components/layout/footer/PatientFooter';
-import {useGamePlayLogic} from '@/hooks/game/useGamePlayLogic';
+import {useGamePlayLogic} from '@/hooks/game/family/useGamePlayLogic';
 import GamePlayAnswerResultItem from '@/components/game/GamePlayAnswerResultItem';
 import GamePlayResultItem from '@/components/game/GamePlayResultItem';
 import GamePlayProcessItem from '@/components/game/GamePlayProcessItem';
