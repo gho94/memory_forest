@@ -1,6 +1,6 @@
 """
 데이터베이스 유틸리티 함수들
-init.sql 스키마에 맞춘 데이터베이스 작업
+init.sql 스키마에 맞춘 데이터베이스 작업 - MySQL 연결 오류 수정
 """
 
 import logging
@@ -8,92 +8,178 @@ import mysql.connector
 from mysql.connector import Error
 from typing import Dict, List, Optional, Tuple
 from contextlib import contextmanager
-from config import DB_CONFIG, STATUS_CODES, DIFFICULTY_CODES
+from config import DB_CONFIG, AI_STATUS_CODES, DIFFICULTY_CODES
 
 logger = logging.getLogger(__name__)
 
 class DatabaseManager:
-    """데이터베이스 관리 클래스"""
+    """데이터베이스 관리 클래스 - MySQL 연결 오류 수정"""
     
     def __init__(self):
-        self.config = DB_CONFIG
+        # MySQL 연결 설정 수정 - buffered=True 추가
+        self.config = {
+            **DB_CONFIG,
+            'buffered': True,  # 버퍼링 활성화로 "Unread result found" 오류 방지
+            'consume_results': True,  # 결과 자동 소비
+            'use_pure': True,  # Pure Python 구현 사용
+            'sql_mode': 'TRADITIONAL',  # 전통적 SQL 모드
+        }
     
     @contextmanager
     def get_connection(self):
-        """데이터베이스 연결 컨텍스트 매니저"""
+        """데이터베이스 연결 컨텍스트 매니저 - 오류 처리 강화"""
         connection = None
         try:
+            # 연결 생성 시 buffered=True로 설정
             connection = mysql.connector.connect(**self.config)
             if connection.is_connected():
+                # 연결 상태 확인
+                connection.ping(reconnect=True, attempts=3, delay=1)
                 yield connection
             else:
                 raise Exception("데이터베이스 연결 실패")
         except Error as e:
             logger.error(f"데이터베이스 오류: {e}")
             raise
+        except Exception as e:
+            logger.error(f"예상치 못한 데이터베이스 오류: {e}")
+            raise
         finally:
             if connection and connection.is_connected():
+                # 미완료 결과 처리
+                try:
+                    connection.cmd_reset_connection()  # 연결 상태 리셋
+                except:
+                    pass
                 connection.close()
+                logger.debug("데이터베이스 연결 종료")
     
-    def get_games_by_status(self, status: str, limit: int = 50) -> List[Dict]:
-        """상태별 게임 조회 - init.sql 스키마 기반"""
+    def test_connection(self) -> bool:
+        """데이터베이스 연결 테스트 - 강화된 버전"""
+        try:
+            with self.get_connection() as conn:
+                # buffered=True로 커서 생성
+                cursor = conn.cursor(buffered=True, dictionary=True)
+                
+                try:
+                    # 간단한 테스트 쿼리
+                    cursor.execute("SELECT 1 as test")
+                    result = cursor.fetchone()
+                    
+                    if result and result['test'] == 1:
+                        logger.info("✅ 데이터베이스 연결 테스트 성공")
+                        return True
+                    else:
+                        logger.error("❌ 데이터베이스 테스트 쿼리 결과 이상")
+                        return False
+                        
+                except Exception as e:
+                    logger.error(f"❌ 데이터베이스 테스트 쿼리 실패: {e}")
+                    return False
+                finally:
+                    # 커서 안전하게 닫기
+                    try:
+                        # 남은 결과 모두 소비
+                        while cursor.nextset():
+                            pass
+                    except:
+                        pass
+                    cursor.close()
+                    
+        except Exception as e:
+            logger.error(f"❌ 데이터베이스 연결 테스트 실패: {e}")
+            return False
+    
+    def get_games_by_status(self, ai_status: str, limit: int = 50) -> List[Dict]:
+        """AI 상태별 게임 조회 - 안전한 커서 처리"""
         with self.get_connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+            # buffered=True, dictionary=True로 커서 생성
+            cursor = conn.cursor(buffered=True, dictionary=True)
             
-            # 상태 코드 변환
-            status_code = STATUS_CODES.get(status, status)
-            
-            query = """
-            SELECT 
-                gd.game_id,
-                gd.game_seq,
-                gd.game_order,
-                gd.answer_text,
-                gd.ai_status_code,
-                gd.ai_processed_at,
-                gd.description,
-                gd.wrong_option_1,
-                gd.wrong_option_2,
-                gd.wrong_option_3,
-                gd.wrong_score_1,
-                gd.wrong_score_2,
-                gd.wrong_score_3,
-                gm.game_name,
-                gm.difficulty_level_code,
-                gm.created_by,
-                fi.original_name as file_name,
-                CASE 
-                    WHEN gm.difficulty_level_code = 'D10001' THEN 'EASY'
-                    WHEN gm.difficulty_level_code = 'D10002' THEN 'NORMAL'
-                    WHEN gm.difficulty_level_code = 'D10003' THEN 'HARD'
-                    WHEN gm.difficulty_level_code = 'D10004' THEN 'EXPERT'
-                    ELSE 'NORMAL'
-                END as difficulty_name
-            FROM game_detail gd
-            JOIN game_master gm ON gd.game_id = gm.game_id
-            LEFT JOIN file_info fi ON gd.file_id = fi.file_id
-            WHERE gd.ai_status_code = %s
-            AND gd.answer_text IS NOT NULL 
-            AND gd.answer_text != ''
-            ORDER BY gd.game_id, gd.game_seq
-            LIMIT %s
-            """
-            
-            cursor.execute(query, (status_code, limit))
-            results = cursor.fetchall()
-            
-            logger.info(f"{status} 상태 게임 {len(results)}개 조회")
-            return results
+            try:
+                # AI 상태를 DB 값으로 변환
+                if ai_status == 'PENDING':
+                    ai_status_value = 'B20005'  # 대기중
+                elif ai_status == 'COMPLETED':
+                    ai_status_value = 'B20007'  # 완료  
+                elif ai_status == 'FAILED':
+                    ai_status_value = 'B20008'  # 실패
+                else:
+                    ai_status_value = ai_status  # 직접 값 사용
+                
+                query = """
+                SELECT 
+                    gd.game_id,
+                    gd.game_seq,
+                    gd.game_order,
+                    gd.answer_text,
+                    gd.ai_status_code,
+                    gd.ai_processed_at,
+                    gd.description,
+                    gd.wrong_option_1,
+                    gd.wrong_option_2,
+                    gd.wrong_option_3,
+                    gd.wrong_score_1,
+                    gd.wrong_score_2,
+                    gd.wrong_score_3,
+                    gm.game_name,
+                    gm.difficulty_level_code,
+                    gm.created_by,
+                    fi.original_name as file_name,
+                    CASE 
+                        WHEN gm.difficulty_level_code = 'B20001' THEN 'EASY'
+                        WHEN gm.difficulty_level_code = 'B20002' THEN 'NORMAL'
+                        WHEN gm.difficulty_level_code = 'B20003' THEN 'HARD'
+                        WHEN gm.difficulty_level_code = 'B20004' THEN 'EXPERT'
+                        ELSE 'NORMAL'
+                    END as difficulty_name
+                FROM game_detail gd
+                JOIN game_master gm ON gd.game_id = gm.game_id
+                LEFT JOIN file_info fi ON gd.file_id = fi.file_id
+                WHERE gd.ai_status_code = %s
+                AND gd.answer_text IS NOT NULL 
+                AND gd.answer_text != ''
+                ORDER BY gd.game_id, gd.game_seq
+                LIMIT %s
+                """
+                
+                cursor.execute(query, (ai_status_value, limit))
+                results = cursor.fetchall()  # buffered이므로 안전
+                
+                logger.info(f"{ai_status} 상태 게임 {len(results)}개 조회")
+                return results
+                
+            except Exception as e:
+                logger.error(f"게임 조회 실패: {e}")
+                return []
+            finally:
+                # 안전한 커서 닫기
+                try:
+                    while cursor.nextset():
+                        pass
+                except:
+                    pass
+                cursor.close()
     
     def update_game_ai_result(self, game_id: str, game_seq: int, 
                              status: str, description: str = '',
                              ai_result: Optional[Dict] = None) -> bool:
-        """게임 AI 분석 결과 업데이트"""
+        """게임 AI 분석 결과 업데이트 - 안전한 커서 처리"""
         with self.get_connection() as conn:
-            cursor = conn.cursor()
+            cursor = conn.cursor(buffered=True)  # buffered=True
             
             try:
-                status_code = STATUS_CODES.get(status, status)
+                # 상태를 DB 값으로 변환
+                if status == 'PENDING':
+                    status_code = 'B20005'  # 대기중
+                elif status == 'PROCESSING':
+                    status_code = 'B20005'  # 처리중도 대기중으로
+                elif status == 'COMPLETED':
+                    status_code = 'B20007'  # 완료
+                elif status == 'ERROR' or status == 'FAILED':
+                    status_code = 'B20008'  # 실패
+                else:
+                    status_code = status  # 직접 값 사용
                 
                 if ai_result and status == 'COMPLETED':
                     # AI 분석 완료 시 모든 결과 저장
@@ -135,68 +221,97 @@ class DatabaseManager:
                 conn.commit()
                 
                 affected_rows = cursor.rowcount
-                logger.info(f"게임 업데이트: {game_id}/{game_seq} -> {status}")
+                logger.info(f"게임 업데이트: {game_id}/{game_seq} -> {status} ({status_code})")
                 return affected_rows > 0
                 
             except Exception as e:
                 conn.rollback()
                 logger.error(f"게임 업데이트 실패: {game_id}/{game_seq} - {e}")
                 return False
+            finally:
+                # 안전한 커서 닫기
+                try:
+                    while cursor.nextset():
+                        pass
+                except:
+                    pass
+                cursor.close()
     
     def get_processing_statistics(self) -> Dict:
-        """처리 통계 조회"""
+        """처리 통계 조회 - 안전한 커서 처리"""
         with self.get_connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(buffered=True, dictionary=True)
             
-            # 전체 상태별 통계
-            query1 = """
-            SELECT 
-                ai_status_code,
-                COUNT(*) as total_count,
-                COUNT(CASE WHEN DATE(ai_processed_at) = CURDATE() THEN 1 END) as today_count
-            FROM game_detail 
-            WHERE answer_text IS NOT NULL AND answer_text != ''
-            GROUP BY ai_status_code
-            """
-            cursor.execute(query1)
-            status_stats = cursor.fetchall()
-            
-            # 난이도별 통계
-            query2 = """
-            SELECT 
-                gm.difficulty_level_code,
-                gd.ai_status_code,
-                COUNT(*) as count
-            FROM game_detail gd
-            JOIN game_master gm ON gd.game_id = gm.game_id
-            WHERE gd.answer_text IS NOT NULL AND gd.answer_text != ''
-            GROUP BY gm.difficulty_level_code, gd.ai_status_code
-            """
-            cursor.execute(query2)
-            difficulty_stats = cursor.fetchall()
-            
-            # 오늘의 처리 현황
-            query3 = """
-            SELECT 
-                COUNT(*) as total_processed_today,
-                COUNT(CASE WHEN ai_status_code = %s THEN 1 END) as completed_today,
-                COUNT(CASE WHEN ai_status_code = %s THEN 1 END) as failed_today
-            FROM game_detail 
-            WHERE DATE(ai_processed_at) = CURDATE()
-            """
-            cursor.execute(query3, (STATUS_CODES['COMPLETED'], STATUS_CODES['ERROR']))
-            today_stats = cursor.fetchone()
-            
-            return {
-                'status_breakdown': status_stats,
-                'difficulty_breakdown': difficulty_stats,
-                'today_summary': today_stats
-            }
+            try:
+                # 전체 상태별 통계
+                query1 = """
+                SELECT 
+                    ai_status_code,
+                    COUNT(*) as total_count,
+                    COUNT(CASE WHEN DATE(ai_processed_at) = CURDATE() THEN 1 END) as today_count
+                FROM game_detail 
+                WHERE answer_text IS NOT NULL AND answer_text != ''
+                GROUP BY ai_status_code
+                """
+                cursor.execute(query1)
+                status_stats = cursor.fetchall()
+                
+                # 난이도별 통계
+                query2 = """
+                SELECT 
+                    gm.difficulty_level_code,
+                    gd.ai_status_code,
+                    COUNT(*) as count
+                FROM game_detail gd
+                JOIN game_master gm ON gd.game_id = gm.game_id
+                WHERE gd.answer_text IS NOT NULL AND gd.answer_text != ''
+                GROUP BY gm.difficulty_level_code, gd.ai_status_code
+                """
+                cursor.execute(query2)
+                difficulty_stats = cursor.fetchall()
+                
+                # 오늘의 처리 현황
+                query3 = """
+                SELECT 
+                    COUNT(*) as total_processed_today,
+                    COUNT(CASE WHEN ai_status_code = 'B20007' THEN 1 END) as completed_today,
+                    COUNT(CASE WHEN ai_status_code = 'B20008' THEN 1 END) as failed_today
+                FROM game_detail 
+                WHERE DATE(ai_processed_at) = CURDATE()
+                """
+                cursor.execute(query3)
+                today_stats = cursor.fetchone()
+                
+                return {
+                    'status_breakdown': status_stats,
+                    'difficulty_breakdown': difficulty_stats,
+                    'today_summary': today_stats
+                }
+                
+            except Exception as e:
+                logger.error(f"통계 조회 실패: {e}")
+                return {
+                    'status_breakdown': [],
+                    'difficulty_breakdown': [],
+                    'today_summary': {
+                        'total_processed_today': 0,
+                        'completed_today': 0,
+                        'failed_today': 0
+                    }
+                }
+            finally:
+                # 안전한 커서 닫기
+                try:
+                    while cursor.nextset():
+                        pass
+                except:
+                    pass
+                cursor.close()
     
     def mark_games_for_retry(self, error_keywords: List[str], max_count: int = 50) -> int:
         """특정 오류 키워드를 가진 게임들을 재시도 대기로 변경"""
         with self.get_connection() as conn:
-            cursor = conn.cursor()
+            cursor = conn.cursor(buffered=True)
             
             try:
                 # 조건 구성
@@ -205,15 +320,15 @@ class DatabaseManager:
                 
                 query = f"""
                 UPDATE game_detail 
-                SET ai_status_code = %s,
+                SET ai_status_code = 'B20005',
                     description = CONCAT('재시도: ', description),
                     ai_processed_at = CURRENT_TIMESTAMP
-                WHERE ai_status_code = %s 
+                WHERE ai_status_code = 'B20008' 
                 AND ({conditions})
                 LIMIT %s
                 """
                 
-                params = [STATUS_CODES['PENDING'], STATUS_CODES['ERROR']] + keywords_params + [max_count]
+                params = keywords_params + [max_count]
                 cursor.execute(query, params)
                 conn.commit()
                 
@@ -225,6 +340,14 @@ class DatabaseManager:
                 conn.rollback()
                 logger.error(f"재시도 설정 실패: {e}")
                 return 0
+            finally:
+                # 안전한 커서 닫기
+                try:
+                    while cursor.nextset():
+                        pass
+                except:
+                    pass
+                cursor.close()
 
 # 전역 데이터베이스 매니저 인스턴스
 db_manager = DatabaseManager()

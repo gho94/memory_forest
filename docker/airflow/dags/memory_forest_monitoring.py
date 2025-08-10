@@ -224,6 +224,7 @@ def emergency_response(**context):
 # 모니터링 DAG 정의
 monitoring_default_args = {
     **DAG_DEFAULT_ARGS,
+    'start_date': datetime(2024, 1, 1, tzinfo=local_tz),  # start_date 추가
     'retries': 1,
     'retry_delay': timedelta(minutes=2),
 }

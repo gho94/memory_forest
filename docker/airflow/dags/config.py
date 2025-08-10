@@ -26,48 +26,75 @@ AI_SERVICE_CONFIG = {
     'retry_delay': int(os.getenv('AI_SERVICE_RETRY_DELAY', '5'))
 }
 
-# init.sql common_codes 테이블의 상태 코드 정의
+# init.sql common_codes 테이블의 실제 상태 코드 정의
+# 게임 진행 상태 (B10003 - B2001x)
 STATUS_CODES = {
-    # 게임 생성 상태 (B200xx)
     'PENDING': 'B20010',      # 대기
     'PROCESSING': 'B20011',   # 진행중
     'COMPLETED': 'B20012',    # 완료
     'PAUSED': 'B20013',       # 중단
     'ERROR': 'B20014',        # 오류
-    'CANCELLED': 'B20015',    # 취소
-    
-    # 게임 플레이 상태 (B201xx)
-    'GAME_READY': 'B20110',   # 게임 준비
-    'GAME_PLAYING': 'B20111', # 게임 진행중
-    'GAME_FINISHED': 'B20112', # 게임 완료
-    'GAME_TIMEOUT': 'B20113'   # 게임 시간초과
 }
 
-# 난이도 코드 정의 (D100xx)
+# 게임 생성 상태 코드 (B10002 - B2000x)
+CREATION_STATUS_CODES = {
+    'WAITING': 'B20005',      # 대기중
+    'CREATING': 'B20006',     # 생성중
+    'COMPLETED': 'B20007',    # 완료
+    'FAILED': 'B20008',       # 실패
+    'CANCELLED': 'B20009'     # 취소
+}
+
+# 난이도 코드 정의 (B10001 - B2000x)
 DIFFICULTY_CODES = {
-    'D10001': 'EASY',      # 초급
-    'D10002': 'NORMAL',    # 중급  
-    'D10003': 'HARD',      # 고급
-    'D10004': 'EXPERT'     # 전문가
+    'B20001': 'EASY',      # 초급
+    'B20002': 'NORMAL',    # 중급  
+    'B20003': 'HARD',      # 고급
+    'B20004': 'EXPERT'     # 전문가
 }
 
-# 사용자 타입 코드 (A100xx)
+# 사용자 타입 코드 (A10001 - A2000x)
 USER_TYPE_CODES = {
-    'A10001': 'PATIENT',   # 환자
-    'A10002': 'FAMILY',    # 가족
-    'A10003': 'ADMIN',     # 관리자
-    'A10004': 'DOCTOR'     # 의료진
+    'A20001': 'PATIENT',   # 환자
+    'A20002': 'FAMILY',    # 가족
+    'A20003': 'ADMIN',     # 관리자
+    'A20004': 'DOCTOR'     # 의료진
 }
 
-# 카테고리 코드 (C100xx)
-CATEGORY_CODES = {
-    'C10001': 'FAMILY',    # 가족
-    'C10002': 'FOOD',      # 음식
-    'C10003': 'TRAVEL',    # 여행
-    'C10004': 'HOBBY',     # 취미
-    'C10005': 'DAILY',     # 일상
-    'C10006': 'ANIMAL',    # 동물
-    'C10007': 'NATURE'     # 자연
+# 계정 상태 코드 (A10002 - A2000x)
+ACCOUNT_STATUS_CODES = {
+    'A20005': 'ACTIVE',    # 활성
+    'A20006': 'INACTIVE',  # 비활성
+    'A20007': 'SUSPENDED', # 정지
+    'A20008': 'DELETED',   # 삭제
+    'A20009': 'WAITING'    # 대기
+}
+
+# 관계 코드 (A10003 - A2001x)
+RELATIONSHIP_CODES = {
+    'A20010': 'SPOUSE',    # 배우자
+    'A20011': 'SON',       # 아들
+    'A20012': 'DAUGHTER',  # 딸
+    'A20013': 'GRANDSON',  # 손자
+    'A20014': 'GRANDDAUGHTER', # 손녀
+    'A20015': 'BROTHER',   # 형제
+    'A20016': 'SISTER',    # 자매
+    'A20017': 'OTHER'      # 기타
+}
+
+# 연결 상태 코드 (A10004 - A2001x)
+CONNECTION_STATUS_CODES = {
+    'A20018': 'CONNECTED',     # 연결됨
+    'A20019': 'PENDING',       # 연결 대기
+    'A20020': 'DISCONNECTED',  # 연결 해제
+    'A20021': 'REJECTED'       # 거부됨
+}
+
+# AI 상태 코드 매핑 (실제 DB 컬럼값)
+AI_STATUS_CODES = {
+    'B20005': 'PENDING',      # 대기중 (ai_status_code)
+    'B20007': 'COMPLETED',    # 완료 (ai_status_code)
+    'B20008': 'FAILED'        # 실패 (ai_status_code)
 }
 
 # Airflow DAG 기본 설정

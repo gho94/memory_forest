@@ -15,7 +15,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import DAG_DEFAULT_ARGS, BATCH_SIZES, RETRY_RULES, MONITORING_CONFIG
+from config import DAG_DEFAULT_ARGS, BATCH_SIZES, RETRY_RULES, MONITORING_CONFIG, AI_STATUS_CODES
 from utils.database import db_manager
 from utils.ai_service import ai_client
 
@@ -59,7 +59,7 @@ def analyze_error_patterns(**context):
         with db_manager.get_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             
-            # 최근 7일간 오류 패턴 분석
+            # 최근 7일간 오류 패턴 분석 (B20008 = FAILED)
             query = """
             SELECT 
                 SUBSTRING(description, 1, 50) as error_pattern,
@@ -67,7 +67,7 @@ def analyze_error_patterns(**context):
                 COUNT(DISTINCT answer_text) as unique_answers,
                 GROUP_CONCAT(DISTINCT answer_text LIMIT 10) as sample_answers
             FROM game_detail 
-            WHERE ai_status_code = %s 
+            WHERE ai_status_code = 'B20008'
             AND ai_processed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             AND description IS NOT NULL
             GROUP BY SUBSTRING(description, 1, 50)
@@ -75,7 +75,7 @@ def analyze_error_patterns(**context):
             LIMIT 20
             """
             
-            cursor.execute(query, (STATUS_CODES['ERROR'],))
+            cursor.execute(query)
             error_patterns = cursor.fetchall()
             
             logger.info("=== 오류 패턴 분석 결과 ===")
@@ -83,7 +83,7 @@ def analyze_error_patterns(**context):
                 logger.info(f"  패턴: {pattern['error_pattern']}")
                 logger.info(f"    발생 횟수: {pattern['error_count']}")
                 logger.info(f"    고유 답변 수: {pattern['unique_answers']}")
-                logger.info(f"    샘플: {pattern['sample_answers'][:100]}...")
+                logger.info(f"    샘플: {pattern['sample_answers'][:100] if pattern['sample_answers'] else 'None'}...")
                 logger.info("  ---")
             
             # 가장 문제가 되는 답변들 식별
@@ -94,7 +94,7 @@ def analyze_error_patterns(**context):
                 MAX(ai_processed_at) as last_failure,
                 GROUP_CONCAT(DISTINCT SUBSTRING(description, 1, 30) LIMIT 3) as error_types
             FROM game_detail 
-            WHERE ai_status_code = %s 
+            WHERE ai_status_code = 'B20008'
             AND ai_processed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             AND answer_text IS NOT NULL
             GROUP BY answer_text
@@ -103,7 +103,7 @@ def analyze_error_patterns(**context):
             LIMIT 15
             """
             
-            cursor.execute(problem_answers_query, (STATUS_CODES['ERROR'],))
+            cursor.execute(problem_answers_query)
             problem_answers = cursor.fetchall()
             
             logger.info("=== 문제 답변 분석 ===")
@@ -152,11 +152,15 @@ def generate_daily_report(**context):
         
         # 상태별 상세 현황
         status_details = {}
+        status_mapping = {
+            'B20005': 'PENDING',
+            'B20007': 'COMPLETED', 
+            'B20008': 'FAILED'
+        }
+        
         for stat in stats['status_breakdown']:
-            status_name = next(
-                (k for k, v in STATUS_CODES.items() if v == stat['ai_status_code']), 
-                stat['ai_status_code']
-            )
+            status_code = stat['ai_status_code']
+            status_name = status_mapping.get(status_code, status_code)
             status_details[status_name] = {
                 "total": stat['total_count'],
                 "today": stat['today_count']
@@ -166,15 +170,22 @@ def generate_daily_report(**context):
         
         # 난이도별 현황
         difficulty_details = {}
+        difficulty_mapping = {
+            'B20001': 'EASY',
+            'B20002': 'NORMAL',
+            'B20003': 'HARD', 
+            'B20004': 'EXPERT'
+        }
+        
         for stat in stats['difficulty_breakdown']:
-            difficulty = stat['difficulty_level_code']
+            difficulty_code = stat['difficulty_level_code']
+            difficulty = difficulty_mapping.get(difficulty_code, difficulty_code)
+            
             if difficulty not in difficulty_details:
                 difficulty_details[difficulty] = {}
             
-            status_name = next(
-                (k for k, v in STATUS_CODES.items() if v == stat['ai_status_code']), 
-                stat['ai_status_code']
-            )
+            status_code = stat['ai_status_code']
+            status_name = status_mapping.get(status_code, status_code)
             difficulty_details[difficulty][status_name] = stat['count']
         
         report["details"]["difficulty_breakdown"] = difficulty_details
@@ -211,32 +222,15 @@ def cleanup_old_data(**context):
         with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             
-            # 90일 이상 된 완료 게임의 상세 설명 정리 (옵션)
-            # 실제 운영에서는 주의 깊게 검토 후 적용
-            """
-            cleanup_query = '''
-            UPDATE game_detail 
-            SET description = '처리 완료 (상세 로그 정리됨)'
-            WHERE ai_status_code = %s 
-            AND ai_processed_at < DATE_SUB(NOW(), INTERVAL 90 DAY)
-            AND description IS NOT NULL 
-            AND description != '처리 완료 (상세 로그 정리됨)'
-            '''
-            
-            cursor.execute(cleanup_query, (STATUS_CODES['COMPLETED'],))
-            cleanup_results["old_logs_cleaned"] = cursor.rowcount
-            conn.commit()
-            """
-            
-            # 대신 단순 카운트만 수행
+            # 90일 이상 된 완료 게임 카운트 (B20007 = COMPLETED)
             count_query = """
             SELECT COUNT(*) as old_count
             FROM game_detail 
-            WHERE ai_status_code = %s 
+            WHERE ai_status_code = 'B20007'
             AND ai_processed_at < DATE_SUB(NOW(), INTERVAL 90 DAY)
             """
             
-            cursor.execute(count_query, (STATUS_CODES['COMPLETED'],))
+            cursor.execute(count_query)
             result = cursor.fetchone()
             cleanup_results["old_logs_cleaned"] = result[0] if result else 0
             
@@ -296,6 +290,7 @@ def optimize_database_performance(**context):
 # 유지보수 DAG 정의
 maintenance_default_args = {
     **DAG_DEFAULT_ARGS,
+    'start_date': datetime(2024, 1, 1, tzinfo=local_tz),  # start_date 추가
     'retries': 1,  # 유지보수 작업은 재시도 줄임
 }
 

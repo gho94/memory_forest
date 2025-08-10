@@ -175,7 +175,7 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/data:/opt/airflow/data
       - ./airflow/plugins:/opt/airflow/plugins
-      - ./airflow/models:/opt/airflow/models
+      - ../ai/models:/opt/airflow/models
     ports:
       - "8081:8080"
     command: bash -c "
@@ -219,7 +219,7 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/data:/opt/airflow/data
       - ./airflow/plugins:/opt/airflow/plugins
-      - ./airflow/models:/opt/airflow/models
+      - ../ai/models:/opt/airflow/models
     command: airflow scheduler
     restart: always
     networks:
