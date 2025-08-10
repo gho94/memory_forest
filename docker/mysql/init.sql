@@ -53,7 +53,12 @@ CREATE TABLE users (
                        user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
                        profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
                        status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
-                       created_by        VARCHAR(10)    NOT NULL COMMENT '생성자',
+                       created_by        VARCHAR(10)    NOT NULL COMMENT '생성자',각해....??
+                   안녕하세요. 저는 김예리라고 합ㅁ니다. 제 동생은 오늘 생리를 시작해서 매우 예민해요. 방금 방구를 꾸이ㅓㅆ는데 지렁이가 나와서 매우 불쾌한가 보군요....
+                   어쩔 수 없죠....여자로 태어난걸 어쩌겠어욧...
+                   헤헤...
+                   이 키보드 제가 언니 새ㅔㅇㅇㅇ;ㅣㄹ선물로 약 2년 전에 사준 아이거든요. 벌써 2년이 지났다닌 ㅅ시작이 왜이렇게 빠른지 모르겠어요. 저는 이제[ 그만 운동을 하러갑니다. ㅇ지금 제 몸무게가 에바에요. 6-키로거든요. 저의 목표 몸무게는 50킬로그램입니다. 이번달까지 55키로를 만드는게 목표에요. 근데 굶어서 빼지는 않을 거구요. 운동을 열심ㅎ, 해보려고 해요. 식단은 원래 먹는 것의 절반만 ㅂ머고 야채 위주로 먹으려고 해요. 그렄 안녕 여러분. 히히
+                                    ]
                        created_at        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
                        updated_by        VARCHAR(10)    NULL     COMMENT '수정자',
                        updated_at        TIMESTAMP      NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',

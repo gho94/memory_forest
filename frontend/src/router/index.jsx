@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from '@/user/family/LoginPage';
 import FindIdPage from '@/user/family/FindIdPage';
 import SignupPage from '@/user/family/SignupPage';
+import FindPwPage from '@/user/family/FindPwPage';
+import ResetPwPage from '@/user/family/ResetPwPage';
+import WelcomePage from '@/user/family/WelcomePage';
 
 import FamilyDashboardPage from '@/user/family/FamilyDashboardPage';
 import PatientProfilePage from '@/user/family/PatientProfilePage';
@@ -28,6 +31,9 @@ function Router() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/findId" element={<FindIdPage />} />
         <Route path="/signup" element={<SignupPage />} />
+          <Route path="/findPw" element={<FindPwPage />} />
+          <Route path="/resetPw" element={<ResetPwPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
         {/* 비밀번호 찾기 추가 필요함 - 백엔드 개발 진행하면서 만들게여 */}
 
         {/* 동행자 */}

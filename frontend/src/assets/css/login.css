@@ -119,6 +119,8 @@
   color: #6c9a8b;
 }
 
+
+/*비밀번호 찾기도 그냥 class이름 find-id-form 으로 통일했음! */
 .find-id-form {
   padding: 260px 20px;
   display: flex;
@@ -128,10 +130,100 @@
 
 .find-id-form .find-id-result-con {
   color: #6c9a8b;
-  font-size: 1.5rem;
+  font-size: 20px;
   text-align: center;
+}
+
+.find-id-form .find-id-result-con2 {
+    font-size: 17px;
+    text-align: center;
+    display: block;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    /*text-align: center;*/
+    margin: 15px 0;
+    color: #495057;
 }
 
 .find-id-form .find-id-result-con .id-result {
   font-weight: 900;
+}
+
+.password-reset-result{
+    display: block;
+    padding: 30px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 12px;
+    text-align: center;
+    margin: 20px 0;
+    color: #155724
+}
+
+.find-id-form .user-information{
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f8fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.password-reset-result .text1{
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.password-reset-result .text2{
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.password-reset-result .text3{
+    font-size: 16px;
+    color: #495057;
+}
+
+.find-id-form .text3{
+    font-size: 16px;
+    color: #495057;
+}
+
+/* Welcome 페이지 스타일 추가함  */
+
+.welcome-page .welcome-container {
+    text-align: center;
+}
+
+.welcome-page .welcome-emoji {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.welcome-page .welcome-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.welcome-page .welcome-message {
+    font-size: 17px;
+    margin-bottom: 10px;
+}
+
+.welcome-page .welcome-username {
+    color: #6c9a8b;
+    font-weight: bold;
+}
+
+.welcome-page .welcome-branding {
+    background-color: #f8f9fa;
+    border: 1px solid #6c9a8b;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    font-size: 17px;
 }
