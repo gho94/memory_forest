@@ -37,3 +37,10 @@ out/
 .vscode/
 
 application-aws.properties
+
+
+
+docker/airflow/logs/
+docker/airflow/logs_backup/
+docker/airflow/dags/__pycache__/
+docker/airflow/plugins/__pycache__/

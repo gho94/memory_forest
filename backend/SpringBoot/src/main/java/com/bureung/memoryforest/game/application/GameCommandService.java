@@ -39,51 +39,46 @@ public class GameCommandService {
     public String createGame(String categoryCode, MultipartFile file, String answerText,
                          String gameName, String gameDesc, String difficultyLevel, String createdBy) throws IOException {
 
-    String gameId = generateGameId();
+        String gameId = generateGameId();
 
-    // 난이도 코드 매핑
-    String difficultyCode = mapDifficultyLevelToCode(difficultyLevel);
+        // 난이도 코드 매핑
+        String difficultyCode = mapDifficultyLevelToCode(difficultyLevel);
 
-    // GameMaster 생성
-    GameMaster gameMaster = GameMaster.builder()
-            .gameId(gameId)
-            .gameName(gameName)
-            .gameDesc(gameDesc)
-            .gameCount(1)
-            .difficultyLevelCode(difficultyCode)
-            .creationStatusCode("CREATING")
-            .createdBy(createdBy)
-            .build();
+        // GameMaster 생성
+        GameMaster gameMaster = GameMaster.builder()
+                .gameId(gameId)
+                .gameName(gameName)
+                .gameDesc(gameDesc)
+                .gameCount(1)
+                .difficultyLevelCode(difficultyCode)
+                .creationStatusCode("B20006") // 생성중
+                .createdBy(createdBy)
+                .build();
 
-    gameMasterRepository.save(gameMaster);
+        gameMasterRepository.save(gameMaster);
 
-    // 파일 저장
-    String fileName = saveFile(file);
-    Path filePath = Paths.get(UPLOAD_DIR + fileName);
+        // 파일 저장
+        String fileName = saveFile(file);
+        Path filePath = Paths.get(UPLOAD_DIR + fileName);
 
-    // GameDetail 생성 - 기존 구조 유지하면서 수정
-    GameDetail gameDetail = GameDetail.builder()
-            .gameId(gameId)
-            .gameSeq(1)
-            .gameOrder(1)
-            .categoryCode(categoryCode)  // ✅ 기존 필드 유지
-            .originalName(file.getOriginalFilename())
-            .fileName(fileName)
-            .filePath(filePath.toString())
-            .fileSize(file.getSize())
-            .mimeType(file.getContentType())
-            .answerText(answerText)
-            .aiStatus("PENDING")  // ✅ 기존 방식 유지
-            .description("게임 생성됨")
-            .build();
+        // GameDetail 생성 - 상태 코드 기준으로 수정
+        GameDetail gameDetail = GameDetail.builder()
+                .gameId(gameId)
+                .gameSeq(1)
+                .gameOrder(1)
+                .fileId(1) // 실제 파일 ID 설정 필요
+                .answerText(answerText)
+                .aiStatusCode("B20005") // 대기중 상태 코드
+                .description("게임 생성됨")
+                .build();
 
-    gameDetailRepository.save(gameDetail);
+        gameDetailRepository.save(gameDetail);
 
-    // AI 분석 비동기 요청
-    requestAIAnalysis(gameId, 1, answerText, difficultyLevel);
+        // AI 분석 비동기 요청
+        requestAIAnalysis(gameId, 1, answerText, difficultyLevel);
 
-    log.info("게임 생성 완료: gameId={}, gameName={}", gameId, gameName);
-    return gameId;
+        log.info("게임 생성 완료: gameId={}, gameName={}", gameId, gameName);
+        return gameId;
     }
 
     /**
@@ -174,11 +169,11 @@ public class GameCommandService {
      */
     private String mapDifficultyLevelToCode(String difficultyLevel) {
         switch (difficultyLevel.toUpperCase()) {
-            case "EASY": return "D10001";
-            case "NORMAL": return "D10002";
-            case "HARD": return "D10003";
-            case "EXPERT": return "D10004";
-            default: return "D10002"; // 기본값: NORMAL
+            case "EASY": return "B20001";    // 초급
+            case "NORMAL": return "B20002";  // 중급
+            case "HARD": return "B20003";    // 고급
+            case "EXPERT": return "B20004";  // 전문가
+            default: return "B20002"; // 기본값: NORMAL
         }
     }
 }
