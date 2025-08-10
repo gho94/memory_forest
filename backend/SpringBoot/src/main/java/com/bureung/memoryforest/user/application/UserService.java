@@ -39,7 +39,7 @@ public class UserService {
     public User createUser(String userId, String userName, String encodedPassword,
                            String email, String phone, String userTypeCode) {
 
-        // 전화번호 입력 안받아서..
+        // 전화번호 입력 안받아서..없앨까 ?
         if (phone == null || phone.trim().isEmpty()) {
             phone = "";
         }

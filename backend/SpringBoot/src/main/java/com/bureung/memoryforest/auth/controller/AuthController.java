@@ -6,10 +6,14 @@ import com.bureung.memoryforest.auth.dto.request.*;
 import com.bureung.memoryforest.auth.dto.response.LoginResponseDto;
 import com.bureung.memoryforest.auth.dto.response.JoinResponseDto;
 import com.bureung.memoryforest.auth.dto.request.FindIdWithVerificationRequestDto;
+import com.bureung.memoryforest.auth.dto.request.PasswordResetVerifyRequestDto;
 import com.bureung.memoryforest.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
@@ -49,6 +53,11 @@ public class AuthController {
 
         User user = result.getUser();
 
+
+        // Security Context에 인증 정보 설정
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
         session.setAttribute("userId", user.getUserId());
         session.setAttribute("userTypeCode", user.getUserTypeCode());
         session.setAttribute("userName", user.getUserName());
@@ -64,7 +73,6 @@ public class AuthController {
     }
 
     //회원가입
-
     // 1. 아이디 중복 체크
     @GetMapping("/check/userid/{userId}")
     public ResponseEntity<Map<String, Object>> checkUserIdDuplicate(@PathVariable String userId) {
@@ -92,17 +100,19 @@ public class AuthController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        boolean success = emailService.sendVerificationCode(emailRequest.getEmail());
 
-        if (success) {
-            response.put("success", true);
-            response.put("message", "인증번호가 전송되었습니다.");
-        } else {
-            response.put("success", false);
-            response.put("message", "인증번호 전송에 실패했습니다.");
+        EmailService.EmailSendResult result = emailService.sendVerificationCode(emailRequest.getEmail());
+
+        response.put("success", result.isSuccess());
+        response.put("message", result.getMessage());
+
+        // 남은 시간이 있으면 추가 정보 제공
+        if (result.getRemainingSeconds() > 0) {
+            response.put("remainingSeconds", result.getRemainingSeconds());
         }
-
-        return ResponseEntity.ok(response);
+        return result.isSuccess() ?
+                ResponseEntity.ok(response) :
+                ResponseEntity.badRequest().body(response);
     }
 
     // 3. 이메일 인증번호 확인 (회원가입용)
@@ -155,7 +165,7 @@ public class AuthController {
 
     //아이디 찾기
     // 1. 아이디 찾기용 이메일 인증번호 발송
-    @PostMapping("/findid/email/send")
+    @PostMapping("/findId/email/send")
     public ResponseEntity<Map<String, Object>> sendFindIdVerificationCode(@RequestBody EmailRequestDto emailRequest) {
         log.info("아이디 찾기 인증번호 발송 요청: {}", emailRequest.getEmail());
 
@@ -169,28 +179,29 @@ public class AuthController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        boolean success = emailService.sendVerificationCode(emailRequest.getEmail());
+        EmailService.EmailSendResult result = emailService.sendFindIdVerificationCode(emailRequest.getEmail());
 
-        if (success) {
-            response.put("success", true);
-            response.put("message", "인증번호가 전송되었습니다.");
-        } else {
-            response.put("success", false);
-            response.put("message", "인증번호 전송에 실패했습니다.");
+        response.put("success", result.isSuccess());
+        response.put("message", result.getMessage());
+
+        if (result.getRemainingSeconds() > 0) {
+            response.put("remainingSeconds", result.getRemainingSeconds());
         }
 
-        return ResponseEntity.ok(response);
+        return result.isSuccess() ?
+                ResponseEntity.ok(response) :
+                ResponseEntity.badRequest().body(response);
     }
 
     // 2. 아이디 찾기 (인증번호 확인 후)
-    @PostMapping("/findid")
+    @PostMapping("/findId")
     public ResponseEntity<Map<String, Object>> findUserId(@RequestBody FindIdWithVerificationRequestDto findIdRequest) {
         log.info("아이디 찾기 요청: {}", findIdRequest.getEmail());
 
         Map<String, Object> response = new HashMap<>();
 
         // 1. 인증번호 확인
-        boolean isValidCode = emailService.verifyCode(findIdRequest.getEmail(), findIdRequest.getCode());
+        boolean isValidCode = emailService.verifyFindIdCode(findIdRequest.getEmail(), findIdRequest.getCode());
         if (!isValidCode) {
             response.put("success", false);
             response.put("message", "인증번호가 올바르지 않거나 만료되었습니다.");
@@ -238,20 +249,57 @@ public class AuthController {
         }
 
         // 비밀번호 재설정용 인증번호 발송
-        boolean success = emailService.sendPasswordResetCode(resetRequest.getEmail());
+        EmailService.EmailSendResult result = emailService.sendPasswordResetCode(resetRequest.getEmail());
 
-        if (success) {
-            response.put("success", true);
-            response.put("message", "비밀번호 재설정 인증번호를 전송했습니다.");
-        } else {
-            response.put("success", false);
-            response.put("message", "인증번호 전송에 실패했습니다.");
+        response.put("success", result.isSuccess());
+        response.put("message", result.getMessage());
+
+        if (result.getRemainingSeconds() > 0) {
+            response.put("remainingSeconds", result.getRemainingSeconds());
         }
 
+        return result.isSuccess() ?
+                ResponseEntity.ok(response) :
+                ResponseEntity.badRequest().body(response);
+    }
+
+
+    // 2. 비밀번호 인증 확인
+    @PostMapping("/password/reset/verify")
+    public ResponseEntity<Map<String, Object>> verifyPasswordResetCode(@RequestBody PasswordResetVerifyRequestDto verifyRequest) {
+        log.info("비밀번호 재설정 인증번호 검증 요청: {} / {}", verifyRequest.getUserId(), verifyRequest.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+
+        // 1. 아이디와 이메일로 사용자 존재 확인
+        Optional<User> userOptional = authService.findByUserIdAndEmail(
+                verifyRequest.getUserId(),
+                verifyRequest.getEmail()
+        );
+
+        if (userOptional.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "입력하신 아이디와 이메일이 일치하지 않습니다.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // 2. 인증번호 확인
+        boolean isValidCode = emailService.verifyPasswordResetCode(verifyRequest.getEmail(), verifyRequest.getCode());
+        if (!isValidCode) {
+            response.put("success", false);
+            response.put("message", "인증번호가 올바르지 않거나 만료되었습니다.");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // 3. 인증 성공
+        response.put("success", true);
+        response.put("message", "인증이 완료되었습니다. 새 비밀번호를 설정해주세요.");
+
+        log.info("비밀번호 재설정 인증번호 검증 성공: {}", verifyRequest.getUserId());
         return ResponseEntity.ok(response);
     }
 
-    // 2. 비밀번호 재설정 완료
+    // 3. 비밀번호 재설정 완료
     @PostMapping("/password/reset/complete")
     public ResponseEntity<Map<String, Object>> completePasswordReset(@RequestBody PasswordResetCompleteRequestDto resetCompleteRequest) {
         log.info("비밀번호 재설정 완료 요청: {} / {}", resetCompleteRequest.getUserId(), resetCompleteRequest.getEmail());
@@ -286,7 +334,7 @@ public class AuthController {
         }
 
         // 4. 인증번호 확인
-        boolean isValidCode = emailService.verifyCode(resetCompleteRequest.getEmail(), resetCompleteRequest.getCode());
+        boolean isValidCode = emailService.verifyPasswordResetCode(resetCompleteRequest.getEmail(), resetCompleteRequest.getCode());
         if (!isValidCode) {
             response.put("success", false);
             response.put("message", "인증번호가 올바르지 않거나 만료되었습니다.");
@@ -316,18 +364,28 @@ public class AuthController {
     //근데 .... 우리 로그아웃은 어떻게 하지...? 버튼이 없는데 ?
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
-        session.invalidate();
+        SecurityContextHolder.clearContext(); //시큐리티 context 정리,,, 이거 추가해야한다고 함...0810
+        session.invalidate(); //세션 무효화 처리
 
         Map<String, Object> response = new HashMap<>();
+
         response.put("success", true);
         response.put("message", "로그아웃되었습니다.");
-
         return ResponseEntity.ok(response);
     }
 
+    //나의 정보들 뿌릴 수 있는 api
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
+
+
+        //이 부분도 시큐리티 context 정리,,, 이거 추가해야한다고 함... 0810
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            User user = (User) auth.getPrincipal();
+            userId = user.getUserId();
+        }
 
         Map<String, Object> response = new HashMap<>();
 
@@ -376,11 +434,9 @@ public class AuthController {
         if (userId.length() <= 2) {
             return userId;
         }
-
         String prefix = userId.substring(0, 2);
         String suffix = userId.length() > 4 ? userId.substring(userId.length() - 2) : "";
         String masked = "*".repeat(Math.max(0, userId.length() - prefix.length() - suffix.length()));
-
         return prefix + masked + suffix;
     }
 
@@ -419,7 +475,6 @@ public class AuthController {
         if (!hasSpecialChar) {
             return "비밀번호는 특수문자(!@#$%^&* 등)를 포함해야 합니다.";
         }
-
         return null; // 검증 통과
     }
 
