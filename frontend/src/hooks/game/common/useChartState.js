@@ -1,5 +1,4 @@
-// hooks/game/useChartState.js
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {usePatientOverviewLogic} from '@/hooks/game/common/usePatientOverviewLogic';
 
 export const useChartState = (gameIdFromUrl) => {
