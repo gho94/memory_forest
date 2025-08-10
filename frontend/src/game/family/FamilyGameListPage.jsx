@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
 import '@/assets/css/family.css';
@@ -6,25 +8,114 @@ import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 import AlarmModal from '@/components/modal/AlarmModal';
 
 function FamilyGameListPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [gameId, setGameId] = useState(null);
+  const [gameName, setGameName] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [gameDetails, setGameDetails] = useState([]);
+  const [fileUrls, setFileUrls] = useState({});
+
+  useEffect(() => {
+    if (location.state && location.state.gameId) {
+      setGameId(location.state.gameId);
+      setGameName(location.state.gameName);
+      console.log('받은 gameId:', location.state.gameId);
+      console.log('받은 gameName:', location.state.gameName);
+    }
+  }, [location.state]);
+
+  const handleGoToList = () => {
+    navigate('/companion/dashboard', { 
+      state: { isGame: true } 
+    });
+  };
+
+  // 파일 ID로 이미지 URL 조회
+  const fetchFileUrl = async (fileId) => {
+    if (!fileId) return null;
+    
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/files/${fileId}`);
+      if (!response.ok) {
+        console.error('파일 조회 실패:', fileId);
+        return null;
+      }
+      const fileData = await response.json();
+      return fileData.fileUrl;
+    } catch (error) {
+      console.error('파일 URL 조회 오류:', error);
+      return null;
+    }
+  };
+
+  // 게임 상세 정보와 함께 이미지 URL도 조회
+  const fetchGameDetail = async () => {
+    if (!gameId) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/companion/games/list?gameId=${gameId}`);
+      if (!response.ok) {
+        throw new Error('데이터를 가져오는데 실패했습니다.');
+      }
+      const data = await response.json();
+      console.log('받아온 게임 데이터:', data);
+      setGameDetails(data);
+      
+      // 각 게임 상세 정보의 fileId로 이미지 URL 조회
+      const urlPromises = data.map(async (gameDetail) => {
+        if (gameDetail.fileId) {
+          const fileUrl = await fetchFileUrl(gameDetail.fileId);
+          return { gameSeq: gameDetail.gameSeq, fileUrl };
+        }
+        return { gameSeq: gameDetail.gameSeq, fileUrl: null };
+      });
+      
+      const urlResults = await Promise.all(urlPromises);
+      const urlMap = {};
+      urlResults.forEach(result => {
+        if (result.fileUrl) {
+          urlMap[result.gameSeq] = result.fileUrl;
+        }
+      });
+      
+      setFileUrls(urlMap);
+      setError(null);
+    } catch (err) {
+      console.error('게임 데이터 가져오기 실패:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGameDetail();
+  }, [gameId]);
+
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
 
       <main className="content-area guardian-con">
         <div className="menu-title">
-          <div>게임 리스트</div>
+          <div>{gameName}</div>
         </div>
 
         <div className="game-list-wrap">
           <div className="game-list-con">
-            {[1, 2, 3].map((num) => (
-              <div className="game-item" key={num}>
-                <div className="game-number">{num}</div>
+            {gameDetails.map((gameDetail) => (
+              <div className="game-item" key={gameDetail.gameSeq}>
+                <div className="game-number">{gameDetail.gameSeq}</div>
                 <div className="game-box">
-                  <div className="game-img" alt="문제 이미지"></div>
+                  <div className="game-img">
+                    <img src={fileUrls[gameDetail.gameSeq]} alt="문제 이미지" height="100%" width="100%" />
+                  </div>
                   <div className="game-texts">
-                    <div className="game-title">제목임둥</div>
-                    <div className="game-answer">정답 : 너구리</div>
+                    <div className="game-title">{gameDetail.description}</div>
+                    <div className="game-answer">정답 : {gameDetail.answerText}</div>
                   </div>
                   <button className="game-edit-btn">수정</button>
                 </div>
@@ -32,7 +123,7 @@ function FamilyGameListPage() {
             ))}
           </div>
 
-          <button type="button" className="btn btn-login">목록으로</button>
+          <button type="button" className="btn btn-login" onClick={handleGoToList}>목록으로</button>
         </div>
       </main>
       

@@ -223,3 +223,38 @@
   line-height: normal;
   font-weight: 900;
 }
+
+.patient-con.dashboard .skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: patient-dashboard-skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.patient-con.dashboard .skeleton-username {
+  display: inline-block;
+}
+
+.patient-con.dashboard .skeleton-progress-wrapper {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.patient-con.dashboard .skeleton-progress-bar {
+  border-radius: 8px;
+}
+
+.patient-con.dashboard .skeleton-button {
+  background-color: #e0e0e0;
+  border: none;
+  color: transparent;
+}
+
+@keyframes patient-dashboard-skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

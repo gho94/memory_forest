@@ -2,6 +2,7 @@ package com.bureung.memoryforest.game.application;
 
 import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.response.GameDashboardResponseDto;
+import com.bureung.memoryforest.game.dto.response.GameRecorderDashboardResponseDto;
 
 //leb. Recorder/Companion이 게임 정보를 조회할 때 조회성 로직
 public interface GameQueryService {
@@ -12,5 +13,5 @@ public interface GameQueryService {
      * @return 대시보드 통계 정보
      */
     GameDashboardResponseDto getDashboardStats(GameDashboardRequestDto request);
-
+    GameRecorderDashboardResponseDto getRecorderDashboardData(String recorderId, String userName);
 }

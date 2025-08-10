@@ -8,9 +8,11 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     g++ \
+    htop \
     openjdk-17-jdk \
     ca-certificates \
     gnupg \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # JAVA 환경변수 설정
@@ -20,14 +22,19 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 USER airflow
 
 # Airflow용 requirements 설치
-COPY requirements.txt /requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
-    numpy==1.24.4 \
     scipy==1.10.1 \
     gensim==4.3.2 \
-    && pip install --no-cache-dir -r /requirements.txt
+    && pip install --no-cache-dir -r /tmp/requirements.txt
 
+
+# 권한 설정
+USER root
+RUN mkdir -p /opt/airflow/dags/utils && \
+    chown -R airflow:root /opt/airflow/dags
+USER airflow
 # 모델 디렉토리 생성
 RUN mkdir -p /opt/airflow/models
 
