@@ -2,53 +2,92 @@ import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
 import PatientFooter from '@/components/layout/footer/PatientFooter';
-const gameImagePath = '/images/game_example.jpg';
+import {useGamePlayLogic} from '@/hooks/game/useGamePlayLogic';
+import GamePlayAnswerResultItem from '@/components/game/GamePlayAnswerResultItem';
+import GamePlayResultItem from '@/components/game/GamePlayResultItem';
+import GamePlayProcessItem from '@/components/game/GamePlayProcessItem';
 
-function GamePage() {
-  return (
-    <div className="app-container d-flex flex-column">
-      <PatientHeader />
+const GamePage = () => {
+    const {
+        gameData,
+        gameState,
+        answerResult,
+        totalScore,
+        correctCount,
+        accuracyRate,
+        buttonOptions,
+        handleAnswerSelect,
+        handleNextQuestion,
+        loading,
+        error,
+        GAME_STATE
+    } = useGamePlayLogic();
+    if (loading || !gameData) {
+        return (
+            <div className="app-container d-flex flex-column">
+                <PatientHeader />
+                <main className="content-area patient-con">
+                    <div className="spin-con">
+                        <div className="spin"></div>
+                        <div className="spin-desc">
+                            게임 준비 중...
+                        </div>
+                    </div>
+                </main>
+                <PatientFooter />
+            </div>
+        );
+    }
 
-      <main className="content-area patient-con">
-        <section className="content-con mb-16">
-          <div className="progress">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{ width: "60%" }}
-              aria-valuenow={6}
-              aria-valuemin={0}
-              aria-valuemax={10}
-            ></div>
-            <div className="progress-label">6 / 10</div>
-          </div>
-        </section>
+    // 현재 게임 상태에 따른 화면 렌더링
+    const renderCurrentScreen = () => {
+        switch (gameState) {
+            case GAME_STATE.PLAYING:
+                return (
+                    <GamePlayProcessItem
+                        gameData={gameData}
+                        buttonOptions={buttonOptions}
+                        handleAnswerSelect={handleAnswerSelect}
+                    />
+                );
+            case GAME_STATE.ANSWER_RESULT:
+                return (
+                    <GamePlayAnswerResultItem
+                        answerResult={answerResult}
+                        gameData={gameData}
+                        handleNextQuestion={handleNextQuestion}
+                    />
+                );
+            case GAME_STATE.GAME_COMPLETE:
+                return (
+                    <GamePlayResultItem
+                        totalScore={totalScore}
+                        correctCount={correctCount}
+                        accuracyRate={accuracyRate}
+                        gameId={gameData.gameId}
+                    />
+                );
+            default:
+                return (
+                    <GamePlayProcessItem
+                        gameData={gameData}
+                        buttonOptions={buttonOptions}
+                        handleAnswerSelect={handleAnswerSelect}
+                    />
+                );
+        }
+    };
 
-        <section className="content-con game-img-con">
-          <img className="game-img" src={gameImagePath} alt="게임 예시" />
-        </section>
-
-        <div className="row">
-          <div className="col-6">
-            <button className="btn btn-game w-100">달</button>
-          </div>
-          <div className="col-6">
-            <button className="btn btn-game w-100">해수욕장</button>
-          </div>
+    return (
+        <div className="app-container d-flex flex-column">
+            <PatientHeader/>
+            <main
+                className={`content-area patient-con ${gameState === GAME_STATE.GAME_COMPLETE ? 'game-result-area' : ''}`}>
+                {renderCurrentScreen()}
+            </main>
+            <PatientFooter/>
         </div>
-        <div className="row">
-          <div className="col-6">
-            <button className="btn btn-game w-100">달</button>
-          </div>
-          <div className="col-6">
-            <button className="btn btn-game w-100">을왕리해수욕장!!!!</button>
-          </div>
-        </div>
-      </main>
-
-      <PatientFooter />
-    </div>
-  );
-}
+    );
+};
 
 export default GamePage;

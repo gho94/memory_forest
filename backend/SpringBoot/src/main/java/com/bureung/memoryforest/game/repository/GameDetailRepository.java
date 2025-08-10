@@ -18,9 +18,8 @@ public interface GameDetailRepository extends JpaRepository<GameDetail, GameDeta
     List<GameDetail> findByGameIdOrderByGameSeq(String gameId);
     
     // 게임 ID와 시퀀스로 단건 조회
-    @Query("SELECT g FROM GameDetail g WHERE g.gameId = :gameId AND g.gameSeq = :gameSeq")
-    Optional<GameDetail> findByGameIdAndGameSeq(@Param("gameId") String gameId, @Param("gameSeq") Integer gameSeq);
-    
+    Optional<GameDetail> findByGameIdAndGameSeq(String gameId, Integer gameSeq);
+
     // 게임 ID로 모든 문제 조회 (게임 순서대로)
     List<GameDetail> findByGameIdOrderByGameOrder(String gameId);
     
@@ -66,4 +65,13 @@ public interface GameDetailRepository extends JpaRepository<GameDetail, GameDeta
         GROUP BY gd.aiStatus
         """)
     List<Object[]> findAiStatusCountsByDifficulty(@Param("difficultyCode") String difficultyCode);
+
+    @Query("SELECT " +
+            "CASE :columnName " +
+            "WHEN 'wrong_score_1' THEN g.wrongScore1 " +
+            "WHEN 'wrong_score_2' THEN g.wrongScore2 " +
+            "WHEN 'wrong_score_3' THEN g.wrongScore3 " +
+            "END " +
+            "FROM GameDetail g WHERE g.gameId = :gameId AND g.gameSeq = :gameSeq")
+    Optional<Integer> findScoreByColumn(@Param("gameId") String gameId, @Param("gameSeq") int gameSeq, @Param("columnName") String columnName);
 }

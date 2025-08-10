@@ -1,15 +1,14 @@
 package com.bureung.memoryforest.game.application.impl;
 
-import com.bureung.memoryforest.game.application.GameMasterService;
-import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
-import com.bureung.memoryforest.game.application.GamePlayerService;
-import com.bureung.memoryforest.game.application.GameQueryService;
+import com.bureung.memoryforest.game.application.*;
+import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.response.GameDashboardResponseDto;
 import com.bureung.memoryforest.game.dto.response.GameDashboardStatsResponseDto;
 import com.bureung.memoryforest.game.dto.response.GameRecorderDashboardResponseDto;
+import com.bureung.memoryforest.game.dto.response.GameStageResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ public class GameQueryServiceImpl implements GameQueryService {
     private final GamePlayerService gamePlayerService;
     private final GameMasterService gameMasterService;
     private final GamePlayerAnswerService gamePlayerAnswerService;
+    private final GameDetailService gameDetailService;
 
     @Override
     public GameDashboardResponseDto getDashboardStats(GameDashboardRequestDto request) {
@@ -110,7 +110,7 @@ public class GameQueryServiceImpl implements GameQueryService {
     }
 
 
-
+    @Override
     public GameRecorderDashboardResponseDto getRecorderDashboardData(String recorderId, String userName){
         // 1. 먼저 진행중인 게임이 있는지 확인
         Optional<GamePlayer> inProgressGame = gamePlayerService.getInProgressGameByPlayerId(recorderId);
@@ -141,45 +141,77 @@ public class GameQueryServiceImpl implements GameQueryService {
     }
 
     private GameRecorderDashboardResponseDto buildDashboard(GamePlayer gamePlayer, GameMaster gameMaster, String status, String userName, BigDecimal recentAccuracyRate) {
-        String gameId;
-        int totalQuestions;
-        int answeredQuestions = 0;
-        Integer beforeDays = null;
-        boolean isNewGame = false;
-        if(recentAccuracyRate == null){
-            recentAccuracyRate = gamePlayerService
-                    .getMostRecentCompletedGameByPlayerId(gamePlayer.getId().getPlayerId())
-                    .map(GamePlayer::getAccuracyRate)
-                    .orElse(BigDecimal.ZERO);
-        }
-        // 공통 데이터 설정
-        if (gamePlayer != null) {
-            // 진행중 또는 완료된 게임
-            gameId = gamePlayer.getId().getGameId();
-            totalQuestions = gameMasterService.getGameCountByGameId(gameId);
-            answeredQuestions = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, gamePlayer.getId().getPlayerId());
+        try {
 
-            // 완료된 게임인 경우 날짜 계산
-            if ("COMPLETED".equals(status)) {
-                LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-                LocalDateTime gameCompletedDate = gamePlayer.getEndTime();
-                beforeDays = (int) ChronoUnit.DAYS.between(gameCompletedDate.toLocalDate(), now.toLocalDate());
+            String gameId;
+            int totalQuestions;
+            int answeredQuestions = 0;
+            Integer beforeDays = null;
+            boolean isNewGame = false;
+
+            // 공통 데이터 설정
+            if (gamePlayer != null) {
+                // 진행중 또는 완료된 게임
+                gameId = gamePlayer.getId().getGameId();
+                totalQuestions = gameMasterService.getGameCountByGameId(gameId);
+                answeredQuestions = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, gamePlayer.getId().getPlayerId());
+
+                // 완료된 게임인 경우 날짜 계산
+                if ("COMPLETED".equals(status)) {
+                    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+                    LocalDateTime gameCompletedDate = gamePlayer.getEndTime();
+                    beforeDays = (int) ChronoUnit.DAYS.between(gameCompletedDate.toLocalDate(), now.toLocalDate());
+                }
+            } else {
+                // 새 게임
+                gameId = gameMaster.getGameId();
+                totalQuestions = gameMasterService.getGameCountByGameId(gameId);
+                isNewGame = true;
             }
-        } else {
-            // 새 게임
-            gameId = gameMaster.getGameId();
-            totalQuestions = gameMasterService.getGameCountByGameId(gameId);
-            isNewGame = true;
+
+            if (recentAccuracyRate == null && gamePlayer !=null) {
+                recentAccuracyRate = gamePlayerService
+                        .getMostRecentCompletedGameByPlayerId(gamePlayer.getId().getPlayerId())
+                        .map(GamePlayer::getAccuracyRate)
+                        .orElse(BigDecimal.ZERO);
+            }
+
+            return GameRecorderDashboardResponseDto.builder()
+                    .gameId(gameId)
+                    .currentProgress(answeredQuestions)
+                    .totalQuestions(totalQuestions)
+                    .isNewGame(isNewGame)
+                    .beforeDays(beforeDays)
+                    .status(status)
+                    .userName(userName)
+                    .recentAccuracyRate(recentAccuracyRate)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("실패다임ㅁ마!!: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
-        return GameRecorderDashboardResponseDto.builder()
+    }
+
+    @Override
+    public GameStageResponseDto getGameStageData(String playerId, String gameId){
+        int currentProgress = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, playerId);
+        int totalQuestions = gameMasterService.getGameCountByGameId(gameId);
+        log.info("currentProgress : {}, totalQuestions : {}", currentProgress, totalQuestions);
+        if(currentProgress >= totalQuestions){ throw new RuntimeException("이용 가능한 게임이 없습니다.");}
+
+        Integer gameSeq = gamePlayerAnswerService.getMaxGameSeqByGameIdAndPlayerId(gameId, playerId)+1;
+        GameDetail gameDetail = gameDetailService.getGameDetailByGameIdAndGameSeq(gameId, gameSeq).orElseThrow(() -> new RuntimeException("게임을 찾을 수 없습니다: " + gameId));
+
+        return GameStageResponseDto.builder()
                 .gameId(gameId)
-                .currentProgress(answeredQuestions)
+                .gameSeq(gameSeq)
+                .answerText(gameDetail.getAnswerText())
+                .wrongOption1(gameDetail.getWrongOption1())
+                .wrongOption2(gameDetail.getWrongOption2())
+                .wrongOption3(gameDetail.getWrongOption3())
+                .currentProgress(currentProgress)
                 .totalQuestions(totalQuestions)
-                .isNewGame(isNewGame)
-                .beforeDays(beforeDays)
-                .status(status)
-                .userName(userName)
-                .recentAccuracyRate(recentAccuracyRate)
                 .build();
     }
 }

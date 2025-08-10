@@ -1,6 +1,7 @@
 package com.bureung.memoryforest.game.application;
 
 import com.bureung.memoryforest.game.domain.GamePlayer;
+import com.bureung.memoryforest.game.dto.response.GamePlayResultResponseDto;
 import com.bureung.memoryforest.game.dto.response.GameWeeklyAccuracyChartDto;
 
 import java.math.BigDecimal;
@@ -61,4 +62,6 @@ public interface GamePlayerService {
      * 가장 최근에 푼 게임 조회
      */
     Optional<GamePlayer> getMostRecentCompletedGameByPlayerId(String playerId);
+
+    GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId);
 }
