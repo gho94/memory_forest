@@ -132,6 +132,7 @@ services:
   # === PostgreSQL for Airflow ===
   postgres:
     image: postgres:13
+    container_name: memory-forest-postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -141,15 +142,25 @@ services:
     restart: always
     networks:
       - backendnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # === Airflow Webserver ===
   webserver:
     build:
       context: ./airflow
       dockerfile: Dockerfile
+    container_name: memory-forest-airflow-webserver
     depends_on:
-      - postgres
-      - mysql-db
+      postgres:
+        condition: service_healthy
+      mysql-db:
+        condition: service_started
+      ai-service:
+        condition: service_started
     env_file:
       - ./airflow/.env
     environment:
@@ -159,36 +170,42 @@ services:
       AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW_UID: 50000
-      # Memory Forest DB 접근을 위한 환경변수
-      DB_HOST: mysql-db
-      DB_NAME: memory_forest
-      DB_USER: kcc
-      DB_PASSWORD: kcc
-      DB_PORT: 3306
-      AI_SERVICE_URL: http://ai-service:8000
-      # 네이버 API
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/models:/opt/airflow/models
+      - ./airflow/logs:/opt/airflow/logs
       - ./airflow/data:/opt/airflow/data
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ../ai/models:/opt/airflow/models
     ports:
       - "8081:8080"
-    command: bash -c "airflow db init && airflow webserver"
+    command: bash -c "
+      airflow db init &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@memoryforest.com --password admin123 &&
+      airflow webserver"
     restart: always
     networks:
       - backendnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # === Airflow Scheduler ===
   scheduler:
     build:
       context: ./airflow
       dockerfile: Dockerfile
+    container_name: memory-forest-airflow-scheduler
     depends_on:
-      - postgres
-      - mysql-db
-      - webserver
+      postgres:
+        condition: service_healthy
+      webserver:
+        condition: service_started
+      mysql-db:
+        condition: service_started
+      ai-service:
+        condition: service_started
     env_file:
       - ./airflow/.env
     environment:
@@ -197,30 +214,29 @@ services:
       AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
       AIRFLOW_UID: 50000
-      # Memory Forest DB 접근을 위한 환경변수
-      DB_HOST: mysql-db
-      DB_NAME: memory_forest
-      DB_USER: kcc
-      DB_PASSWORD: kcc
-      DB_PORT: 3306
-      AI_SERVICE_URL: http://ai-service:8000
-      # 네이버 API
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/models:/opt/airflow/models
+      - ./airflow/logs:/opt/airflow/logs
       - ./airflow/data:/opt/airflow/data
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ../ai/models:/opt/airflow/models
     command: airflow scheduler
     restart: always
     networks:
       - backendnet
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  webnet:
+    driver: bridge
+  backendnet:
+    driver: bridge
 
 volumes:
   mysql-data:
   redis-data:
   postgres_db:
-
-networks:
-  webnet:
-  backendnet:

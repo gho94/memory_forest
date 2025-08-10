@@ -38,6 +38,23 @@ public class CommonCodeServiceImpl implements CommonCodeService {
     }
 
     @Override
+    public CommonCodeResponseDto getCommonCodeById(String codeId) {
+        CommonCode commonCode = commonCodeRepository.findById(codeId)
+                .orElse(null);
+        
+        if (commonCode == null) {
+            return null;
+        }
+        
+        return CommonCodeResponseDto.builder()
+                .codeId(commonCode.getCodeID())
+                .codeName(commonCode.getCodeName())
+                .parentCodeId(commonCode.getParentCodeID())
+                .useYn(commonCode.getUseYn())
+                .build();
+    }
+
+    @Override
     @Transactional
     public CommonCodeResponseDto createCommonCode(CommonCodeRequestDto requestDto) {  
         String parentCodeID = requestDto.getParentCodeID();      

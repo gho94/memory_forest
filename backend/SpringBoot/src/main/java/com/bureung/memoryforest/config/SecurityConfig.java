@@ -8,20 +8,56 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     //leb. 임시로 둔 것으로 추후 수정해야 함.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 일단 1차로 기본 세션 관리만 설정 (JWT는 나중에 추가)
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // 모든 요청 허용
+                        .requestMatchers( //공통 접근 허용된 경로들
+                                "/",
+                                "/api/auth/**",           // 로그인/회원가입/로그아웃 API
+                                "/api/auth/check/**",    // 중복체크 API
+                                "/findId",
+                                "/signup",
+                                "/welcome",
+                                "/findPw",
+                                "/static/**",             // React 정적 파일들
+                                "/assets/**",
+                                "/*.js",
+                                "/*.css",
+                                "/error"
+                        ).permitAll()
+
+                        // 기록자(RECORDER) 전용 경로
+                        .requestMatchers("/recorder", "/recorder/**")
+//                        .hasRole("RECORDER")
+                          .hasAuthority("ROLE_A20001")
+
+                        // 동행자(COMPANION) 전용 경로
+                        .requestMatchers("/companion", "/companion/**")
+//                        .hasRole("COMPANION")
+                        .hasAuthority("ROLE_A20002")
+
+//                        .anyRequest().permitAll()  // 모든 요청 허용
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())  // HTTP Basic 인증 비활성화
                 .formLogin(form -> form.disable())  // 폼 로그인 비활성화
@@ -52,5 +88,15 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

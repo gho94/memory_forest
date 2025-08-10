@@ -37,3 +37,14 @@ out/
 .vscode/
 
 application-aws.properties
+
+### gmail - 계정정보
+application-email.properties
+
+
+
+
+docker/airflow/logs/
+docker/airflow/logs_backup/
+docker/airflow/dags/__pycache__/
+docker/airflow/plugins/__pycache__/

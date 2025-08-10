@@ -25,8 +25,8 @@ const CommonCodePage = () => {
         try {
             setLoading(true);
             const url = parentCodeID 
-                ? `http://localhost:8080/api/common-codes?parentCodeID=${parentCodeID}`
-                : 'http://localhost:8080/api/common-codes';            
+                ? `${window.API_BASE_URL}/api/common-codes?parentCodeID=${parentCodeID}`
+                : `${window.API_BASE_URL}/api/common-codes`;            
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('데이터를 가져오는데 실패했습니다.');
@@ -45,7 +45,7 @@ const CommonCodePage = () => {
         e.preventDefault();
         if (codeName) {
             try {
-                const response = await fetch('http://localhost:8080/api/common-codes', {
+                const response = await fetch(`${window.API_BASE_URL}/api/common-codes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -72,8 +72,22 @@ const CommonCodePage = () => {
         navigate(`/common-code?parentCodeID=${codeId}`);
     };
 
-    const handleBackClick = () => {
-        navigate('/common-code');
+    const handleBackClick = async () => {
+        try {
+            const response = await fetch(`${window.API_BASE_URL}/api/common-codes/${parentCodeID}`);            
+            if (response.ok) {
+                const currentCode = await response.json();
+                if (currentCode.parentCodeId) {
+                    navigate(`/common-code?parentCodeID=${currentCode.parentCodeId}`);
+                } else {
+                    navigate('/common-code');
+                }
+            } else {
+                navigate('/common-code');
+            }
+        } catch (err) {
+            navigate('/common-code');
+        }
     };
 
     const handleEditClick = (code, e) => {
@@ -87,7 +101,7 @@ const CommonCodePage = () => {
         e.preventDefault();
         if (codeName && editingCode) {
             try {
-                const response = await fetch(`http://localhost:8080/api/common-codes/${editingCode.codeId}`, {
+                const response = await fetch(`${window.API_BASE_URL}/api/common-codes/${editingCode.codeId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -149,13 +163,18 @@ const CommonCodePage = () => {
                 <div className="game-list-wrap">
                     <div className="game-list-con">                        
                             {commonCodeData.map((code) => (
-                             <div className="game-item" key={code.codeId}>
-                                 <div className="game-number">{commonCodeData.indexOf(code) + 1}</div>
+                             <div className="game-item" key={code.codeId}>                                
                                  <div className="game-box" onClick={() => handleCodeClick(code.codeId)} style={{ cursor: 'pointer' }}>                                     
+                                     <div className="game-title">{code.codeId}</div>
                                      <div className="game-title">{code.codeName}</div>
-                                     <div className="game-title">{code.parentCodeId}</div>
-                                     <div className="game-answer">{code.useYn}</div>
                                      <div className="game-texts"></div>
+                                     <div>
+                                        <input 
+                                            type="checkbox" 
+                                            className="modal-checkbox"
+                                            checked={code.useYn === 'Y'}
+                                        />
+                                    </div>
                                      <button className="game-edit-btn" onClick={(e) => handleEditClick(code, e)}>수정</button>
                                  </div>
                              </div>
