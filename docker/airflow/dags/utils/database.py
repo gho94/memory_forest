@@ -1,6 +1,5 @@
 """
-데이터베이스 유틸리티 함수들
-init.sql 스키마에 맞춘 데이터베이스 작업 - MySQL 연결 오류 수정
+Airflow DAG용 데이터베이스 유틸리티 - 기존 repository 코드 호환
 """
 
 import logging
@@ -8,32 +7,29 @@ import mysql.connector
 from mysql.connector import Error
 from typing import Dict, List, Optional, Tuple
 from contextlib import contextmanager
-from config import DB_CONFIG, AI_STATUS_CODES, DIFFICULTY_CODES
+from config import DB_CONFIG
 
 logger = logging.getLogger(__name__)
 
-class DatabaseManager:
-    """데이터베이스 관리 클래스 - MySQL 연결 오류 수정"""
+class AirflowDatabaseManager:
+    """Airflow DAG용 데이터베이스 관리 클래스 - 기존 repository와 호환"""
     
     def __init__(self):
-        # MySQL 연결 설정 수정 - buffered=True 추가
         self.config = {
             **DB_CONFIG,
-            'buffered': True,  # 버퍼링 활성화로 "Unread result found" 오류 방지
-            'consume_results': True,  # 결과 자동 소비
-            'use_pure': True,  # Pure Python 구현 사용
-            'sql_mode': 'TRADITIONAL',  # 전통적 SQL 모드
+            'buffered': True,
+            'consume_results': True,
+            'use_pure': True,
+            'sql_mode': 'TRADITIONAL',
         }
     
     @contextmanager
     def get_connection(self):
-        """데이터베이스 연결 컨텍스트 매니저 - 오류 처리 강화"""
+        """데이터베이스 연결 컨텍스트 매니저"""
         connection = None
         try:
-            # 연결 생성 시 buffered=True로 설정
             connection = mysql.connector.connect(**self.config)
             if connection.is_connected():
-                # 연결 상태 확인
                 connection.ping(reconnect=True, attempts=3, delay=1)
                 yield connection
             else:
@@ -46,23 +42,20 @@ class DatabaseManager:
             raise
         finally:
             if connection and connection.is_connected():
-                # 미완료 결과 처리
                 try:
-                    connection.cmd_reset_connection()  # 연결 상태 리셋
+                    connection.cmd_reset_connection()
                 except:
                     pass
                 connection.close()
                 logger.debug("데이터베이스 연결 종료")
     
     def test_connection(self) -> bool:
-        """데이터베이스 연결 테스트 - 강화된 버전"""
+        """데이터베이스 연결 테스트"""
         try:
             with self.get_connection() as conn:
-                # buffered=True로 커서 생성
                 cursor = conn.cursor(buffered=True, dictionary=True)
                 
                 try:
-                    # 간단한 테스트 쿼리
                     cursor.execute("SELECT 1 as test")
                     result = cursor.fetchone()
                     
@@ -77,9 +70,7 @@ class DatabaseManager:
                     logger.error(f"❌ 데이터베이스 테스트 쿼리 실패: {e}")
                     return False
                 finally:
-                    # 커서 안전하게 닫기
                     try:
-                        # 남은 결과 모두 소비
                         while cursor.nextset():
                             pass
                     except:
@@ -91,9 +82,8 @@ class DatabaseManager:
             return False
     
     def get_games_by_status(self, ai_status: str, limit: int = 50) -> List[Dict]:
-        """AI 상태별 게임 조회 - 안전한 커서 처리"""
+        """AI 상태별 게임 조회 - 기존 repository 호환"""
         with self.get_connection() as conn:
-            # buffered=True, dictionary=True로 커서 생성
             cursor = conn.cursor(buffered=True, dictionary=True)
             
             try:
@@ -144,7 +134,7 @@ class DatabaseManager:
                 """
                 
                 cursor.execute(query, (ai_status_value, limit))
-                results = cursor.fetchall()  # buffered이므로 안전
+                results = cursor.fetchall()
                 
                 logger.info(f"{ai_status} 상태 게임 {len(results)}개 조회")
                 return results
@@ -153,7 +143,6 @@ class DatabaseManager:
                 logger.error(f"게임 조회 실패: {e}")
                 return []
             finally:
-                # 안전한 커서 닫기
                 try:
                     while cursor.nextset():
                         pass
@@ -164,16 +153,16 @@ class DatabaseManager:
     def update_game_ai_result(self, game_id: str, game_seq: int, 
                              status: str, description: str = '',
                              ai_result: Optional[Dict] = None) -> bool:
-        """게임 AI 분석 결과 업데이트 - 안전한 커서 처리"""
+        """게임 AI 분석 결과 업데이트 - 기존 repository save_ai_analysis_result 호환"""
         with self.get_connection() as conn:
-            cursor = conn.cursor(buffered=True)  # buffered=True
+            cursor = conn.cursor(buffered=True)
             
             try:
                 # 상태를 DB 값으로 변환
                 if status == 'PENDING':
                     status_code = 'B20005'  # 대기중
                 elif status == 'PROCESSING':
-                    status_code = 'B20005'  # 처리중도 대기중으로
+                    status_code = 'B20006'  # 처리중 
                 elif status == 'COMPLETED':
                     status_code = 'B20007'  # 완료
                 elif status == 'ERROR' or status == 'FAILED':
@@ -181,12 +170,47 @@ class DatabaseManager:
                 else:
                     status_code = status  # 직접 값 사용
                 
+                # 점수 변환 함수 (기존 repository와 동일)
+                def convert_score_to_integer(score):
+                    """소수점 점수를 0-100 범위의 정수로 변환하여 DOUBLE로 저장"""
+                    try:
+                        if score is None:
+                            return 0.0
+                        
+                        # 이미 정수면 그대로 float로 변환
+                        if isinstance(score, int):
+                            return float(score)
+                        
+                        # float이면 100배 후 반올림
+                        if isinstance(score, float):
+                            # 0-1 범위를 벗어나면 0으로 처리
+                            if score < 0 or score > 1:
+                                return 0.0
+                            
+                            # 100배 하고 반올림하여 정수로 변환한 후 다시 float로
+                            integer_score = round(score * 100)
+                            return float(max(0, min(100, integer_score)))
+                        
+                        # 문자열이면 float로 변환 후 처리
+                        score_float = float(score)
+                        if score_float < 0 or score_float > 1:
+                            return 0.0
+                        integer_score = round(score_float * 100)
+                        return float(max(0, min(100, integer_score)))
+                        
+                    except (ValueError, TypeError, OverflowError):
+                        return 0.0
+                
                 if ai_result and status == 'COMPLETED':
-                    # AI 분석 완료 시 모든 결과 저장
+                    # AI 분석 완료 시 모든 결과 저장 (기존 repository와 동일한 형식)
+                    score1 = convert_score_to_integer(ai_result.get('wrong_score_1'))
+                    score2 = convert_score_to_integer(ai_result.get('wrong_score_2'))
+                    score3 = convert_score_to_integer(ai_result.get('wrong_score_3'))
+                    
                     query = """
                     UPDATE game_detail 
                     SET ai_status_code = %s,
-                        ai_processed_at = CURRENT_TIMESTAMP,
+                        ai_processed_at = NOW(),
                         description = %s,
                         wrong_option_1 = %s,
                         wrong_option_2 = %s,
@@ -197,13 +221,14 @@ class DatabaseManager:
                     WHERE game_id = %s AND game_seq = %s
                     """
                     values = (
-                        status_code, description,
-                        ai_result.get('wrong_option_1', '')[:20],
+                        status_code, 
+                        description[:500],  # VARCHAR(500) 제한
+                        ai_result.get('wrong_option_1', '')[:20],  # VARCHAR(20) 제한
                         ai_result.get('wrong_option_2', '')[:20],
                         ai_result.get('wrong_option_3', '')[:20],
-                        int(ai_result.get('wrong_score_1', 0)),
-                        int(ai_result.get('wrong_score_2', 0)),
-                        int(ai_result.get('wrong_score_3', 0)),
+                        score1,  # DOUBLE 타입에 정수값 저장
+                        score2,
+                        score3,
                         game_id, game_seq
                     )
                 else:
@@ -211,11 +236,11 @@ class DatabaseManager:
                     query = """
                     UPDATE game_detail 
                     SET ai_status_code = %s,
-                        ai_processed_at = CURRENT_TIMESTAMP,
+                        ai_processed_at = NOW(),
                         description = %s
                     WHERE game_id = %s AND game_seq = %s
                     """
-                    values = (status_code, description, game_id, game_seq)
+                    values = (status_code, description[:500], game_id, game_seq)
                 
                 cursor.execute(query, values)
                 conn.commit()
@@ -229,7 +254,6 @@ class DatabaseManager:
                 logger.error(f"게임 업데이트 실패: {game_id}/{game_seq} - {e}")
                 return False
             finally:
-                # 안전한 커서 닫기
                 try:
                     while cursor.nextset():
                         pass
@@ -238,7 +262,7 @@ class DatabaseManager:
                 cursor.close()
     
     def get_processing_statistics(self) -> Dict:
-        """처리 통계 조회 - 안전한 커서 처리"""
+        """처리 통계 조회"""
         with self.get_connection() as conn:
             cursor = conn.cursor(buffered=True, dictionary=True)
             
@@ -300,7 +324,6 @@ class DatabaseManager:
                     }
                 }
             finally:
-                # 안전한 커서 닫기
                 try:
                     while cursor.nextset():
                         pass
@@ -322,7 +345,7 @@ class DatabaseManager:
                 UPDATE game_detail 
                 SET ai_status_code = 'B20005',
                     description = CONCAT('재시도: ', description),
-                    ai_processed_at = CURRENT_TIMESTAMP
+                    ai_processed_at = NOW()
                 WHERE ai_status_code = 'B20008' 
                 AND ({conditions})
                 LIMIT %s
@@ -341,7 +364,6 @@ class DatabaseManager:
                 logger.error(f"재시도 설정 실패: {e}")
                 return 0
             finally:
-                # 안전한 커서 닫기
                 try:
                     while cursor.nextset():
                         pass
@@ -350,4 +372,4 @@ class DatabaseManager:
                 cursor.close()
 
 # 전역 데이터베이스 매니저 인스턴스
-db_manager = DatabaseManager()
+db_manager = AirflowDatabaseManager()
