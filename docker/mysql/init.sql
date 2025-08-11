@@ -51,6 +51,8 @@ CREATE TABLE users (
                        password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
                        email             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
                        phone             VARCHAR(20)    NULL     COMMENT '전화번호',
+                       birth_date        DATE           NULL     COMMENT '생년월일',
+                       gender_code       VARCHAR(6)     NULL     COMMENT '성별 코드 (M/F)',
                        user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
                        profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
                        status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
@@ -67,29 +69,6 @@ CREATE TABLE users (
                        CONSTRAINT fk_users_status FOREIGN KEY (status_code) REFERENCES common_codes(code_id),
                        CONSTRAINT fk_users_profile_image FOREIGN KEY (profile_image_file_id) REFERENCES file_info(file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 정보 관리 테이블';
-
--- 사용자 히스토리 테이블
-CREATE TABLE users_hist (
-                            hist_id           INT            NOT NULL AUTO_INCREMENT COMMENT '히스토리 ID (자동 증가)',
-                            action_type_code  VARCHAR(6)     NOT NULL COMMENT '액션 타입 코드 (생성/수정/삭제)',
-                            user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID',
-                            user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명 (변경 시점)',
-                            password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호 (변경 시점)',
-                            email             VARCHAR(100)   NOT NULL COMMENT '이메일 (변경 시점)',
-                            phone             VARCHAR(20)    NULL     COMMENT '전화번호 (변경 시점)',
-                            user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (변경 시점)',
-                            profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (변경 시점)',
-                            status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (변경 시점)',
-                            created_at        TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '히스토리 생성일시',
-                            changed_by        VARCHAR(10)    NOT NULL COMMENT '변경자 ID',
-                            PRIMARY KEY (hist_id),
-                            KEY idx_users_hist_user_id (user_id),
-                            KEY idx_users_hist_action_type (action_type_code),
-                            KEY idx_users_hist_created_at (created_at),
-                            CONSTRAINT fk_users_hist_action_type FOREIGN KEY (action_type_code) REFERENCES common_codes(code_id),
-                            CONSTRAINT fk_users_hist_user_type FOREIGN KEY (user_type_code) REFERENCES common_codes(code_id),
-                            CONSTRAINT fk_users_hist_status FOREIGN KEY (status_code) REFERENCES common_codes(code_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 정보 변경 히스토리 테이블';
 
 -- 사용자 관계 테이블
 CREATE TABLE user_rel (
@@ -251,6 +230,15 @@ INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('A20019', '연결 대기', 'A10004', 'ADMIN'),
                                                                          ('A20020', '연결 해제', 'A10004', 'ADMIN'),
                                                                          ('A20021', '거부됨', 'A10004', 'ADMIN');
+
+-- 1.5.1 성별 (GENDER)
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by)
+VALUES ('A10005', '성별', 'A00001', 'ADMIN');
+
+-- 1.5.2 하위 코드들
+INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
+                                                                         ('A20022', '남성', 'A10005', 'ADMIN'),
+                                                                         ('A20023', '여성', 'A10005', 'ADMIN');
 
 -- =====================================================
 -- 2. 게임 도메인 (B)

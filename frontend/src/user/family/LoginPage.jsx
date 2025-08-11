@@ -63,9 +63,9 @@ function LoginPage() {
                 //console창에 띄워보기
                 console.log(`로그인 성공! 환영합니다, ${data.userName}님!`);
 
-                if (data.userTypeCode === 'COMPANION') {
+                if (data.userTypeCode === 'A20002') {
                     navigate('/companion/dashboard');
-                } else if (data.userTypeCode === 'RECORDER') {
+                } else if (data.userTypeCode === 'A20001') {
                     navigate('/recorder/dashboard');
                 } else {
                     navigate('/companion/dashboard'); // 기본값
