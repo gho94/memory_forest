@@ -3,4 +3,10 @@
 *.pyc
 Readme.md
 tatus
-docker/airflow/.env
+./docker/airflow/.envdocker/airflow/logs/
+
+# Airflow logs and cache
+docker/airflow/logs/
+**/logs/
+**/__pycache__/
+*.log

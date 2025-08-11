@@ -138,15 +138,26 @@ def update_game_ai_result(game_id: str, game_seq: int, ai_result: dict) -> bool:
             ai_processed_at = NOW()
         WHERE game_id = %s AND game_seq = %s
         """
-        
-        params = (
+        score1 = ai_result.get('wrong_score_1', 0)
+        score2 = ai_result.get('wrong_score_2', 0)
+        score3 = ai_result.get('wrong_score_3', 0)
+
+        # float이면 정수로 변환, 아니면 그대로 사용
+        if isinstance(score1, float):
+            score1 = int(score1)
+        if isinstance(score2, float):
+            score2 = int(score2)
+        if isinstance(score3, float):
+            score3 = int(score3)
+
+        values = (
             ai_result.get('wrong_option_1', ''),
             ai_result.get('wrong_option_2', ''),
             ai_result.get('wrong_option_3', ''),
-            ai_result.get('wrong_score_1', 0),
-            ai_result.get('wrong_score_2', 0),
-            ai_result.get('wrong_score_3', 0),
-            ai_status_code,
+            score1,  # 정수로 변환된 점수
+            score2,  # 정수로 변환된 점수
+            score3,
+            ai_result.get('ai_status', 'FAILED'),
             ai_result.get('description', ''),
             game_id,
             game_seq
@@ -169,65 +180,11 @@ def update_game_ai_result(game_id: str, game_seq: int, ai_result: dict) -> bool:
         
         # 트랜잭션 커밋
         connection.commit()
-        logger.info("✅ 트랜잭션 커밋 완료")
         
-        # 5. 업데이트 후 데이터 확인
-        logger.info(f"🔍 업데이트 후 데이터 확인:")
-        cursor.execute(select_query, (game_id, game_seq))
-        after_data = cursor.fetchone()
-        
-        if after_data:
-            logger.info(f"🔍 업데이트 후 상태:")
-            logger.info(f"  - ai_status_code: '{after_data.get('ai_status_code')}'")
-            logger.info(f"  - wrong_option_1: '{after_data.get('wrong_option_1')}' (길이: {len(str(after_data.get('wrong_option_1', '')))})")
-            logger.info(f"  - wrong_option_2: '{after_data.get('wrong_option_2')}' (길이: {len(str(after_data.get('wrong_option_2', '')))})")
-            logger.info(f"  - wrong_option_3: '{after_data.get('wrong_option_3')}' (길이: {len(str(after_data.get('wrong_option_3', '')))})")
-            logger.info(f"  - wrong_score_1: {after_data.get('wrong_score_1')}")
-            logger.info(f"  - wrong_score_2: {after_data.get('wrong_score_2')}")
-            logger.info(f"  - wrong_score_3: {after_data.get('wrong_score_3')}")
-            logger.info(f"  - description: '{after_data.get('description')}'")
+        affected_rows = cursor.rowcount
+        logger.info(f"게임 AI 결과 업데이트 완료: {game_id}/{game_seq} (영향받은 행: {affected_rows})")
+        return affected_rows > 0
             
-            # 6. 데이터 변경 검증
-            changes_detected = []
-            
-            if before_data.get('ai_status_code') != after_data.get('ai_status_code'):
-                changes_detected.append(f"ai_status_code: '{before_data.get('ai_status_code')}' -> '{after_data.get('ai_status_code')}'")
-            
-            for i in range(1, 4):
-                option_key = f'wrong_option_{i}'
-                if before_data.get(option_key) != after_data.get(option_key):
-                    changes_detected.append(f"{option_key}: '{before_data.get(option_key)}' -> '{after_data.get(option_key)}'")
-            
-            if changes_detected:
-                logger.info(f"✅ 데이터 변경 감지: {len(changes_detected)}개 항목")
-                for change in changes_detected:
-                    logger.info(f"    {change}")
-            else:
-                logger.warning(f"⚠️ 업데이트 실행했으나 데이터 변경이 감지되지 않음")
-            
-            # 7. 빈 선택지 검사
-            empty_options = []
-            for i in range(1, 4):
-                option_key = f'wrong_option_{i}'
-                option_value = after_data.get(option_key, '')
-                if not option_value or option_value.strip() == '':
-                    empty_options.append(option_key)
-            
-            if empty_options and ai_result.get('ai_status') == 'COMPLETED':
-                logger.error(f"❌ COMPLETED 상태인데 빈 선택지 발견: {empty_options}")
-                return False
-            elif empty_options:
-                logger.warning(f"⚠️ 빈 선택지 발견 (상태: {ai_result.get('ai_status')}): {empty_options}")
-        
-        # 8. 최종 결과 판단
-        success = rowcount > 0
-        if success:
-            logger.info(f"✅ AI 결과 업데이트 성공: {game_id}-{game_seq}")
-        else:
-            logger.error(f"❌ AI 결과 업데이트 실패: {game_id}-{game_seq} (rowcount: {rowcount})")
-        
-        return success
-        
     except Exception as e:
         logger.error(f"❌ AI 결과 업데이트 중 예외 발생: game_id={game_id}, game_seq={game_seq}, 오류={e}", exc_info=True)
         if connection:

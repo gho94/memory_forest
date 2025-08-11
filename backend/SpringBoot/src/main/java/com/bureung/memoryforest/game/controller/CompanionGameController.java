@@ -1,18 +1,17 @@
 package com.bureung.memoryforest.game.controller;
 
-import com.bureung.memoryforest.ai.AIAnalysisRequest;
-import com.bureung.memoryforest.ai.AIAnalysisResponse;
 import com.bureung.memoryforest.game.application.GameMasterService;
+import com.bureung.memoryforest.game.application.GameQueryService;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.dto.request.GameCreateRequestDto;
-import com.bureung.memoryforest.ai.AIClientService;
+import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.request.UpdateStatusRequestDto;
+import com.bureung.memoryforest.game.dto.response.GameDashboardResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +22,7 @@ import java.util.Map;
 public class CompanionGameController {
     
     private final GameMasterService gameMasterService;
+    private final GameQueryService gameQueryService;
 
     /**
      * 게임 단건 조회
@@ -348,37 +348,9 @@ public class CompanionGameController {
         }
     }
 
-    @RequiredArgsConstructor
-    @RestController
-    public class GameController {
-        private final AIClientService aiClientService;
-         
-        @PostMapping("/companion/game/{gameId}/test-ai-connection")
-        public ResponseEntity<Map<String, Object>> testAIConnection(@PathVariable String gameId) {
-            Map<String, Object> result = new HashMap<>();
-            
-            try {
-                // 1. AI 서비스 연결 테스트
-                boolean isConnected = aiClientService.testConnection();
-                result.put("ai_connection", isConnected);
-                
-                if (isConnected) {
-                    // 2. 간단한 요청 테스트
-                    AIAnalysisRequest testRequest = new AIAnalysisRequest();
-                    testRequest.setGameId("TEST");
-                    testRequest.setGameSeq(1);
-                    testRequest.setAnswerText("테스트");
-                    testRequest.setDifficultyLevel("NORMAL");
-                    
-                    AIAnalysisResponse response = aiClientService.analyzeAnswer(testRequest);
-                    result.put("test_response", response);
-                }
-                
-                return ResponseEntity.ok(result);
-            } catch (Exception e) {
-                result.put("error", e.getMessage());
-                return ResponseEntity.status(500).body(result);
-            }
-        }
+    @GetMapping("/dashboard")
+    public ResponseEntity<GameDashboardResponseDto> getDashboard(GameDashboardRequestDto request) {
+        GameDashboardResponseDto response = gameQueryService.getDashboardStats(request);
+        return ResponseEntity.ok(response);
     }
 }

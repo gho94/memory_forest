@@ -37,7 +37,7 @@ public class GameCommandService {
      * 게임 생성 (파일 업로드와 함께)
      */
     public String createGame(String categoryCode, MultipartFile file, String answerText,
-                             String gameName, String gameDesc, String difficultyLevel, String createdBy) throws IOException {
+                         String gameName, String gameDesc, String difficultyLevel, String createdBy) throws IOException {
 
         String gameId = generateGameId();
 
@@ -51,7 +51,7 @@ public class GameCommandService {
                 .gameDesc(gameDesc)
                 .gameCount(1)
                 .difficultyLevelCode(difficultyCode)
-                .creationStatusCode("CREATING")
+                .creationStatusCode("B20006") // 생성중
                 .createdBy(createdBy)
                 .build();
 
@@ -61,19 +61,15 @@ public class GameCommandService {
         String fileName = saveFile(file);
         Path filePath = Paths.get(UPLOAD_DIR + fileName);
 
-        // GameDetail 생성
+        // GameDetail 생성 - 상태 코드 기준으로 수정
         GameDetail gameDetail = GameDetail.builder()
                 .gameId(gameId)
                 .gameSeq(1)
                 .gameOrder(1)
-                .categoryCode(categoryCode)
-                .originalName(file.getOriginalFilename())
-                .fileName(fileName)
-                .filePath(filePath.toString())
-                .fileSize(file.getSize())
-                .mimeType(file.getContentType())
+                .fileId(1) // 실제 파일 ID 설정 필요
                 .answerText(answerText)
-                .aiStatus("PENDING")
+                .aiStatusCode("B20005") // 대기중 상태 코드
+                .description("게임 생성됨")
                 .build();
 
         gameDetailRepository.save(gameDetail);
@@ -173,11 +169,11 @@ public class GameCommandService {
      */
     private String mapDifficultyLevelToCode(String difficultyLevel) {
         switch (difficultyLevel.toUpperCase()) {
-            case "EASY": return "D10001";
-            case "NORMAL": return "D10002";
-            case "HARD": return "D10003";
-            case "EXPERT": return "D10004";
-            default: return "D10002"; // 기본값: NORMAL
+            case "EASY": return "B20001";    // 초급
+            case "NORMAL": return "B20002";  // 중급
+            case "HARD": return "B20003";    // 고급
+            case "EXPERT": return "B20004";  // 전문가
+            default: return "B20002"; // 기본값: NORMAL
         }
     }
 }

@@ -1,41 +1,41 @@
 package com.bureung.memoryforest.game.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "GAME_PLAYER")
+@Table(name = "game_player")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class GamePlayer {
 
     @EmbeddedId
     private GamePlayerId id;
 
-    @Column(name = "TOTAL_SCORE")
+    @Column(name = "total_score")
     private Integer totalScore;
 
-    @Column(name = "CORRECT_COUNT")
+    @Column(name = "correct_count")
     private Integer correctCount;
 
-    @Column(name = "ACCURACY_RATE", precision = 5, scale = 2)
+    @Column(name = "accuracy_rate", precision = 5, scale = 2)
     private BigDecimal accuracyRate;
 
-    @Column(name = "GAME_STATUS_CODE", length = 6, nullable = false)
+    @Column(name = "game_status_code", length = 6, nullable = false)
     private String gameStatusCode;
 
-    @Column(name = "START_TIME")
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "END_TIME")
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(name = "DURATION_SECONDS")
+    @Column(name = "duration_seconds")
     private Integer durationSeconds;
 }

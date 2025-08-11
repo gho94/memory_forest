@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from '@/user/family/LoginPage';
 import FindIdPage from '@/user/family/FindIdPage';
 import SignupPage from '@/user/family/SignupPage';
+import FindPwPage from '@/user/family/FindPwPage';
+import ResetPwPage from '@/user/family/ResetPwPage';
+import WelcomePage from '@/user/family/WelcomePage';
 
 import FamilyDashboardPage from '@/user/family/FamilyDashboardPage';
 import PatientProfilePage from '@/user/family/PatientProfilePage';
@@ -16,8 +19,7 @@ import PatientChartPage from '@/user/patient/PatientChartPage';
 import PatientMyPage from '@/user/patient/PatientMyPage';
 import PatientRecord from '@/user/patient/PatientRecord';
 import GamePage from '@/game/patient/GamePage';
-import GameResultPage from '@/game/patient/GameResultPage';
-import PatientGameAnswerResultPage from '@/game/patient/PatientGameAnswerResultPage';
+import CommonCodePage from '@/user/common/CommonCodePage';
 
 function Router() {
   return (
@@ -27,6 +29,9 @@ function Router() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/findId" element={<FindIdPage />} />
         <Route path="/signup" element={<SignupPage />} />
+          <Route path="/findPw" element={<FindPwPage />} />
+          <Route path="/resetPw" element={<ResetPwPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
         {/* 비밀번호 찾기 추가 필요함 - 백엔드 개발 진행하면서 만들게여 */}
 
         {/* 동행자 */}
@@ -36,21 +41,18 @@ function Router() {
         {/* 동행자-게임 */}
         <Route path="/companion/games/create" element={<FamilyGameCreatePage />} />
         <Route path="/companion/games/complete" element={<FamilyGameCompletePage />} />
-         <Route path="/companion/games/list" element={<FamilyGameListPage />} />
+        <Route path="/companion/games/list" element={<FamilyGameListPage />} />
         
         {/* 기록자 */}
-        <Route path="/recoder/dashboard" element={<PatientDashboardPage />} />
-        <Route path="/recoder/chart" element={<PatientChartPage />} />
-        <Route path="/recoder/mypage" element={<PatientMyPage />} />
-        <Route path="/recoder/record" element={<PatientRecord />} />
+        <Route path="/recorder/dashboard" element={<PatientDashboardPage />} />
+        <Route path="/recorder/chart" element={<PatientChartPage />} />
+        <Route path="/recorder/mypage" element={<PatientMyPage />} />
+        <Route path="/recorder/record" element={<PatientRecord />} />
         {/* 기록자-게임 */}
-        <Route path="/recoder/game" element={<GamePage />} />
-        <Route path="/recoder/game/result" element={<GameResultPage />} />
-        <Route path="/recoder/game/result/:id" element={<PatientGameAnswerResultPage />} />
-
-
+        <Route path="/recorder/game" element={<GamePage />} />
 
         {/* 기타 관리자.. 추가예쩡 */}
+        <Route path="/common-code" element={<CommonCodePage />} />
 
       </Routes>
     </BrowserRouter>
