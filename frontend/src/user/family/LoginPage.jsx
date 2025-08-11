@@ -3,6 +3,7 @@ import { useNavigate,Link } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import '@/assets/css/login.css';
+import '@/assets/css/test.css';
 
 function LoginPage() {
 
@@ -81,6 +82,13 @@ function LoginPage() {
         }
     };
 
+    // 소셜 로그인
+    const handleSocialLogin = (provider) => {
+        // Spring Security OAuth2 엔드포인트로 직접 리다이렉트 처리하기
+        window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+    };
+
+
     // 폼 제출 처리
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -127,6 +135,34 @@ function LoginPage() {
           <Link to="/findPw">비밀번호 찾기</Link>
           <Link to="/signup">회원가입</Link>
         </div>
+
+
+          {/* 소셜 로그인 버튼들 */}
+          <div className="social-login-section">
+              <button
+                  type="button"
+                  className="btn btn-naver mb-2"
+                  onClick={() => handleSocialLogin('naver')}
+                  disabled={loading}
+              >
+                  <span className="naver-icon">N</span>
+                  네이버로 로그인
+              </button>
+
+              <button
+                  type="button"
+                  className="btn btn-kakao mb-2"
+                  onClick={() => handleSocialLogin('kakao')}
+                  disabled={loading}
+              >
+                  <span className="kakao-icon">K</span>
+                  카카오로 로그인
+              </button>
+          </div>
+
+
+
+
       </main>
     </div>
   );

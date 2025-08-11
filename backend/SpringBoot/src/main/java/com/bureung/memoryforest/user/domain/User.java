@@ -58,6 +58,12 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Column(name = "LOGIN_AT")
     private LocalDateTime loginAt;
 
+    @Builder.Default    //null - default으로 해주기 위해서 필요한거임
+    @Column(name = "LOGIN_TYPE",length = 20,nullable=false)
+    private String loginType  ="DEFULAT";
+
+    @Column(name = "SOCIAL_ID",length = 100)
+    private String socialId;
 
     // UserDetails 인터페이스 구현하는 부분임다.
     @Override
@@ -81,8 +87,6 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
         return true;
     }
 
-
-
     // A20005 - 활성, A20006  - 비활성 , A20007  - 정지 , A20008  - 삭제 (공통코드 발췌 )
     @Override
     public boolean isAccountNonLocked() {
@@ -105,4 +109,7 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
         return this.userName;
     }
 
+    public String getLoginType() {
+        return this.loginType;
+    }
 }
