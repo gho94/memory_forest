@@ -51,10 +51,10 @@ public class SecurityConfig {
 //                        .hasRole("RECORDER")
                           .hasAuthority("ROLE_A20001")
 
-                        // 동행자(COMPANION) 전용 경로
+                        /* // 동행자(COMPANION) 전용 경로
                         .requestMatchers("/companion", "/companion/**")
 //                        .hasRole("COMPANION")
-                        .hasAuthority("ROLE_A20002")
+                        .hasAuthority("ROLE_A20002") */
 
 //                        .anyRequest().permitAll()  // 모든 요청 허용
                         .anyRequest().authenticated()

@@ -162,15 +162,27 @@ public class GameMasterServiceImpl implements GameMasterService  {
                     request.setGameId(detail.getGameId());
                     request.setGameSeq(detail.getGameSeq());
                     request.setAnswerText(detail.getAnswerText());
+                    
+                    // 게임의 난이도 코드를 문자열로 변환하여 전달
+                    GameMaster gameMaster = getGameById(detail.getGameId());
+                    String difficultyLevel = mapDifficultyCodeToLevel(gameMaster.getDifficultyLevelCode());
+                    request.setDifficultyLevel(difficultyLevel);
 
-                    detail.markAIAnalyzing();
+                    detail.markAIAnalyzing(); // aiStatusCode를 B20006으로 설정
                     gameDetailRepository.save(detail);
 
-                    AIAnalysisResponse response = aiClientService.analyzeAnswer(request);
+                    // AI 서비스 호출 (FastAPI가 내부적으로 ai_status_code로 변환하여 저장)
+                    AIAnalysisResponse response = aiClientService.analyzeAnswerWithDifficulty(
+                        detail.getGameId(), 
+                        detail.getGameSeq(), 
+                        detail.getAnswerText(),
+                        difficultyLevel
+                    );
 
                     log.info("AI 분석 응답: gameId={}, gameSeq={}, aiStatus={}, description={}",
                             detail.getGameId(), detail.getGameSeq(), response.getAiStatus(), response.getDescription());
 
+                    // FastAPI가 이미 DB에 저장했으므로, 여기서는 로컬 객체만 업데이트
                     if ("COMPLETED".equals(response.getAiStatus())) {
                         detail.updateAIAnalysisResult(
                             response.getWrongOption1(),
@@ -182,11 +194,15 @@ public class GameMasterServiceImpl implements GameMasterService  {
                             "B20007",  // 완료 상태 코드
                             response.getDescription()
                         );
-                        log.info("AI 분석 결과 DB 업데이트 완료: gameId={}, gameSeq={}", detail.getGameId(), detail.getGameSeq());
+                        log.info("AI 분석 성공 - 로컬 객체 업데이트 완료: gameId={}, gameSeq={}", 
+                                detail.getGameId(), detail.getGameSeq());
                     } else {
                         detail.markAIAnalysisFailed(response.getDescription());
-                        log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}, reason={}", detail.getGameId(), detail.getGameSeq(), response.getDescription());
+                        log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}, reason={}", 
+                                detail.getGameId(), detail.getGameSeq(), response.getDescription());
                     }
+                    
+                    // 로컬 객체 업데이트 (이미 FastAPI에서 DB 저장 완료)
                     gameDetailRepository.save(detail);
                 }
             }
@@ -209,6 +225,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                 List<GameDetail> gameDetails = gameDetailRepository.findByGameIdOrderByGameSeq(gameId);
 
                 for (GameDetail detail : gameDetails) {
+                    // ai_status_code 기준으로 수정
                     if ("B20008".equals(detail.getAiStatusCode()) || "B20009".equals(detail.getAiStatusCode())) { // 실패 또는 취소
                         detail.setAiStatusCode("B20005"); // 대기중으로 변경
                         detail.setDescription("재처리 대상으로 변경됨");
@@ -235,7 +252,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
 
                 for (GameDetail detail : gameDetails) {
                     if ("B20005".equals(detail.getAiStatusCode())) { // 대기중
-                        detail.markAIAnalyzing();
+                        detail.markAIAnalyzing(); // B20006으로 변경
                         gameDetailRepository.save(detail);
                     }
                 }
@@ -260,6 +277,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
                     if ("B20006".equals(detail.getAiStatusCode())) { // 생성중/진행중
                         detail.setAiStatusCode("B20007"); // 완료
                         detail.setDescription("AI 분석 완료");
+                        detail.setAiProcessedAt(LocalDateTime.now());
                         gameDetailRepository.save(detail);
                     }
                 }
@@ -434,7 +452,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
         }
     }
 
-    // AI 상태 코드를 문자열로 변환
+    // AI 상태 코드를 문자열로 변환하는 헬퍼 메서드들 수정  
     private String mapAICodeToStatus(String statusCode) {
         switch (statusCode) {
             case "B20005": return "PENDING";

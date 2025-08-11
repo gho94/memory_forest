@@ -1,4 +1,4 @@
-# ai/db/repository.py (MySQL 저장 함수 추가)
+# ai/db/repository.py 수정
 import logging
 import mysql.connector
 from mysql.connector import Error
@@ -8,7 +8,7 @@ from db.connection import get_db_connection
 logger = logging.getLogger(__name__)
 
 def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> bool:
-    """AI 분석 결과를 MySQL GAME_DETAIL 테이블에 저장 - DOUBLE 타입에 정수값 저장"""
+    """AI 분석 결과를 MySQL GAME_DETAIL 테이블에 저장 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -18,7 +18,20 @@ def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> b
     try:
         cursor = connection.cursor()
         
-        # 소문자 테이블명/컬럼명 사용 (실제 DB 구조에 맞춤)
+        # ai_status_code 매핑
+        def map_status_to_code(status):
+            status_mapping = {
+                'PENDING': 'B20005',
+                'PROCESSING': 'B20006', 
+                'COMPLETED': 'B20007',
+                'FAILED': 'B20008'
+            }
+            return status_mapping.get(status, 'B20008')  # 기본값: FAILED
+        
+        # ai_status를 ai_status_code로 변환
+        ai_status = result_data.get('ai_status', 'FAILED')
+        ai_status_code = map_status_to_code(ai_status)
+        
         update_query = """
         UPDATE game_detail 
         SET 
@@ -28,7 +41,7 @@ def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> b
             wrong_score_1 = %s,
             wrong_score_2 = %s,
             wrong_score_3 = %s,
-            ai_status = %s,
+            ai_status_code = %s,
             ai_processed_at = NOW(),
             description = %s
         WHERE game_id = %s AND game_seq = %s
@@ -76,7 +89,7 @@ def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> b
             score1,  # DOUBLE 타입에 정수값 저장 (예: 58.0)
             score2,  # DOUBLE 타입에 정수값 저장 (예: 72.0)
             score3,  # DOUBLE 타입에 정수값 저장 (예: 85.0)
-            result_data.get('ai_status', 'FAILED')[:10],  # VARCHAR(10) 제한
+            ai_status_code,  # ai_status_code 사용
             result_data.get('description', '')[:500],     # VARCHAR(500) 제한
             game_id,
             game_seq
@@ -86,7 +99,7 @@ def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> b
         connection.commit()
         
         affected_rows = cursor.rowcount
-        logger.info(f"AI 분석 결과 MySQL 저장 완료: {game_id}/{game_seq} - 점수: {score1}, {score2}, {score3} (영향받은 행: {affected_rows})")
+        logger.info(f"AI 분석 결과 MySQL 저장 완료: {game_id}/{game_seq} - 점수: {score1}, {score2}, {score3}, 상태코드: {ai_status_code} (영향받은 행: {affected_rows})")
         return affected_rows > 0
         
     except Exception as e:
@@ -100,7 +113,7 @@ def save_ai_analysis_result(game_id: str, game_seq: int, result_data: Dict) -> b
             connection.close()
 
 def get_games_needing_analysis(limit: int = 50) -> List[Dict]:
-    """AI 분석이 필요한 게임들을 조회 (소문자 테이블명 사용)"""
+    """AI 분석이 필요한 게임들을 조회 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -110,26 +123,25 @@ def get_games_needing_analysis(limit: int = 50) -> List[Dict]:
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # 소문자 테이블명으로 수정
         query = """
         SELECT 
             gd.game_id as game_id,
             gd.game_seq as game_seq, 
             gd.answer_text as answer_text,
             gm.difficulty_level_code as difficulty_level_code,
-            gd.ai_status as ai_status,
+            gd.ai_status_code as ai_status_code,
             CASE 
-                WHEN gm.difficulty_level_code = 'D10001' THEN 'EASY'
-                WHEN gm.difficulty_level_code = 'D10002' THEN 'NORMAL'
-                WHEN gm.difficulty_level_code = 'D10003' THEN 'HARD'
-                WHEN gm.difficulty_level_code = 'D10004' THEN 'EXPERT'
+                WHEN gm.difficulty_level_code = 'B20001' THEN 'EASY'
+                WHEN gm.difficulty_level_code = 'B20002' THEN 'NORMAL'
+                WHEN gm.difficulty_level_code = 'B20003' THEN 'HARD'
+                WHEN gm.difficulty_level_code = 'B20004' THEN 'EXPERT'
                 ELSE 'NORMAL'
             END as difficulty_level
         FROM game_detail gd
         JOIN game_master gm ON gd.game_id = gm.game_id
         WHERE gd.answer_text IS NOT NULL 
         AND gd.answer_text != ''
-        AND (gd.ai_status = 'PENDING' OR gd.ai_status = 'FAILED')
+        AND (gd.ai_status_code = 'B20005' OR gd.ai_status_code = 'B20008')
         ORDER BY gd.game_id, gd.game_seq
         LIMIT %s
         """
@@ -152,7 +164,7 @@ def get_games_needing_analysis(limit: int = 50) -> List[Dict]:
             connection.close()
 
 def get_failed_games_for_reprocess(limit: int = 100) -> List[Dict]:
-    """재처리가 필요한 실패 게임들 조회 (소문자 테이블명 사용)"""
+    """재처리가 필요한 실패 게임들 조회 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -161,26 +173,25 @@ def get_failed_games_for_reprocess(limit: int = 100) -> List[Dict]:
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # 소문자 테이블명으로 수정
         query = """
         SELECT 
             gd.game_id as game_id,
             gd.game_seq as game_seq, 
             gd.answer_text as answer_text,
             gm.difficulty_level_code as difficulty_level_code,
-            gd.ai_status as ai_status,
+            gd.ai_status_code as ai_status_code,
             CASE 
-                WHEN gm.difficulty_level_code = 'D10001' THEN 'EASY'
-                WHEN gm.difficulty_level_code = 'D10002' THEN 'NORMAL'
-                WHEN gm.difficulty_level_code = 'D10003' THEN 'HARD'
-                WHEN gm.difficulty_level_code = 'D10004' THEN 'EXPERT'
+                WHEN gm.difficulty_level_code = 'B20001' THEN 'EASY'
+                WHEN gm.difficulty_level_code = 'B20002' THEN 'NORMAL'
+                WHEN gm.difficulty_level_code = 'B20003' THEN 'HARD'
+                WHEN gm.difficulty_level_code = 'B20004' THEN 'EXPERT'
                 ELSE 'NORMAL'
             END as difficulty_level
         FROM game_detail gd
         JOIN game_master gm ON gd.game_id = gm.game_id
         WHERE gd.answer_text IS NOT NULL 
         AND gd.answer_text != ''
-        AND gd.ai_status = 'FAILED'
+        AND gd.ai_status_code = 'B20008'
         ORDER BY gd.ai_processed_at DESC
         LIMIT %s
         """
@@ -200,7 +211,7 @@ def get_failed_games_for_reprocess(limit: int = 100) -> List[Dict]:
             connection.close()
 
 def get_analysis_statistics() -> Dict:
-    """AI 분석 통계 조회 (소문자 테이블명 사용)"""
+    """AI 분석 통계 조회 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -209,48 +220,58 @@ def get_analysis_statistics() -> Dict:
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # 전체 통계 (소문자 테이블명)
+        # 전체 통계
         overall_query = """
         SELECT 
-            ai_status as status,
+            ai_status_code as status_code,
             COUNT(*) as count
         FROM game_detail 
         WHERE answer_text IS NOT NULL 
         AND answer_text != ''
-        GROUP BY ai_status
+        GROUP BY ai_status_code
         """
         cursor.execute(overall_query)
         overall_results = cursor.fetchall()
         
-        # 난이도별 통계 (소문자 테이블명)
+        # 난이도별 통계
         difficulty_query = """
         SELECT 
             CASE 
-                WHEN gm.difficulty_level_code = 'D10001' THEN 'EASY'
-                WHEN gm.difficulty_level_code = 'D10002' THEN 'NORMAL'
-                WHEN gm.difficulty_level_code = 'D10003' THEN 'HARD'
-                WHEN gm.difficulty_level_code = 'D10004' THEN 'EXPERT'
+                WHEN gm.difficulty_level_code = 'B20001' THEN 'EASY'
+                WHEN gm.difficulty_level_code = 'B20002' THEN 'NORMAL'
+                WHEN gm.difficulty_level_code = 'B20003' THEN 'HARD'
+                WHEN gm.difficulty_level_code = 'B20004' THEN 'EXPERT'
                 ELSE 'NORMAL'
             END as difficulty_level,
-            gd.ai_status as status,
+            gd.ai_status_code as status_code,
             COUNT(*) as count
         FROM game_detail gd
         JOIN game_master gm ON gd.game_id = gm.game_id
         WHERE gd.answer_text IS NOT NULL 
         AND gd.answer_text != ''
-        GROUP BY difficulty_level, gd.ai_status
-        ORDER BY difficulty_level, gd.ai_status
+        GROUP BY difficulty_level, gd.ai_status_code
+        ORDER BY difficulty_level, gd.ai_status_code
         """
         cursor.execute(difficulty_query)
         difficulty_results = cursor.fetchall()
         
+        # 상태 코드를 문자열로 변환하는 함수
+        def map_code_to_status(code):
+            mapping = {
+                'B20005': 'PENDING',
+                'B20006': 'PROCESSING', 
+                'B20007': 'COMPLETED',
+                'B20008': 'FAILED'
+            }
+            return mapping.get(code, code)
+        
         # 통계 구성
-        overall_stats = {row['status']: row['count'] for row in overall_results}
+        overall_stats = {map_code_to_status(row['status_code']): row['count'] for row in overall_results}
         
         difficulty_stats = {}
         for row in difficulty_results:
             difficulty = row['difficulty_level']
-            status = row['status']
+            status = map_code_to_status(row['status_code'])
             count = row['count']
             
             if difficulty not in difficulty_stats:
@@ -272,7 +293,7 @@ def get_analysis_statistics() -> Dict:
             connection.close()
 
 def check_game_exists(game_id: str, game_seq: int) -> bool:
-    """게임 데이터 존재 여부 확인 (소문자 테이블명 사용)"""
+    """게임 데이터 존재 여부 확인"""
     
     connection = get_db_connection()
     if not connection:
@@ -294,9 +315,8 @@ def check_game_exists(game_id: str, game_seq: int) -> bool:
             cursor.close()
             connection.close()
 
-
 def get_game_current_status(game_id: str, game_seq: int) -> Optional[Dict]:
-    """게임의 현재 AI 분석 상태 조회 (소문자 테이블명 사용)"""
+    """게임의 현재 AI 분석 상태 조회 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -309,7 +329,7 @@ def get_game_current_status(game_id: str, game_seq: int) -> Optional[Dict]:
             game_id,
             game_seq,
             answer_text,
-            ai_status,
+            ai_status_code,
             wrong_option_1,
             wrong_option_2,
             wrong_option_3,
@@ -335,7 +355,7 @@ def get_game_current_status(game_id: str, game_seq: int) -> Optional[Dict]:
             connection.close()
 
 def mark_game_as_processing(game_id: str, game_seq: int) -> bool:
-    """게임을 처리 중 상태로 표시 (소문자 테이블명 사용)"""
+    """게임을 처리 중 상태로 표시 - ai_status_code 사용"""
     
     connection = get_db_connection()
     if not connection:
@@ -345,7 +365,7 @@ def mark_game_as_processing(game_id: str, game_seq: int) -> bool:
         cursor = connection.cursor()
         query = """
         UPDATE game_detail 
-        SET ai_status = 'PROCESSING',
+        SET ai_status_code = 'B20006',
             description = 'AI 분석 진행 중...'
         WHERE game_id = %s AND game_seq = %s
         """
