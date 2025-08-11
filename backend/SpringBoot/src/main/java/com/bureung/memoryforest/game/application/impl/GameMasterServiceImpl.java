@@ -217,6 +217,7 @@ public class GameMasterServiceImpl implements GameMasterService  {
         return CompletableFuture.completedFuture(null);
     }
 
+
     @Override
     @Transactional
     public void markGamesForReprocessing(List<String> gameIds) {
