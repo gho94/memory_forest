@@ -1,6 +1,5 @@
 """
-Memory Forest 유지보수 DAG
-실패한 게임 재시도, 시스템 정리, 통계 분석
+Memory Forest 유지보수 DAG - 기존 AI 서비스와 repository 호환
 """
 
 from airflow import DAG
@@ -15,11 +14,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import DAG_DEFAULT_ARGS, BATCH_SIZES, RETRY_RULES, MONITORING_CONFIG, AI_STATUS_CODES
+from config import (
+    DAG_DEFAULT_ARGS, BATCH_SIZES, RETRY_RULES, MONITORING_CONFIG, 
+    SCHEDULES, DEFAULT_ARGS, LOCAL_TZ
+)
 from utils.database import db_manager
 from utils.ai_service import ai_client
 
-local_tz = pendulum.timezone("Asia/Seoul")
 logger = logging.getLogger(__name__)
 
 def retry_failed_games(**context):
@@ -57,7 +58,7 @@ def analyze_error_patterns(**context):
     
     try:
         with db_manager.get_connection() as conn:
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(buffered=True, dictionary=True)
             
             # 최근 7일간 오류 패턴 분석 (B20008 = FAILED)
             query = """
@@ -114,6 +115,14 @@ def analyze_error_patterns(**context):
                 logger.info(f"    오류 유형: {answer['error_types']}")
                 logger.info("  ---")
             
+            # 커서 정리
+            try:
+                while cursor.nextset():
+                    pass
+            except:
+                pass
+            cursor.close()
+            
             return {
                 "error_patterns": error_patterns,
                 "problem_answers": problem_answers,
@@ -134,7 +143,7 @@ def generate_daily_report(**context):
         
         # 보고서 생성
         report = {
-            "report_date": datetime.now(local_tz).strftime("%Y-%m-%d %H:%M:%S"),
+            "report_date": datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %H:%M:%S"),
             "summary": {},
             "details": {}
         }
@@ -220,7 +229,7 @@ def cleanup_old_data(**context):
     
     try:
         with db_manager.get_connection() as conn:
-            cursor = conn.cursor()
+            cursor = conn.cursor(buffered=True)
             
             # 90일 이상 된 완료 게임 카운트 (B20007 = COMPLETED)
             count_query = """
@@ -238,6 +247,14 @@ def cleanup_old_data(**context):
             
             logger.info(f"정리 완료: 90일 이상 된 완료 게임 {cleanup_results['old_logs_cleaned']}개 확인")
             
+            # 커서 정리
+            try:
+                while cursor.nextset():
+                    pass
+            except:
+                pass
+            cursor.close()
+            
     except Exception as e:
         logger.error(f"데이터 정리 실패: {e}")
         cleanup_results["error"] = str(e)
@@ -250,7 +267,7 @@ def optimize_database_performance(**context):
     
     try:
         with db_manager.get_connection() as conn:
-            cursor = conn.cursor()
+            cursor = conn.cursor(buffered=True)
             
             # 테이블 분석 (통계 업데이트)
             tables_to_analyze = ['game_detail', 'game_master', 'file_info']
@@ -281,6 +298,14 @@ def optimize_database_performance(**context):
             for info in index_info:
                 logger.info(f"  {info[0]}.{info[1]}: {info[2]} cardinality")
             
+            # 커서 정리
+            try:
+                while cursor.nextset():
+                    pass
+            except:
+                pass
+            cursor.close()
+            
             return {"optimization_completed": True, "tables_analyzed": len(tables_to_analyze)}
             
     except Exception as e:
@@ -289,8 +314,8 @@ def optimize_database_performance(**context):
 
 # 유지보수 DAG 정의
 maintenance_default_args = {
-    **DAG_DEFAULT_ARGS,
-    'start_date': datetime(2024, 1, 1, tzinfo=local_tz),  # start_date 추가
+    **DEFAULT_ARGS,
+    'start_date': datetime(2024, 1, 1, tzinfo=LOCAL_TZ),
     'retries': 1,  # 유지보수 작업은 재시도 줄임
 }
 
@@ -298,7 +323,7 @@ maintenance_dag = DAG(
     'memory_forest_ai_maintenance',
     default_args=maintenance_default_args,
     description='Memory Forest AI 시스템 유지보수 및 분석',
-    schedule_interval='15 9 * * *',  # 매일 오전 9시 15분 실행
+    schedule_interval=SCHEDULES['maintenance'],  # 매일 오전 9시 15분 실행
     catchup=False,
     max_active_runs=1,
     tags=['memory-forest', 'maintenance', 'analysis']

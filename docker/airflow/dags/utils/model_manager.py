@@ -1,5 +1,5 @@
 """
-Memory Forest 모델 관리 유틸리티
+Memory Forest 모델 관리 유틸리티 - 기존 코드와 호환
 Word2Vec 모델의 상태 확인, 백업, 복원 등 관리 기능
 """
 
@@ -61,6 +61,9 @@ class ModelManager:
                         "vocab_size": ai_info.get("vocab_size", 0),
                         "vector_size": ai_info.get("vector_size", 0)
                     })
+                else:
+                    logger.warning(f"AI 서비스 모델 정보 조회 HTTP 오류: {response.status_code}")
+                    model_info["ai_service_status"] = "http_error"
             except Exception as e:
                 logger.warning(f"AI 서비스 모델 정보 조회 실패: {e}")
                 model_info["ai_service_status"] = "unavailable"
@@ -209,19 +212,30 @@ class ModelManager:
             }
     
     def request_model_reload(self) -> bool:
-        """AI 서비스에 모델 리로드 요청"""
+        """AI 서비스에 모델 리로드 요청 - 기존 AI 서비스 호환"""
         try:
-            response = requests.post(
-                f"{self.ai_service_url}/reload-model", 
-                timeout=30
-            )
+            # 기존 AI 서비스에 맞는 엔드포인트 시도
+            endpoints = ["/reload-model", "/reload", "/model/reload"]
             
-            if response.status_code == 200:
-                logger.info("AI 서비스 모델 리로드 성공")
-                return True
-            else:
-                logger.warning(f"AI 서비스 리로드 실패: {response.status_code}")
-                return False
+            for endpoint in endpoints:
+                try:
+                    response = requests.post(
+                        f"{self.ai_service_url}{endpoint}", 
+                        timeout=30
+                    )
+                    
+                    if response.status_code == 200:
+                        logger.info(f"AI 서비스 모델 리로드 성공: {endpoint}")
+                        return True
+                    else:
+                        logger.debug(f"엔드포인트 {endpoint} 실패: {response.status_code}")
+                        
+                except requests.exceptions.RequestException as e:
+                    logger.debug(f"엔드포인트 {endpoint} 요청 실패: {e}")
+                    continue
+            
+            logger.warning("모든 리로드 엔드포인트 실패")
+            return False
                 
         except Exception as e:
             logger.error(f"AI 서비스 리로드 요청 실패: {e}")
@@ -233,11 +247,17 @@ class ModelManager:
             response = requests.get(f"{self.ai_service_url}/health", timeout=10)
             
             if response.status_code == 200:
-                health_data = response.json()
-                return {
-                    "status": "healthy",
-                    "details": health_data
-                }
+                try:
+                    health_data = response.json()
+                    return {
+                        "status": "healthy",
+                        "details": health_data
+                    }
+                except:
+                    return {
+                        "status": "healthy",
+                        "details": {"message": "OK"}
+                    }
             else:
                 return {
                     "status": "unhealthy",

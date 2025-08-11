@@ -1,6 +1,5 @@
 """
-Memory Forest 실패 단어 수집 및 학습 데이터 생성 DAG
-모델에 없는 단어들을 수집하고 Naver API로 관련 텍스트를 수집하여 학습 데이터 생성
+Memory Forest 실패 단어 수집 및 학습 데이터 생성 DAG - 기존 코드 호환
 """
 
 from airflow import DAG
@@ -21,15 +20,14 @@ from typing import List, Dict
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import DAG_DEFAULT_ARGS
+from config import DAG_DEFAULT_ARGS, SCHEDULES, DEFAULT_ARGS, LOCAL_TZ, API_CONFIG
 from utils.database import db_manager
 
-local_tz = pendulum.timezone("Asia/Seoul")
 logger = logging.getLogger(__name__)
 
-# 환경변수에서 Naver API 정보 가져오기 (.env 파일 반영)
-NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+# 환경변수에서 Naver API 정보 가져오기
+NAVER_CLIENT_ID = API_CONFIG['naver_client_id']
+NAVER_CLIENT_SECRET = API_CONFIG['naver_client_secret']
 
 def collect_failed_words(**context):
     """모델에 없어서 실패한 단어들을 DB에서 수집"""
@@ -55,7 +53,7 @@ def collect_failed_words(**context):
             AND LENGTH(answer_text) >= 2  -- 너무 짧은 단어 제외
             AND LENGTH(answer_text) <= 10 -- 너무 긴 단어 제외
             GROUP BY answer_text
-            HAVING fail_count >= 2  -- 2회 이상 실패한 단어만
+            HAVING fail_count >= 1  
             ORDER BY fail_count DESC, last_failure DESC
             LIMIT 50  -- 최대 50개 단어만 처리
             """
@@ -76,7 +74,7 @@ def collect_failed_words(**context):
                 return {"collected_words": [], "total_count": 0}
             
             # 결과 저장
-            today = datetime.now(local_tz).strftime("%Y%m%d")
+            today = datetime.now(LOCAL_TZ).strftime("%Y%m%d")
             failed_words_dir = f"/opt/airflow/data/failed_words/{today}"
             os.makedirs(failed_words_dir, exist_ok=True)
             
@@ -109,7 +107,7 @@ def collect_failed_words(**context):
         return {"collected_words": [], "total_count": 0, "error": str(e)}
 
 def getRequestUrl(url: str) -> str:
-    """Naver API 요청 - .env 파일의 API 키 사용"""
+    """Naver API 요청"""
     if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:
         logger.error("❌ Naver API 키가 환경변수에 설정되지 않았습니다.")
         return None
@@ -183,7 +181,7 @@ def collect_word_contexts(**context):
     with open(failed_words_file, 'r', encoding='utf-8') as f:
         failed_words = json.load(f)
     
-    today = datetime.now(local_tz).strftime("%Y%m%d")
+    today = datetime.now(LOCAL_TZ).strftime("%Y%m%d")
     contexts_dir = f"/opt/airflow/data/collected_texts/{today}"
     os.makedirs(contexts_dir, exist_ok=True)
     
@@ -222,7 +220,7 @@ def collect_word_contexts(**context):
                         'source': 'naver_blog',
                         'title': title,
                         'fail_count': word_info['fail_count'],
-                        'collected_at': datetime.now(local_tz).isoformat()
+                        'collected_at': datetime.now(LOCAL_TZ).isoformat()
                     })
             
             # 단어별로 파일 저장
@@ -293,7 +291,7 @@ def prepare_training_data(**context):
         return {"processed_sentences": 0, "training_ready": False}
     
     try:
-        # KoNLPy 형태소 분석을 위한 import (실제 환경에서는 requirements.txt에 있어야 함)
+        # KoNLPy 형태소 분석을 위한 import
         from konlpy.tag import Okt
         okt = Okt()
         
@@ -334,7 +332,7 @@ def prepare_training_data(**context):
             return {"processed_sentences": 0, "training_ready": False}
         
         # 전처리된 데이터 저장
-        today = datetime.now(local_tz).strftime("%Y%m%d")
+        today = datetime.now(LOCAL_TZ).strftime("%Y%m%d")
         training_dir = f"/opt/airflow/data/model_training/{today}"
         os.makedirs(training_dir, exist_ok=True)
         
@@ -369,8 +367,8 @@ def prepare_training_data(**context):
 
 # DAG 정의
 word_collector_default_args = {
-    **DAG_DEFAULT_ARGS,
-    'start_date': datetime(2024, 1, 1, tzinfo=local_tz),
+    **DEFAULT_ARGS,
+    'start_date': datetime(2024, 1, 1, tzinfo=LOCAL_TZ),
     'retries': 2,  # 네트워크 오류 대비 재시도
     'retry_delay': timedelta(minutes=5),
 }
@@ -379,7 +377,7 @@ word_collector_dag = DAG(
     'memory_forest_word_collector',
     default_args=word_collector_default_args,
     description='Memory Forest 실패 단어 수집 및 학습 데이터 생성',
-    schedule_interval='0 2 * * *',  # 매일 새벽 2시 실행
+    schedule_interval=SCHEDULES['word_collection'],  # 매일 새벽 2시 실행
     catchup=False,
     max_active_runs=1,
     tags=['memory-forest', 'word2vec', 'data-collection', 'naver-api']
