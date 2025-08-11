@@ -46,17 +46,17 @@ const GAME_CONFIG = {
   IN_PROGRESS: {
     title: '진행중인 게임',
     buttonText: '게임 계속하기',
-    getUrl: (gameId) => `/game/play/${gameId}`
+    getUrl: (gameId) => `/recorder/game?gameId=${gameId}`
   },
   NEW_GAME: {
     title: '오늘의 게임',
     buttonText: '게임 시작하기',
-    getUrl: (gameId) => `/game/start/${gameId}`
+    getUrl: (gameId) => `/recorder/game?gameId=${gameId}`
   },
   COMPLETED: {
     title: (beforeDays) => beforeDays > 0 ? `${beforeDays}일 전 완료한 게임` : '오늘 완료한 게임',
     buttonText: '결과보기',
-    getUrl: (gameId) => `/game/result/${gameId}`
+    getUrl: (gameId) => `/recorder/chart?gameId=${gameId}`
   }
 };
 
@@ -199,7 +199,7 @@ function PatientDashboardPage() {
             {buttonText}
           </button>
 
-          {dashboardData.recentAccuracyRate && (
+          {dashboardData.recentAccuracyRate!==0 && dashboardData.recentAccuracyRate!==null && (
               <div className="recent-score">최근 정확도 : {dashboardData.recentAccuracyRate}%</div>
           )}
         </main>

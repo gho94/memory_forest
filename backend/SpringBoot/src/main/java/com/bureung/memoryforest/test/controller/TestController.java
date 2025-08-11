@@ -4,7 +4,9 @@ import com.bureung.memoryforest.ai.AIAnalysisRequest;
 import com.bureung.memoryforest.ai.AIAnalysisResponse;
 import com.bureung.memoryforest.ai.AIClientService;
 import com.bureung.memoryforest.game.domain.GameDetail;
+import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.repository.GameDetailRepository;
+import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ public class TestController {
 
     private final AIClientService aiClientService;
     private final GameDetailRepository gameDetailRepository;
+    private final GameMasterRepository gameMasterRepository;
 
     /**
      * FastAPI 연결 테스트
@@ -28,10 +31,10 @@ public class TestController {
     @GetMapping("/fastapi/health")
     public ResponseEntity<Map<String, String>> testFastAPIHealth() {
         try {
-            // TODO: AIClientService에 health check 메서드 추가
+            boolean isHealthy = aiClientService.isHealthy();
             return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "FastAPI 연결 테스트 준비됨"
+                "status", isHealthy ? "success" : "error",
+                "message", isHealthy ? "FastAPI 연결 성공" : "FastAPI 연결 실패"
             ));
         } catch (Exception e) {
             log.error("FastAPI health check 실패", e);
@@ -101,11 +104,21 @@ public class TestController {
                 ));
             }
 
-            // AI 분석 요청
-            AIAnalysisResponse response = aiClientService.analyzeAnswerWithDifficulty(
-                gameId, gameSeq, gameDetail.getAnswerText(), "NORMAL");
+            // 게임의 난이도 정보 조회
+            GameMaster gameMaster = gameMasterRepository.findById(gameId).orElse(null);
+            String difficultyLevel = "NORMAL";
+            if (gameMaster != null) {
+                difficultyLevel = mapDifficultyCodeToLevel(gameMaster.getDifficultyLevelCode());
+            }
 
-            // 결과를 GameDetail에 저장
+            log.info("게임 AI 분석 테스트: gameId={}, gameSeq={}, answerText={}, difficulty={}", 
+                    gameId, gameSeq, gameDetail.getAnswerText(), difficultyLevel);
+
+            // AI 분석 요청 (FastAPI가 자동으로 DB 저장)
+            AIAnalysisResponse response = aiClientService.analyzeAnswerWithDifficulty(
+                gameId, gameSeq, gameDetail.getAnswerText(), difficultyLevel);
+
+            // FastAPI가 이미 DB에 저장했으므로 GameDetail 객체만 동기화
             if ("COMPLETED".equals(response.getAiStatus())) {
                 gameDetail.updateAIAnalysisResult(
                     response.getWrongOption1(),
@@ -114,16 +127,22 @@ public class TestController {
                     response.getWrongScore1() != null ? response.getWrongScore1().intValue() : 0,
                     response.getWrongScore2() != null ? response.getWrongScore2().intValue() : 0,
                     response.getWrongScore3() != null ? response.getWrongScore3().intValue() : 0,
-                    "B20005", // 완료 상태 코드
+                    "B20007", // 완료 상태 코드
                     response.getDescription()
                 );
                 gameDetailRepository.save(gameDetail);
                 
-                log.info("AI 분석 결과 저장 완료: gameId={}, gameSeq={}", gameId, gameSeq);
+                log.info("AI 분석 결과 로컬 동기화 완료: gameId={}, gameSeq={}", gameId, gameSeq);
+            } else if ("FAILED".equals(response.getAiStatus())) {
+                gameDetail.markAIAnalysisFailed(response.getDescription());
+                gameDetailRepository.save(gameDetail);
+                
+                log.warn("AI 분석 실패 처리: gameId={}, gameSeq={}", gameId, gameSeq);
             }
 
             return ResponseEntity.ok(Map.of(
                 "status", "success",
+                "message", "AI 분석 완료 (FastAPI에서 DB 저장 완료)",
                 "aiResponse", response,
                 "gameDetail", gameDetail
             ));
@@ -145,10 +164,22 @@ public class TestController {
         try {
             long totalGames = gameDetailRepository.count();
             
+            // ai_status_code 기준으로 개수 조회
+            long pendingGames = gameDetailRepository.countByAiStatusCode("B20005");
+            long processingGames = gameDetailRepository.countByAiStatusCode("B20006");
+            long completedGames = gameDetailRepository.countByAiStatusCode("B20007");
+            long failedGames = gameDetailRepository.countByAiStatusCode("B20008");
+            
             return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "데이터베이스 연결 성공",
-                "totalGameDetails", totalGames
+                "totalGameDetails", totalGames,
+                "aiStatusBreakdown", Map.of(
+                    "pending", pendingGames,
+                    "processing", processingGames,
+                    "completed", completedGames,
+                    "failed", failedGames
+                )
             ));
             
         } catch (Exception e) {
@@ -161,26 +192,98 @@ public class TestController {
     }
 
     /**
-     * 샘플 게임 데이터 생성 (테스트용)
+     * FastAPI DB 연결 테스트
      */
-    @PostMapping("/create-sample-game")
-    public ResponseEntity<Object> createSampleGame() {
+    @GetMapping("/fastapi/db-check")
+    public ResponseEntity<Object> testFastAPIDatabase() {
         try {
-            // TODO: 실제 파일 업로드 없이 테스트용 게임 데이터 생성
-            // 이 부분은 실제 GameCommandService를 사용하거나
-            // 직접 GameDetail을 생성할 수 있습니다.
-            
+            String result = aiClientService.testDatabaseConnection();
             return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "샘플 게임 생성 기능은 구현 예정입니다"
+                "message", "FastAPI DB 연결 테스트 완료",
+                "fastapi_result", result
             ));
-            
         } catch (Exception e) {
-            log.error("샘플 게임 생성 실패", e);
+            log.error("FastAPI DB 연결 테스트 실패", e);
             return ResponseEntity.ok(Map.of(
-                "status", "error", 
-                "message", "샘플 게임 생성 실패: " + e.getMessage()
+                "status", "error",
+                "message", "FastAPI DB 연결 테스트 실패: " + e.getMessage()
             ));
+        }
+    }
+
+    /**
+     * FastAPI 단일 게임 처리 테스트
+     */
+    @PostMapping("/fastapi/process-one")
+    public ResponseEntity<Object> testFastAPIProcessOne() {
+        try {
+            String result = aiClientService.testProcessOneGame();
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "FastAPI 단일 게임 처리 테스트 완료",
+                "fastapi_result", result
+            ));
+        } catch (Exception e) {
+            log.error("FastAPI 단일 게임 처리 테스트 실패", e);
+            return ResponseEntity.ok(Map.of(
+                "status", "error",
+                "message", "FastAPI 단일 게임 처리 테스트 실패: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * AI 분석 통계 조회 테스트
+     */
+    @GetMapping("/ai/statistics")
+    public ResponseEntity<Object> testAIStatistics() {
+        try {
+            String result = aiClientService.getAnalysisStatistics();
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "AI 분석 통계 조회 완료",
+                "statistics", result
+            ));
+        } catch (Exception e) {
+            log.error("AI 분석 통계 조회 테스트 실패", e);
+            return ResponseEntity.ok(Map.of(
+                "status", "error",
+                "message", "AI 분석 통계 조회 실패: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 실패한 게임 재처리 테스트
+     */
+    @PostMapping("/ai/reprocess")
+    public ResponseEntity<Object> testReprocessFailedGames(@RequestParam(defaultValue = "5") int limit) {
+        try {
+            String result = aiClientService.requestReprocessFailedGames(limit);
+            return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "실패 게임 재처리 요청 완료",
+                "limit", limit,
+                "result", result
+            ));
+        } catch (Exception e) {
+            log.error("실패 게임 재처리 테스트 실패", e);
+            return ResponseEntity.ok(Map.of(
+                "status", "error",
+                "message", "실패 게임 재처리 테스트 실패: " + e.getMessage()
+            ));
+        }
+    }
+
+    // 헬퍼 메서드: 난이도 코드를 문자열로 변환
+    private String mapDifficultyCodeToLevel(String difficultyCode) {
+        switch (difficultyCode) {
+            case "B20001": return "EASY";    // 초급
+            case "B20002": return "NORMAL";  // 중급
+            case "B20003": return "HARD";    // 고급
+            case "B20004": return "EXPERT";  // 전문가
+            default: return "NORMAL";
         }
     }
 }

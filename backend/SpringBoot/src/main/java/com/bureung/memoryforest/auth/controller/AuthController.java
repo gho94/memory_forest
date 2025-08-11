@@ -8,6 +8,7 @@ import com.bureung.memoryforest.auth.dto.response.JoinResponseDto;
 import com.bureung.memoryforest.auth.dto.request.FindIdWithVerificationRequestDto;
 import com.bureung.memoryforest.auth.dto.request.PasswordResetVerifyRequestDto;
 import com.bureung.memoryforest.user.domain.User;
+import com.bureung.memoryforest.user.application.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final EmailService emailService;
+    private final UserService userService;
 
     //api 테스트용 --- 추후 지워야함!!!!!!!!!!!!!!!!
     @GetMapping("/test")
@@ -41,7 +43,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest, HttpSession session) {
 
-        LoginResponseDto result = authService.login(loginRequest.getUserId(), loginRequest.getPassword());
+        LoginResponseDto result = authService.login(loginRequest.getLoginId(), loginRequest.getPassword());
 
         Map<String, Object> response = new HashMap<>();
 
@@ -74,9 +76,9 @@ public class AuthController {
 
     //회원가입
     // 1. 아이디 중복 체크
-    @GetMapping("/check/userid/{userId}")
-    public ResponseEntity<Map<String, Object>> checkUserIdDuplicate(@PathVariable String userId) {
-        boolean exists = authService.findByUserId(userId).isPresent();
+    @GetMapping("/check/userid")
+    public ResponseEntity<Map<String, Object>> checkLoginIdDuplicate(@RequestParam("loginId") String loginId) {
+        boolean exists = authService.existsByLoginId(loginId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("exists", exists);
@@ -138,7 +140,7 @@ public class AuthController {
     // 4. 회원가입 완료
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signup(@RequestBody JoinRequestDto signupRequest) {
-        log.info("회원가입 요청 - 이메일: {}, 아이디: {}", signupRequest.getEmail(), signupRequest.getUserId());
+        log.info("회원가입 요청 - 이메일: {}, 아이디: {}", signupRequest.getEmail(), signupRequest.getLoginId());
 
         Map<String, Object> response = new HashMap<>();
 

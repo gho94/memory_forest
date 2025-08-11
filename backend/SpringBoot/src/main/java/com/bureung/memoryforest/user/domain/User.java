@@ -22,6 +22,9 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Column(name = "USER_ID", length = 10, nullable = false)
     private String userId;
     
+    @Column(name = "LOGIN_ID", nullable = false, length = 100, unique = true)
+    private String loginId;
+    
     @Column(name = "USER_NAME", nullable = false, length = 100)
     private String userName;
     
@@ -74,7 +77,7 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
 
     @Override
     public String getUsername() {
-        return this.userId; // userId를 username으로 - 시큐리티는 로그인시 입력하는 id값을 username으로 인식하는 규칙..
+        return this.loginId; // loginId를 username으로 - 시큐리티는 로그인시 입력하는 id값을 username으로 인식하는 규칙..
     }
 
     @Override

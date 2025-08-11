@@ -1,4 +1,4 @@
-# ai/api/analyze.py
+# ai/api/analyze.py 수정 - ai_status_code 대응
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from typing import List, Optional
 import asyncio
@@ -52,9 +52,6 @@ def convert_float_scores_to_integer(float_scores):
                 continue
             
             # 소수점을 100배 하고 반올림하여 정수로 변환
-            # 0.1234 → 12.34 → 12
-            # 0.5678 → 56.78 → 57  
-            # 0.9012 → 90.12 → 90
             integer_score = round(score * 100)
             
             # 0-100 범위 보장
@@ -77,7 +74,7 @@ def convert_numpy_scores_to_integers_complete(scores):
 
 @router.post("/analyze", response_model=AIAnalysisResponse)
 async def analyze_answer(request: AIAnalysisRequest):
-    """답변 분석 후 MySQL에 즉시 저장 - 올바른 순서로 점수 변환"""
+    """답변 분석 후 MySQL에 즉시 저장 - ai_status_code 사용"""
     
     # 모델 로드 확인
     if ai_service.model is None:
@@ -95,7 +92,7 @@ async def analyze_answer(request: AIAnalysisRequest):
     if result["status"] == "FAILED":
         logger.error(f"AI 분석 실패: {result.get('error', 'Unknown error')}")
         
-        # 실패 결과도 DB에 저장
+        # 실패 결과도 DB에 저장 - ai_status 대신 ai_status_code 매핑
         failed_result = {
             'wrong_option_1': '',
             'wrong_option_2': '',
@@ -103,7 +100,7 @@ async def analyze_answer(request: AIAnalysisRequest):
             'wrong_score_1': 0,  # 정수
             'wrong_score_2': 0,  # 정수
             'wrong_score_3': 0,  # 정수
-            'ai_status': 'FAILED',
+            'ai_status': 'FAILED',  # 내부적으로는 문자열 사용하고 repository에서 코드로 변환
             'description': result.get('error', 'AI 분석 실패')
         }
         
@@ -129,9 +126,8 @@ async def analyze_answer(request: AIAnalysisRequest):
             wrong_score_2=0,
             wrong_score_3=0,
             ai_status="FAILED",
-            description="Model not loaded"
+            description=result.get('error', 'AI 분석 실패')
         )
-        return response.model_dump(by_alias=True)
 
     # 성공한 경우 데이터 처리
     wrong_options = result["wrong_options"]
@@ -154,7 +150,7 @@ async def analyze_answer(request: AIAnalysisRequest):
     while len(wrong_options) < 3:
         wrong_options.append("")
 
-    # MySQL 저장용 데이터 준비
+    # MySQL 저장용 데이터 준비 - ai_status 사용 (repository에서 코드로 변환)
     mysql_result = {
         'wrong_option_1': wrong_options[0],
         'wrong_option_2': wrong_options[1], 
@@ -162,7 +158,7 @@ async def analyze_answer(request: AIAnalysisRequest):
         'wrong_score_1': integer_scores[0],
         'wrong_score_2': integer_scores[1],
         'wrong_score_3': integer_scores[2],
-        'ai_status': 'COMPLETED',
+        'ai_status': 'COMPLETED',  # 문자열로 전달, repository에서 B20007로 변환
         'description': f"AI 분석 완료 (난이도: {difficulty_used})"
     }
 
@@ -213,7 +209,7 @@ async def batch_process(request: BatchProcessRequest, background_tasks: Backgrou
     }
 
 async def process_games_batch_with_mysql(games: List[dict]):
-    """배치 처리 함수 - 올바른 순서로 점수 변환 후 MySQL 저장"""
+    """배치 처리 함수 - ai_status_code 대응"""
     processed_count = 0
     failed_count = 0
 
@@ -253,7 +249,7 @@ async def process_games_batch_with_mysql(games: List[dict]):
                     'wrong_score_1': integer_scores[0],
                     'wrong_score_2': integer_scores[1],
                     'wrong_score_3': integer_scores[2],
-                    'ai_status': 'COMPLETED',
+                    'ai_status': 'COMPLETED',  # repository에서 B20007로 변환
                     'description': f"배치 AI 분석 완료 (난이도: {result.get('difficulty_used', difficulty)})"
                 }
             else:
@@ -265,7 +261,7 @@ async def process_games_batch_with_mysql(games: List[dict]):
                     'wrong_score_1': 0,
                     'wrong_score_2': 0,
                     'wrong_score_3': 0,
-                    'ai_status': 'FAILED',
+                    'ai_status': 'FAILED',  # repository에서 B20008로 변환
                     'description': f"배치 AI 분석 실패: {result.get('error', '알 수 없는 오류')}"
                 }
 
@@ -287,6 +283,7 @@ async def process_games_batch_with_mysql(games: List[dict]):
 
     logger.info(f"배치 처리 완료: 성공={processed_count}, 실패={failed_count}")
 
+# 나머지 엔드포인트들도 ai_status_code 대응
 @router.get("/analysis/stats")
 async def get_analysis_statistics():
     """AI 분석 통계 조회"""
@@ -333,7 +330,7 @@ async def test_save_result(game_id: str, game_seq: int):
             'wrong_score_1': 12,
             'wrong_score_2': 57,
             'wrong_score_3': 90,
-            'ai_status': 'COMPLETED',
+            'ai_status': 'COMPLETED',  # repository에서 B20007로 변환
             'description': 'FastAPI 테스트 저장'
         }
         
@@ -418,7 +415,7 @@ async def test_analyze_and_save():
                     'wrong_score_1': integer_scores[0], 
                     'wrong_score_2': integer_scores[1], 
                     'wrong_score_3': integer_scores[2], 
-                    'ai_status': 'COMPLETED',
+                    'ai_status': 'COMPLETED',  # repository에서 B20007로 변환
                     'description': f"테스트 AI 분석 완료 (난이도: {test_case['difficulty']})"
                 }
                 
@@ -466,20 +463,20 @@ async def test_database_connection():
         cursor = connection.cursor(dictionary=True)
         
         # GAME_DETAIL 테이블 구조 확인
-        cursor.execute("DESCRIBE GAME_DETAIL")
+        cursor.execute("DESCRIBE game_detail")
         table_structure = cursor.fetchall()
         
         # 샘플 데이터 개수 확인
-        cursor.execute("SELECT COUNT(*) as total FROM GAME_DETAIL")
+        cursor.execute("SELECT COUNT(*) as total FROM game_detail")
         total_count = cursor.fetchone()['total']
         
-        cursor.execute("SELECT COUNT(*) as pending FROM GAME_DETAIL WHERE AI_STATUS = 'PENDING'")
+        cursor.execute("SELECT COUNT(*) as pending FROM game_detail WHERE ai_status_code = 'B20005'")
         pending_count = cursor.fetchone()['pending']
         
-        cursor.execute("SELECT COUNT(*) as completed FROM GAME_DETAIL WHERE AI_STATUS = 'COMPLETED'")
+        cursor.execute("SELECT COUNT(*) as completed FROM game_detail WHERE ai_status_code = 'B20007'")
         completed_count = cursor.fetchone()['completed']
         
-        cursor.execute("SELECT COUNT(*) as failed FROM GAME_DETAIL WHERE AI_STATUS = 'FAILED'")
+        cursor.execute("SELECT COUNT(*) as failed FROM game_detail WHERE ai_status_code = 'B20008'")
         failed_count = cursor.fetchone()['failed']
         
         cursor.close()
@@ -564,7 +561,7 @@ async def test_process_one_game():
                 'wrong_score_1': integer_scores[0],
                 'wrong_score_2': integer_scores[1],
                 'wrong_score_3': integer_scores[2],
-                'ai_status': 'COMPLETED',
+                'ai_status': 'COMPLETED',  # repository에서 B20007로 변환
                 'description': f"테스트 처리 완료 (난이도: {ai_result.get('difficulty_used', difficulty)})"
             }
             
@@ -588,7 +585,7 @@ async def test_process_one_game():
                 'wrong_score_1': 0,
                 'wrong_score_2': 0,
                 'wrong_score_3': 0,
-                'ai_status': 'FAILED',
+                'ai_status': 'FAILED',  # repository에서 B20008로 변환
                 'description': f"테스트 처리 실패: {ai_result.get('error', '알 수 없는 오류')}"
             }
             

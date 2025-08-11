@@ -9,7 +9,7 @@ function SignupPage() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        userId: '',
+        loginId: '',
         password: '',
         confirmPassword: '',
         userName: '',
@@ -18,7 +18,7 @@ function SignupPage() {
     });
 
     const [validation, setValidation] = useState({
-        userId: { isValid: false, message: '' },
+        loginId: { isValid: false, message: '' },
         password: { isValid: false, message: '' },
         confirmPassword: { isValid: false, message: '' },
         email: { isValid: false, message: '' }
@@ -118,14 +118,14 @@ function SignupPage() {
     };
 
     // 아이디 중복 확인
-    const handleCheckUserId = async () => {
-        if (!formData.userId.trim()) {
+    const handleCheckLoginId = async () => {
+        if (!formData.loginId.trim()) {
             showError('아이디를 입력해주세요.');
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/userid/${formData.userId}`, {
+            const response = await fetch(`http://localhost:8080/api/auth/check/userid?loginId=${formData.loginId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ function SignupPage() {
             if (response.ok) {
                 setValidation(prev => ({
                     ...prev,
-                    userId: {
+                    loginId: {
                         isValid: !data.exists,
                         message: data.message
                     }
@@ -250,7 +250,7 @@ function SignupPage() {
         e.preventDefault();
 
         // 유효성 검사
-        if (!validation.userId.isValid) {
+        if (!validation.loginId.isValid) {
             showError('아이디 중복 확인을 해주세요.');
             return;
         }
@@ -278,7 +278,7 @@ function SignupPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: formData.userId,
+                    loginId: formData.loginId,
                     password: formData.password,
                     userName: formData.userName,
                     email: formData.email
@@ -314,12 +314,12 @@ function SignupPage() {
             {/*아이디 입력 - 중복확인*/}
           <div className="form-control-con">
             <div className="input-group-custom">
-              <input type="text" name="userId" className="form-control flex-grow-1" placeholder="아이디" value={formData.userId} onChange={handleChange}/>
-              <button type="button" className="btn btn-custom" onClick={handleCheckUserId}>중복확인</button>
+              <input type="text" name="loginId" className="form-control flex-grow-1" placeholder="아이디" value={formData.loginId} onChange={handleChange}/>
+              <button type="button" className="btn btn-custom" onClick={handleCheckLoginId}>중복확인</button>
             </div>
-              {validation.userId.message && (
-                  <div className={`form-text-${validation.userId.isValid ? 'valid' : 'invalid'} fw-semibold`}>
-                      * {validation.userId.message}
+              {validation.loginId.message && (
+                  <div className={`form-text-${validation.loginId.isValid ? 'valid' : 'invalid'} fw-semibold`}>
+                      * {validation.loginId.message}
                   </div>
               )}
           </div>

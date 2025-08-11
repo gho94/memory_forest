@@ -26,15 +26,15 @@ public class AuthService implements UserDetailsService {
     private final EmailService emailService;
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        return userService.findByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+        return userService.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + loginId));
     }
 
     //로그인
-    public LoginResponseDto login(String userId, String password) {
+    public LoginResponseDto login(String loginId, String password) {
         try {
-            Optional<User> userOpt = userService.findByUserId(userId);
+            Optional<User> userOpt = userService.findByLoginId(loginId);
 
             if (userOpt.isEmpty()) {
                 return LoginResponseDto.failure("사용자를 찾을 수 없습니다.");
@@ -50,7 +50,7 @@ public class AuthService implements UserDetailsService {
                 return LoginResponseDto.failure("비활성화된 계정입니다.");
             }
 
-            userService.updateLoginTime(userId);
+            userService.updateLoginTime(user.getUserId());
             return LoginResponseDto.success(user);
 
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class AuthService implements UserDetailsService {
             }
 
             // 중복 체크
-            if (userService.existsByUserId(request.getUserId())) {
+            if (userService.existsByLoginId(request.getLoginId())) {
                 return JoinResponseDto.failure("이미 존재하는 사용자 ID입니다.");
             }
 
@@ -85,7 +85,7 @@ public class AuthService implements UserDetailsService {
             }
 
             userService.createUser(
-                    request.getUserId(),
+                    request.getLoginId(),
                     request.getUserName(),
                     passwordEncoder.encode(request.getPassword()),
                     request.getEmail(),
@@ -141,6 +141,10 @@ public class AuthService implements UserDetailsService {
     //회원가입할때 이미 회원가입 이력이 존재하는 이메일인지 확인해야하는 로직 추가함
     public boolean existsByEmail(String email) {
         return userService.existsByEmail(email);
+    }
+
+    public boolean existsByLoginId(String loginId) {
+        return userService.existsByLoginId(loginId);
     }
 
 

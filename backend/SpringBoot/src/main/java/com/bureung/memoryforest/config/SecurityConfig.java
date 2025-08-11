@@ -1,8 +1,5 @@
 package com.bureung.memoryforest.config;
 
-import com.bureung.memoryforest.auth.application.CustomOAuth2UserService;
-import com.bureung.memoryforest.auth.oauth.OAuth2LoginSuccessHandler;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,16 +21,13 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor  //생성자 자동설정 어노테이션임
 public class SecurityConfig {
-
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     //leb. 임시로 둔 것으로 추후 수정해야 함.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService = null;
+        AuthenticationSuccessHandler oAuth2LoginSuccessHandler = null;
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -64,13 +58,13 @@ public class SecurityConfig {
 //                        .hasRole("RECORDER")
                                 .hasAuthority("ROLE_A20001")
 
-                                // 동행자(COMPANION) 전용 경로
-                                .requestMatchers("/companion", "/companion/**")
+                        /* // 동행자(COMPANION) 전용 경로
+                        .requestMatchers("/companion", "/companion/**")
 //                        .hasRole("COMPANION")
-                                .hasAuthority("ROLE_A20002")
+                        .hasAuthority("ROLE_A20002") */
 
 //                        .anyRequest().permitAll()  // 모든 요청 허용
-                                .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())  // HTTP Basic 인증 비활성화
                 .formLogin(form -> form.disable())  // 폼 로그인 비활성화
