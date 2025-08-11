@@ -26,10 +26,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findByUserIdAndEmail(String userId, String email) {
-        return userRepository.findByUserIdAndEmail(userId, email);
-    }
-
     //중복 체크
     public boolean existsByUserId(String userId) {
         return userRepository.existsByUserId(userId);
@@ -141,6 +137,7 @@ public class UserService {
 
         User newUser = User.builder()
                 .userId(userId)
+                .loginId(null)
                 .userName(userName)
                 .password(null) // OAuth 사용자는 비밀번호 없음
                 .email(email)
@@ -175,5 +172,7 @@ public class UserService {
         return prefix + String.format("%09d", Long.parseLong(timestamp));
     }
 
-
+    public Optional<User> findByLoginIdAndEmail(String loginId, String email) {
+        return userRepository.findByLoginIdAndEmail(loginId, email);
+    }
 }

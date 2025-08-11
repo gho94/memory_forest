@@ -26,44 +26,41 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        User user = oAuth2User.getUser();
 
-        log.info("OAuth 로그인 성공: {} ({}) - {}", user.getUserName(), user.getLoginType(), user.getUserId());
+        try {
+            CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+            User user = oAuth2User.getUser();
 
-        // 로그인 시간 업데이트
-        userService.updateLoginTime(user.getUserId());
+            log.info("OAuth 로그인 성공: {} ({}) - {}", user.getUserName(), user.getLoginType(), user.getUserId());
 
-        // 세션에 사용자 정보 저장
-        HttpSession session = request.getSession();
-        session.setAttribute("userId", user.getUserId());
-        session.setAttribute("userName", user.getUserName());
-        session.setAttribute("userTypeCode", user.getUserTypeCode());
-        session.setAttribute("loginType", user.getLoginType());
+            // 로그인 시간 업데이트
+            userService.updateLoginTime(user.getUserId());
 
-        // 사용자 타입에 따라 리다이렉트 URL 결정
-        String redirectUrl = determineRedirectUrl(user.getUserTypeCode());
+            // 세션에 사용자 정보 저장
+            HttpSession session = request.getSession();
+            session.setAttribute("userId", user.getUserId());
+            session.setAttribute("userName", user.getUserName());
+            session.setAttribute("userTypeCode", user.getUserTypeCode());
+            session.setAttribute("loginType", user.getLoginType());
 
-        log.info("OAuth 로그인 완료, 리다이렉트: {}", redirectUrl);
+            // 사용자 타입에 따라 리다이렉트 URL 결정
+//        String redirectUrl = determineRedirectUrl(user.getUserTypeCode());
+            String redirectUrl = "http://localhost:3000/companion/dashboard";
 
-        // 성공 정보와 함께 리다이렉트
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(redirectUrl)
-                .queryParam("loginSuccess", true)
-                .queryParam("loginType", user.getLoginType())
-                .queryParam("userName", user.getUserName());
+            log.info("OAuth 로그인 완료, 리다이렉트: {}", redirectUrl);
 
-        getRedirectStrategy().sendRedirect(request, response, uriBuilder.build().toUriString());
-    }
+            // 성공 정보와 함께 리다이렉트
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(redirectUrl)
+                    .queryParam("loginSuccess", true)
+                    .queryParam("loginType", user.getLoginType());
+//                    .queryParam("userName", user.getUserName());  // 한글 인코딩 때문에 리다이렉트 실패함...그냥 프론트에서 가지고 오게 수정할게여
 
-    private String determineRedirectUrl(String userTypeCode) {
-        switch (userTypeCode) {
-            case "A20001": // 환자 (RECORDER)
-                return "http://localhost:3000/recorder/dashboard";
-            case "A20002": // 가족 (COMPANION)
-                return "http://localhost:3000/companion/dashboard";
-            default:
-                return "http://localhost:3000/companion/dashboard"; // 기본값
+            getRedirectStrategy().sendRedirect(request, response, uriBuilder.build().toUriString());
+        } catch (Exception e) {
+            log.error("OAuth2 성공 핸들러에서 오류 발생: ", e);
+            // 에러 발생시 기본 URL로 리다이렉트
+            getRedirectStrategy().sendRedirect(request, response,
+                    "http://localhost:3000/companion/dashboard?loginSuccess=true&error=handler");
         }
     }
-
 }

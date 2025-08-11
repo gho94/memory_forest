@@ -11,7 +11,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUserId(String userId);
     Optional<User> findByLoginId(String loginId);
     Optional<User> findByEmail(String email);
-    Optional<User> findByUserIdAndEmail(String userId, String email);
     Optional<User> findTopByOrderByUserIdDesc();
 
     boolean existsByEmail(String email);
@@ -20,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByLoginTypeAndSocialId(String loginType, String socialId);
     boolean existsByLoginTypeAndSocialId(String loginType, String socialId);
+
+    Optional<User> findByLoginIdAndEmail(String loginId, String email);
 }
