@@ -9,7 +9,7 @@ function LoginPage() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        userId: '',
+        loginId: '',
         password: ''
     });
     const [error, setError] = useState('');
@@ -27,7 +27,7 @@ function LoginPage() {
     };
 
     // 로그인 처리 - axios 오류남....ㅠㅠㅠㅠㅠㅠㅠㅠ 일단 fetch 사용해서 직접 url 넣었음...
-    const handleLogin = async (userId, password) => {
+    const handleLogin = async (loginId, password) => {
         setLoading(true);
         setError('');
 
@@ -39,7 +39,7 @@ function LoginPage() {
                 },
                 credentials: 'include', // 세션 쿠키 포함
                 body: JSON.stringify({
-                    userId: userId,
+                    loginId: loginId,
                     password: password
                 })
             });
@@ -85,7 +85,7 @@ function LoginPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.userId.trim()) {
+        if (!formData.loginId.trim()) {
             setError('아이디를 입력해주세요.');
             return;
         }
@@ -94,7 +94,7 @@ function LoginPage() {
             return;
         }
 
-        handleLogin(formData.userId, formData.password);
+        handleLogin(formData.loginId, formData.password);
     };
 
   return (
@@ -107,7 +107,7 @@ function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <input type="text" name="userId" className="form-control" placeholder="아이디" value={formData.userId} onChange={handleChange} disabled={loading}/>
+            <input type="text" name="loginId" className="form-control" placeholder="아이디" value={formData.loginId} onChange={handleChange} disabled={loading}/>
           </div>
           <div className="mb-4">
             <input type="password" name="password" className="form-control" placeholder="비밀번호" value={formData.password} onChange={handleChange} disabled={loading}/>

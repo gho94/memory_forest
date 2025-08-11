@@ -18,6 +18,10 @@ public class UserService {
         return userRepository.findByUserId(userId);
     }
 
+    public Optional<User> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
+    }
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -31,12 +35,36 @@ public class UserService {
         return userRepository.existsByUserId(userId);
     }
 
+    public boolean existsByLoginId(String loginId) {
+        return userRepository.existsByLoginId(loginId);
+    }
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    // 다음 userId 생성 (U0001, U0002, ...)
+    private String generateNextUserId() {
+        Optional<User> lastUser = userRepository.findTopByOrderByUserIdDesc();
+        if (lastUser.isEmpty()) {
+            return "U0001";
+        }
+        
+        String lastUserId = lastUser.get().getUserId();
+        if (lastUserId.startsWith("U")) {
+            try {
+                int number = Integer.parseInt(lastUserId.substring(1));
+                return String.format("U%04d", number + 1);
+            } catch (NumberFormatException e) {
+                // 파싱 실패 시 기본값 반환
+                return "U0001";
+            }
+        }
+        return "U0001";
+    }
+
     //신규 user 생성
-    public User createUser(String userId, String userName, String encodedPassword,
+    public User createUser(String loginId, String userName, String encodedPassword,
                            String email, String phone, String userTypeCode) {
 
         // 전화번호 입력 안받아서..없앨까 ?
@@ -49,8 +77,12 @@ public class UserService {
             userTypeCode = "A20002";
         }
 
+        // userId 자동 생성
+        String userId = generateNextUserId();
+
         User newUser = User.builder()
                 .userId(userId)
+                .loginId(loginId)
                 .userName(userName)
                 .password(encodedPassword) // 이미 암호화된 상태로 받음
                 .email(email)
