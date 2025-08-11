@@ -1,50 +1,100 @@
+// pages/PatientRecord.jsx
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from "@/components/layout/header/PatientHeader";
 import PatientFooter from "@/components/layout/footer/PatientFooter";
-const recordImagePath = '/images/record_icon.svg';
+import RecordButtonItem from "@/components/record/RecordButtonItem";
+import RecordingStatusItem from "@/components/record/RecordingStatusItem";
+import AudioPreviewItem from "@/components/record/AudioPreviewItem";
+import RecordDescriptionItem from "@/components/record/RecordDescriptionItem";
+import TranscriptPreviewItem from "@/components/record/TranscriptPreviewItem";
+import useSpeechRecording from "@/hooks/record/patient/useSpeechRecording";
+import { useNavigate } from 'react-router-dom';
 
 function PatientRecord() {
+  const navigate = useNavigate();
+  const {
+    isRecording,
+    audioBlob,
+    isUploading,
+    recordingTime,
+    transcriptText,
+    startRecording,
+    stopRecording,
+    uploadToServer,
+    resetRecording
+  } = useSpeechRecording();
+
+  const handleRecordClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const handleComplete = async () => {
+    const success = await uploadToServer();
+    if (success) {
+      alert('저장되었습니다.');
+      navigate('/recorder/record/list');
+    }
+  };
+
+  const handleReRecord = () => {
+    resetRecording();
+  };
+
   return (
-    <div className="app-container d-flex flex-column">
-      <PatientHeader />
-
-      <main className="content-area patient-con">
-        <div className="greeting">
-          오늘 하루는
-          <br />
-          어땠나요?
-        </div>
-
-        <section className="content-con">
-          <div className="game-icon-con">
-            <div
-              className="game-icon record"
-              style={{
-                backgroundImage: `url(${recordImagePath})`,
-              }}
-            ></div>
+      <div className="app-container d-flex flex-column">
+        <PatientHeader />
+        <main className="content-area patient-con">
+          <div className="greeting">
+            오늘 하루는
+            <br />
+            어땠나요?
           </div>
-        </section>
 
-        <div className="record_desc_con">
-          <span className="dark-green-color">위 녹음 버튼 클릭 후</span>
-          <span className="light-green-color">
-            <br />
-            기분, 날씨, 음식, 장소
-            <br />
-            등등<br />
-            오늘 하루를 편하게
-            <br />
-            말씀해주세요!
-          </span>
-        </div>
+          <section className="content-con">
+            <div className="game-icon-con">
+              <RecordButtonItem
+                  isRecording={isRecording}
+                  audioBlob={audioBlob}
+                  isUploading={isUploading}
+                  onRecordClick={handleRecordClick}
+              />
 
-        <button className="btn btn-patient">완료</button>
-      </main>
+              <RecordingStatusItem
+                  isRecording={isRecording}
+                  recordingTime={recordingTime}
+              />
 
-      <PatientFooter />
-    </div>
+              {audioBlob && !isRecording && (
+                  <AudioPreviewItem
+                      audioBlob={audioBlob}
+                      onReRecord={handleReRecord}
+                  />
+              )}
+            </div>
+          </section>
+
+          <RecordDescriptionItem isRecording={isRecording} />
+
+          <TranscriptPreviewItem transcriptText={transcriptText} />
+
+          <button
+              className="btn btn-patient"
+              onClick={handleComplete}
+              disabled={!audioBlob || isUploading || isRecording}
+              style={{
+                opacity: (!audioBlob || isUploading || isRecording) ? 0.5 : 1
+              }}
+          >
+            {isUploading ? '저장 중...' : '완료'}
+          </button>
+        </main>
+        <PatientFooter />
+      </div>
   );
 }
 

@@ -47,7 +47,8 @@ function Router() {
         <Route path="/recorder/dashboard" element={<PatientDashboardPage />} />
         <Route path="/recorder/chart" element={<PatientChartPage />} />
         <Route path="/recorder/mypage" element={<PatientMyPage />} />
-        <Route path="/recorder/record" element={<PatientRecord />} />
+        <Route path="/recorder/record/create" element={<PatientRecord />} />
+        <Route path="/recorder/record/list" element={<PatientRecord />} />
         {/* 기록자-게임 */}
         <Route path="/recorder/game" element={<GamePage />} />
 
