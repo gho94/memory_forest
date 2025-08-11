@@ -238,8 +238,8 @@ def get_analysis_statistics() -> Dict:
         JOIN game_master gm ON gd.game_id = gm.game_id
         WHERE gd.answer_text IS NOT NULL 
         AND gd.answer_text != ''
-        GROUP BY difficulty_level, gd.ai_status
-        ORDER BY difficulty_level, gd.ai_status
+        GROUP BY difficulty_level, gd.ai_status_code
+        ORDER BY difficulty_level, gd.ai_status_code
         """
         cursor.execute(difficulty_query)
         difficulty_results = cursor.fetchall()
