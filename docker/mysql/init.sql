@@ -47,6 +47,7 @@ CREATE TABLE file_info (
 CREATE TABLE users (
                        user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID (10자리)',
                        user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명',
+                       login_id          VARCHAR(100)   NOT NULL COMMENT '로그인 ID',
                        password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
                        email             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
                        phone             VARCHAR(20)    NULL     COMMENT '전화번호',
@@ -131,6 +132,8 @@ CREATE TABLE game_detail (
                              game_id        VARCHAR(10)    NOT NULL COMMENT '게임 ID',
                              game_seq       INT            NOT NULL COMMENT '게임 순번 (1, 2, 3...)',
                              game_order     INT            NOT NULL COMMENT '게임 진행 순서',
+                             game_title     VARCHAR(100)   NOT NULL COMMENT '게임 제목',
+                             game_desc      VARCHAR(200)   NULL     COMMENT '게임 설명',
                              file_id        INT            NOT NULL COMMENT '파일 ID (FILE_INFO FK)',
                              answer_text    VARCHAR(20)    NULL     COMMENT '정답 텍스트',
                              wrong_option_1 VARCHAR(20)    NULL     COMMENT '오답 선택지 1',
@@ -312,74 +315,6 @@ INSERT INTO common_codes (code_id, code_name, parent_code_id, created_by) VALUES
                                                                          ('C20004', '상태변경', 'C10001', 'ADMIN'),
                                                                          ('C20005', '로그인', 'C10001', 'ADMIN'),
                                                                          ('C20006', '로그아웃', 'C10001', 'ADMIN');
-
--- =====================================================
--- 4. 샘플 파일 데이터
--- =====================================================
-
--- 샘플 파일 정보
-INSERT INTO file_info (original_name, s3_key, s3_url, bucket_name, file_size, content_type, created_by, is_public) VALUES
-                                                                                                                       ('family_photo1.jpg', 'games/images/family_photo1_20240717001.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/family_photo1_20240717001.jpg', 'memoryforest-bucket', 1024000, 'image/jpeg', 'U0002', 'N'),
-                                                                                                                       ('korean_food1.jpg', 'games/images/korean_food1_20240717002.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/korean_food1_20240717002.jpg', 'memoryforest-bucket', 856000, 'image/jpeg', 'U0002', 'N'),
-                                                                                                                       ('mountain1.jpg', 'games/images/mountain1_20240717003.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/mountain1_20240717003.jpg', 'memoryforest-bucket', 1200000, 'image/jpeg', 'U0002', 'N'),
-                                                                                                                       ('dog1.jpg', 'games/images/dog1_20240717004.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/dog1_20240717004.jpg', 'memoryforest-bucket', 768000, 'image/jpeg', 'U0002', 'N'),
-                                                                                                                       ('book1.jpg', 'games/images/book1_20240717005.jpg', 'https://memoryforest-bucket.s3.amazonaws.com/games/images/book1_20240717005.jpg', 'memoryforest-bucket', 512000, 'image/jpeg', 'U0002', 'N');
-
--- =====================================================
--- 5. 샘플 사용자 데이터
--- =====================================================
-
-INSERT INTO users (user_id, user_name, password, email, phone, user_type_code, status_code, created_by) VALUES
-                                                                                                            ('U0001', '김철수', '$2a$10$example.hash', 'patient1@memoryforest.com', '010-1234-5678', 'A20001', 'A20005', 'ADMIN'),
-                                                                                                            ('U0002', '이영희', '$2a$10$example.hash', 'family1@memoryforest.com', '010-2345-6789', 'A20002', 'A20005', 'ADMIN'),
-                                                                                                            ('U0003', '박관리', '$2a$10$example.hash', 'admin@memoryforest.com', '010-3456-7890', 'A20003', 'A20005', 'ADMIN'),
-                                                                                                            ('U0004', '최의사', '$2a$10$example.hash', 'doctor@memoryforest.com', '010-4567-8901', 'A20004', 'A20005', 'ADMIN');
-
--- =====================================================
--- 6. 샘플 사용자 관계 데이터
--- =====================================================
-
-INSERT INTO user_rel (patient_id, family_id, relationship_code, status_code) VALUES
-    ('U0001', 'U0002', 'A20011', 'A20018');
-
--- =====================================================
--- 7. 샘플 게임 데이터
--- =====================================================
-
-INSERT INTO game_master (game_id, game_name, game_desc, game_count, difficulty_level_code, creation_status_code, created_by)
-VALUES ('G250717001', '첫 번째 게임', '가족과 함께하는 기억력 게임', 5, 'B20001', 'B20007', 'U0002');
-
--- =====================================================
--- 8. 샘플 게임 플레이어 데이터
--- =====================================================
-
-INSERT INTO game_player (game_id, player_id, total_score, correct_count, accuracy_rate, game_status_code, start_time, end_time, duration_seconds)
-VALUES
-    ('G250717001', 'U0001', 80, 4, 80.00, 'B20012', '2024-07-17 10:00:00', '2024-07-17 10:10:00', 600);
-
--- =====================================================
--- 9. 샘플 게임 상세 데이터
--- =====================================================
-
-INSERT INTO game_detail (game_id, game_seq, game_order, file_id, answer_text, ai_status_code, description) 
-VALUES
-                    ('G250717001', 1, 1, 1, '엄마', 'B20005', '가족 중 한 명을 선택하세요.'),
-                    ('G250717001', 2, 2, 2, '김치찌개', 'B20005', '한국 음식 중 한 명을 선택하세요.'),
-                    ('G250717001', 3, 3, 3, '북한산', 'B20005', '한국 산 중 한 명을 선택하세요.'),
-                    ('G250717001', 4, 4, 4, '강아지', 'B20005', '동물 중 한 명을 선택하세요.'),
-                    ('G250717001', 5, 5, 5, '책', 'B20005', '문서 중 한 명을 선택하세요.');
-
--- =====================================================
--- 10. 샘플 게임 플레이어 정답 데이터
--- =====================================================
-
-INSERT INTO game_player_answer (game_id, game_seq, player_id, selected_option, is_correct, answer_time_ms, score_earned, answered_at)
-VALUES
-    ('G250717001', 1, 'U0001', 1, 'Y', 5000, 20, '2024-07-17 10:01:00'),
-    ('G250717001', 2, 'U0001', 1, 'Y', 6000, 20, '2024-07-17 10:02:00'),
-    ('G250717001', 3, 'U0001', 2, 'N', 7000, 0, '2024-07-17 10:03:00'),
-    ('G250717001', 4, 'U0001', 1, 'Y', 4000, 20, '2024-07-17 10:04:00'),
-    ('G250717001', 5, 'U0001', 1, 'Y', 3000, 20, '2024-07-17 10:05:00');
 
 -- 외래키 체크 다시 활성화
 SET FOREIGN_KEY_CHECKS = 1;
