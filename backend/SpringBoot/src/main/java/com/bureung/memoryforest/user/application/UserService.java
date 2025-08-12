@@ -36,10 +36,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findByUserIdAndEmail(String userId, String email) {
-        return userRepository.findByUserIdAndEmail(userId, email);
-    }
-
     //중복 체크
     public boolean existsByUserId(String userId) {
         return userRepository.existsByUserId(userId);
@@ -59,7 +55,7 @@ public class UserService {
         if (lastUser.isEmpty()) {
             return "U0001";
         }
-        
+
         String lastUserId = lastUser.get().getUserId();
         if (lastUserId.startsWith("U")) {
             try {
@@ -71,6 +67,15 @@ public class UserService {
             }
         }
         return "U0001";
+    }
+
+
+    public Optional<User> findByLoginTypeAndLoginId(String loginType, String loginId) {
+        return userRepository.findByLoginTypeAndLoginId(loginType, loginId);
+    }
+
+    public boolean existsByLoginTypeAndLoginId(String loginType, String loginId) {
+        return userRepository.existsByLoginTypeAndLoginId(loginType, loginId);
     }
 
     //신규 user 생성
@@ -90,11 +95,6 @@ public class UserService {
         // userId 자동 생성
         String userId = generateNextUserId();
 
-        if (email == null || email.trim().isEmpty()) {
-            //recorder 이메일이 없음
-            email = userId + "@memoryforest.com";
-        }
-
         User newUser = User.builder()
                 .userId(userId)
                 .loginId(loginId)
@@ -102,9 +102,8 @@ public class UserService {
                 .password(encodedPassword) // 이미 암호화된 상태로 받음
                 .email(email)
                 .phone(phone)
-                .birthDate(birthDate)
-                .genderCode(genderCode)
                 .userTypeCode(userTypeCode)
+                .loginType ("DEFAULT")
                 .statusCode("A20005") // 활성 상태
                 .createdBy(userId)
                 .createdAt(LocalDateTime.now())
@@ -151,6 +150,56 @@ public class UserService {
         return userRepository.save(user);
     }
 
+
+
+    //소셜로그인
+    public User createOAuthUser(String userName,String email,String phone,String loginType,String loginId, String userTypeCode) {
+
+        if (phone == null || phone.trim().isEmpty()) {
+            phone = "";
+        }
+
+        if (userTypeCode == null || userTypeCode.trim().isEmpty()) {
+            userTypeCode = "A20002";
+        }
+
+        // userId 자동 생성
+        String userId = generateNextUserId();
+
+        User newUser = User.builder()
+                .userId(userId)
+                .loginId(loginId)
+                .userName(userName)
+                .password(null) // OAuth 사용자는 비밀번호 없음
+                .email(email)
+                .phone(phone)
+                .userTypeCode(userTypeCode)
+                .loginType (loginType)
+                .statusCode("A20005")
+                .createdBy("SYSTEM")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return userRepository.save(newUser);
+    }
+
+    // OAuth 사용자 정보 업데이트
+    public User updateOAuthUser(User existingUser, String userName, String email, String phone) {
+        existingUser.setUserName(userName);
+        existingUser.setEmail(email);
+        if (phone != null && !phone.trim().isEmpty()) {
+            existingUser.setPhone(phone);
+        }
+        existingUser.setUpdatedAt(LocalDateTime.now());
+        existingUser.setUpdatedBy("SYSTEM");
+
+        return userRepository.save(existingUser);
+    }
+
+    public Optional<User> findByLoginIdAndEmail(String loginId, String email) {
+        return userRepository.findByLoginIdAndEmail(loginId, email);
+    }
+
     public List<RecorderListResponseDto> getRecorderList(String userId) {
         List<UserRel> userRelList = userRelRepository.findByIdFamilyId(userId);
         List<RecorderListResponseDto> recorderList = new ArrayList<>();
@@ -158,7 +207,7 @@ public class UserService {
             Optional<User> userOpt = userRepository.findByUserId(userRel.getId().getPatientId());
             if (userOpt.isPresent()) {
                 RecorderListResponseDto dto = RecorderListResponseDto.from(
-                    userOpt.get(), 
+                    userOpt.get(),
                     userRel.getRelationshipCode()
                 );
                 recorderList.add(dto);

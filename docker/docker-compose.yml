@@ -37,34 +37,6 @@ services:
     networks:
       - backendnet
 
-  # === AI Service ===
-  ai-service:
-    build:
-      context: ../  # 프로젝트 루트로 변경
-      dockerfile: docker/ai/Dockerfile
-    container_name: ai-service
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-    ports:
-      - "8000:8000"
-    volumes:
-      - ../ai/models:/app/models  # ai 폴더의 models 직접 마운트
-    environment:
-      - MODEL_PATH=/app/models/word2vec_custom.model
-      - DB_HOST=mysql-db
-      - DB_NAME=memory_forest
-      - DB_USER=kcc
-      - DB_PASSWORD=kcc
-      - DB_PORT=3306
-    networks:
-      - backendnet
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # === Spring Boot Backend ===
   backend:
     build:
@@ -76,8 +48,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      ai-service:
-        condition: service_healthy
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -88,7 +58,6 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      AI_SERVICE_URL: http://ai-service:8000
     volumes:
       - ../backend/SpringBoot/src:/app/src
     networks:
@@ -129,114 +98,12 @@ services:
     networks:
       - webnet
 
-  # === PostgreSQL for Airflow ===
-  postgres:
-    image: postgres:13
-    container_name: memory-forest-postgres
-    environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
-    volumes:
-      - postgres_db:/var/lib/postgresql/data
-    restart: always
-    networks:
-      - backendnet
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U airflow"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # === Airflow Webserver ===
-  webserver:
-    build:
-      context: ./airflow
-      dockerfile: Dockerfile
-    container_name: memory-forest-airflow-webserver
-    depends_on:
-      postgres:
-        condition: service_healthy
-      mysql-db:
-        condition: service_started
-      ai-service:
-        condition: service_started
-    env_file:
-      - ./airflow/.env
-    environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
-      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-      AIRFLOW_UID: 50000
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/data:/opt/airflow/data
-      - ./airflow/plugins:/opt/airflow/plugins
-      - ../ai/models:/opt/airflow/models
-    ports:
-      - "8081:8080"
-    command: bash -c "
-      airflow db init &&
-      airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@memoryforest.com --password admin123 &&
-      airflow webserver"
-    restart: always
-    networks:
-      - backendnet
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # === Airflow Scheduler ===
-  scheduler:
-    build:
-      context: ./airflow
-      dockerfile: Dockerfile
-    container_name: memory-forest-airflow-scheduler
-    depends_on:
-      postgres:
-        condition: service_healthy
-      webserver:
-        condition: service_started
-      mysql-db:
-        condition: service_started
-      ai-service:
-        condition: service_started
-    env_file:
-      - ./airflow/.env
-    environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__FERNET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
-      AIRFLOW__WEBSERVER__SECRET_KEY: 'hZcmA6xxcbOcyujscbaeRKkl3LLYkSxZVO91StuzEsE='
-      AIRFLOW_UID: 50000
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/data:/opt/airflow/data
-      - ./airflow/plugins:/opt/airflow/plugins
-      - ../ai/models:/opt/airflow/models
-    command: airflow scheduler
-    restart: always
-    networks:
-      - backendnet
-    healthcheck:
-      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname)"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-networks:
-  webnet:
-    driver: bridge
-  backendnet:
-    driver: bridge
 
 volumes:
   mysql-data:
   redis-data:
-  postgres_db:
+networks:
+  webnet:
+  backendnet:

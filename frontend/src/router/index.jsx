@@ -32,7 +32,7 @@ function Router() {
           <Route path="/findPw" element={<FindPwPage />} />
           <Route path="/resetPw" element={<ResetPwPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
-        {/* 비밀번호 찾기 추가 필요함 - 백엔드 개발 진행하면서 만들게여 */}
+
 
         {/* 동행자 */}
         <Route path="/companion/dashboard" element={<FamilyDashboardPage />} />

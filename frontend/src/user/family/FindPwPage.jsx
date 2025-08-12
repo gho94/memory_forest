@@ -9,7 +9,7 @@ function FindPwPage() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        userId: '',
+        loginId: '',
         email: '',
         verificationCode: ''
     });
@@ -64,7 +64,7 @@ function FindPwPage() {
 
     // 비밀번호 재설정용 인증번호 발송
     const handleSendEmail = async () => {
-        if (!formData.userId.trim()) {
+        if (!formData.loginId.trim()) {
             showError('아이디를 입력해주세요.');
             return;
         }
@@ -81,7 +81,7 @@ function FindPwPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: formData.userId,
+                    loginId: formData.loginId,
                     email: formData.email
                 })
             });
@@ -126,8 +126,7 @@ function FindPwPage() {
     // 인증번호 확인 및 다음 단계로 이동
     const handleVerifyAndNext = async (e) => {
         e.preventDefault();
-
-        if (!formData.userId.trim() || !formData.email.trim()) {
+        if (!formData.loginId.trim() || !formData.email.trim()) {
             showError('아이디와 이메일을 입력해주세요.');
             return;
         }
@@ -143,7 +142,7 @@ function FindPwPage() {
         }
 
         // alert('인증이 완료되었습니다! 비밀번호 재설정 페이지로 이동합니다.');
-        navigate('/resetPw', { state: { userId: formData.userId, email: formData.email, verificationCode: formData.verificationCode, verified: true } });
+        navigate('/resetPw', { state: { loginId: formData.loginId, email: formData.email, verificationCode: formData.verificationCode, verified: true } });
     };
 
     return (
@@ -156,7 +155,7 @@ function FindPwPage() {
 
                     {/* 아이디 입력 */}
                     <div className="form-control-con">
-                        <input type="text" name="userId" className="form-control" placeholder="아이디" value={formData.userId} onChange={handleChange}/>
+                        <input type="text" name="loginId" className="form-control" placeholder="아이디" value={formData.loginId} onChange={handleChange}/>
                     </div>
 
                     {/* 이메일 입력 + 인증번호 받기 */}
