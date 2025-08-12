@@ -1,8 +1,7 @@
 package com.bureung.memoryforest.record.domain;
 
 import lombok.*;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +33,6 @@ public class Record {
     @Column(name = "duration")
     private Integer duration;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 }
