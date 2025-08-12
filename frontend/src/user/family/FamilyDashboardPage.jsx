@@ -12,19 +12,66 @@ function FamilyDashboardPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isGame, setIsGame] = useState(false);
-  const [gameTitle, setGameTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [gameList, setGameList] = useState([]);
-  
-  // 샘플 환자 데이터
-  const [samplePatients, setSamplePatients] = useState([
-    { userId: 'U0001', userName: '김철수', age: 78, relation: '부', selected: false },
-    { userId: 'U0002', userName: '이영희', age: 75, relation: '모', selected: false },
-    { userId: 'U0003', userName: '박민수', age: 82, relation: '할아버지', selected: false }
-  ]);
+  const [recorderList, setRecorderList] = useState([]);
+  const [userId, setUserId] = useState('');
+  const [relationshipCodes, setRelationshipCodes] = useState({});
   
   const [selectedPatients, setSelectedPatients] = useState([]);
+  const [gameTitle, setGameTitle] = useState('');
+
+  const fetchCommonCodes = async (parentCodeId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${window.API_BASE_URL}/api/common-codes?parentCodeID=${parentCodeId || ''}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        console.error('공통코드 조회 실패:', response.status);
+        return [];
+      }
+    } catch (error) {
+      console.error('공통코드 조회 중 오류:', error);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRelationshipName = (code) => {
+    return relationshipCodes.find(item => item.codeId === code)?.codeName || code;
+  };
+
+  useEffect(() => {
+    const loadCommonCodes = async () => {
+      const relationshipData = await fetchCommonCodes('A10003');
+      console.log('관계 코드 매핑:', relationshipData);
+      setRelationshipCodes(relationshipData);
+    };
+    loadCommonCodes();
+  }, []);
+
+  useEffect(() => {
+    const getUserInfo = () => {      
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        try {
+          const user = JSON.parse(userInfo);
+          console.log('사용자 정보:', user);
+          setUserId(user.userId);
+        } catch (error) {
+          console.error('사용자 정보 파싱 오류:', error);
+        }
+      } else {
+        console.log('localStorage에 사용자 정보가 없습니다.');
+      }
+    };
+
+    getUserInfo();
+  }, []);
 
   useEffect(() => {
     if (location.state) {
@@ -93,19 +140,35 @@ function FamilyDashboardPage() {
     }
   };  
 
+  const fetchRecorderList = async (userId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${window.API_BASE_URL}/api/recorder/list?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error('데이터를 가져오는데 실패했습니다.');
+      }
+      const data = await response.json();
+      console.log('받아온 기록자 데이터:', data);
+      setRecorderList(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log('userId 변경됨:', userId);
+    if (userId) {
+      fetchRecorderList(userId);
+    }
+  }, [userId]);
+
   useEffect(() => {
     fetchGameList();
   }, []);
 
   const handlePatientSelection = (patientId) => {
-    setSamplePatients(prev => 
-      prev.map(patient => 
-        patient.userId === patientId 
-          ? { ...patient, selected: !patient.selected }
-          : patient
-      )
-    );
-    
     setSelectedPatients(prev => {
       if (prev.includes(patientId)) {
         return prev.filter(id => id !== patientId);
@@ -113,6 +176,17 @@ function FamilyDashboardPage() {
         return [...prev, patientId];
       }
     });
+  };
+
+  // 체크박스가 선택되었는지 확인하는 함수
+  const isPatientSelected = (patientId) => {
+    return selectedPatients.includes(patientId);
+  };
+
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    const birthDateObj = new Date(birthDate);
+    return today.getFullYear() - birthDateObj.getFullYear();
   };
 
   return (
@@ -144,18 +218,19 @@ function FamilyDashboardPage() {
 
         <div style={{ display: isGame ? 'none' : 'block' }} className="account-con mx-3">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <div className="fw-bold fs-5">총 기록자 : <span>8</span>명</div>
-            <button className="btn btn-add">기록자 추가</button>
+            <div className="fw-bold fs-5">총 기록자 : <span>{recorderList.length}</span>명</div>
+            <button className="btn btn-add" onClick={() => navigate('/companion/profileadd')}>기록자 추가</button>
           </div>
 
           <div className="d-flex flex-column gap-3 card-box-con">
-            <div className="card-box">
+            {recorderList.map((recorder) => ( 
+            <div className="card-box" key={recorder.userId}>
               <div className="d-flex align-items-center">
                 <div className="profile-img"></div>
                 <div className="flex-grow-1 text-start">
                   <div className="main-desc">
-                    <span className="patient-name">환자01</span>
-                    <span className="patient-age">(78세)</span>
+                    <span className="patient-name">{recorder.userName}</span>
+                    <span className="patient-age">({recorder.birthDate ? calculateAge(recorder.birthDate) : ''}세)</span>
                   </div>
                   <div className="extra-desc">최근 활동 : 2025-06-20</div>
                 </div>
@@ -175,6 +250,7 @@ function FamilyDashboardPage() {
                 </div>
               </div>
             </div>
+            ))}
           </div>
         </div>
 
@@ -274,20 +350,20 @@ function FamilyDashboardPage() {
           </div>
           <div className="game-modal-title mb-1">게임 대상</div>
           <div className="modal-body-scroll d-flex flex-column gap-3">
-            {samplePatients.map((patient) => (
-              <div key={patient.userId} className="account-info align-items-start d-flex gap-2">
+            {recorderList.map((recorder) => (
+              <div key={recorder.userId} className="account-info align-items-start d-flex gap-2">
                 <div>
                   <input 
                     type="checkbox" 
                     className="modal-checkbox"
-                    checked={patient.selected}
-                    onChange={() => handlePatientSelection(patient.userId)}
+                    checked={isPatientSelected(recorder.userId)}
+                    onChange={() => handlePatientSelection(recorder.userId)}
                   />
                 </div>
                 <div>
                   <div className="patient-con">
-                    <span className="patient-name">{patient.userName}</span>
-                    <span className="patient-reg-date">({patient.age}세, {patient.relation})</span>
+                    <span className="patient-name">{recorder.userName}</span>
+                    <span className="patient-reg-date">({recorder.birthDate ? calculateAge(recorder.birthDate) : ''}세, {getRelationshipName(recorder.relationshipCode)})</span>
                   </div>
                 </div>
               </div>

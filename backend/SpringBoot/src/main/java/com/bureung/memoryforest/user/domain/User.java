@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,12 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     
     @Column(name = "PHONE", length = 20)
     private String phone;
+    
+    @Column(name = "BIRTH_DATE")
+    private LocalDate birthDate;
+    
+    @Column(name = "GENDER_CODE", length = 6)
+    private String genderCode;
     
     @Column(name = "USER_TYPE_CODE", nullable = false, length = 6)
     private String userTypeCode;
