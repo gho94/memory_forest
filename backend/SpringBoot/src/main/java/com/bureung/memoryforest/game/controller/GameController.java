@@ -9,6 +9,7 @@ import com.bureung.memoryforest.game.application.GameService;
 import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
+import com.bureung.memoryforest.game.dto.response.GameListResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +27,8 @@ public class GameController {
     private final GameService gameService;    
 
     @GetMapping("/companion/dashboard")
-    public ResponseEntity<List<GameMaster>> getAllGame() {
-        List<GameMaster> games = gameService.getAllGame();
+    public ResponseEntity<List<GameListResponseDto>> getAllGame() {
+        List<GameListResponseDto> games = gameService.getGameListInfo();
         return ResponseEntity.ok(games);
     }
 

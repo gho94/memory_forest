@@ -20,7 +20,7 @@ function FamilyDashboardPage() {
   const [relationshipCodes, setRelationshipCodes] = useState({});
   
   const [selectedPatients, setSelectedPatients] = useState([]);
-  const [gameTitle, setGameTitle] = useState('');
+  const [gameName, setGameName] = useState('');
 
   const fetchCommonCodes = async (parentCodeId) => {
     try {
@@ -78,8 +78,8 @@ function FamilyDashboardPage() {
       if (location.state.isGame !== undefined) {
         setIsGame(location.state.isGame);
       }
-      if (location.state.gameTitle) {
-        setGameTitle(location.state.gameTitle);
+      if (location.state.gameName) {
+        setGameName(location.state.gameName);
       }
     }
   }, [location.state]);
@@ -92,7 +92,7 @@ function FamilyDashboardPage() {
     
     navigate('/companion/games/create', { 
       state: { 
-        gameTitle: gameTitle, 
+        gameName: gameName, 
         selectedPatients: selectedPatients 
       } 
     });
@@ -286,7 +286,9 @@ function FamilyDashboardPage() {
                   <div className="main-desc">
                     <span className="patient-name">{game.gameName}</span>
                   </div>
-                  <div className="target-desc">대상자 : 환자01, 환자02</div>
+                  <div className="target-desc">
+                    대상자 : {game.players.map(player => player.userName).join(', ')}
+                  </div>
                   <div className="extra-desc">생성일 : {formatDate(game.createdAt)}</div>
                 </div>
                 <button className="btn-detail me-1" onClick={() => handleGameList(game.gameId, game.gameName)}>
@@ -343,8 +345,8 @@ function FamilyDashboardPage() {
                 type="text" 
                 className="game-name" 
                 placeholder="게임 제목을 입력하세요" 
-                value={gameTitle}
-                onChange={(e) => setGameTitle(e.target.value)}
+                value={gameName}
+                onChange={(e) => setGameName(e.target.value)}
               />
             </div>
           </div>
