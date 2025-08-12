@@ -48,7 +48,7 @@ CREATE TABLE users (
                        user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID (10자리)',
                        user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명',
                        login_id          VARCHAR(100)   NOT NULL COMMENT '로그인 ID',
-                       password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
+                       password          VARCHAR(60)    NULL COMMENT '암호화된 비밀번호 (OAuth 로그인 시 null 가능)',
                        email             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
                        phone             VARCHAR(20)    NULL     COMMENT '전화번호',
                        birth_date        DATE           NULL     COMMENT '생년월일',
