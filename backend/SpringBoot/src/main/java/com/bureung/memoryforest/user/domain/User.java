@@ -22,7 +22,7 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Column(name = "USER_ID", length = 10, nullable = false)
     private String userId;
     
-    @Column(name = "LOGIN_ID", nullable = true, length = 100, unique = true) // OAuth 사용자는 null 가능
+    @Column(name = "LOGIN_ID", nullable = false, length = 100, unique = true)
     private String loginId;
     
     @Column(name = "USER_NAME", nullable = false, length = 100)
@@ -64,9 +64,9 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Builder.Default    //null - default으로 해주기 위해서 필요한거임
     @Column(name = "LOGIN_TYPE",length = 20,nullable=false)
     private String loginType  ="DEFAULT";
-
-    @Column(name = "SOCIAL_ID",length = 100)
-    private String socialId;
+//
+//    @Column(name = "SOCIAL_ID",length = 100)
+//    private String socialId;
 
     // UserDetails 인터페이스 구현하는 부분임다.
     @Override

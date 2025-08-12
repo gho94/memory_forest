@@ -53,7 +53,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String loginType = getLoginType(registrationId);
 
         // 소셜 ID로 기존 사용자 찾기
-        Optional<User> existingUser = userService.findByLoginTypeAndSocialId(loginType, userInfo.getId());
+        Optional<User> existingUser = userService.findByLoginTypeAndLoginId(loginType, userInfo.getId());
 
         if (existingUser.isPresent()) {
             // 기존 사용자 정보 업데이트

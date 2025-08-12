@@ -60,12 +60,12 @@ public class UserService {
     }
 
 
-    public Optional<User> findByLoginTypeAndSocialId(String loginType, String socialId) {
-        return userRepository.findByLoginTypeAndSocialId(loginType, socialId);
+    public Optional<User> findByLoginTypeAndLoginId(String loginType, String loginId) {
+        return userRepository.findByLoginTypeAndLoginId(loginType, loginId);
     }
 
-    public boolean existsByLoginTypeAndSocialId(String loginType, String socialId) {
-        return userRepository.existsByLoginTypeAndSocialId(loginType, socialId);
+    public boolean existsByLoginTypeAndLoginId(String loginType, String loginId) {
+        return userRepository.existsByLoginTypeAndLoginId(loginType, loginId);
     }
 
     //신규 user 생성
@@ -94,7 +94,6 @@ public class UserService {
                 .phone(phone)
                 .userTypeCode(userTypeCode)
                 .loginType ("DEFAULT")
-                .socialId(null)
                 .statusCode("A20005") // 활성 상태
                 .createdBy(userId)
                 .createdAt(LocalDateTime.now())
@@ -122,10 +121,7 @@ public class UserService {
 
 
     //소셜로그인
-    public User createOAuthUser(String userName,String email,String phone,String loginType,String socialId, String userTypeCode) {
-
-        //userId값이 pk이니까 임의로 넣어주는데,, 카카오 방식 착안해서 자동으로 id 생성하는걸로 개발 구현
-        String userId = RandomUserId();
+    public User createOAuthUser(String userName,String email,String phone,String loginType,String loginId, String userTypeCode) {
 
         if (phone == null || phone.trim().isEmpty()) {
             phone = "";
@@ -135,16 +131,18 @@ public class UserService {
             userTypeCode = "A20002";
         }
 
+        // userId 자동 생성
+        String userId = generateNextUserId();
+
         User newUser = User.builder()
                 .userId(userId)
-                .loginId(null)
+                .loginId(loginId)
                 .userName(userName)
                 .password(null) // OAuth 사용자는 비밀번호 없음
                 .email(email)
                 .phone(phone)
                 .userTypeCode(userTypeCode)
                 .loginType (loginType)
-                .socialId(socialId)
                 .statusCode("A20005")
                 .createdBy("SYSTEM")
                 .createdAt(LocalDateTime.now())
@@ -164,12 +162,6 @@ public class UserService {
         existingUser.setUpdatedBy("SYSTEM");
 
         return userRepository.save(existingUser);
-    }
-
-    private String RandomUserId() {
-        String prefix = "U";
-        String timestamp = String.valueOf(System.currentTimeMillis() % 1000000);
-        return prefix + String.format("%09d", Long.parseLong(timestamp));
     }
 
     public Optional<User> findByLoginIdAndEmail(String loginId, String email) {
