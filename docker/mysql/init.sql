@@ -54,6 +54,7 @@ CREATE TABLE users (
                        birth_date        DATE           NULL     COMMENT '생년월일',
                        gender_code       VARCHAR(6)     NULL     COMMENT '성별 코드 (M/F)',
                        user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
+                       login_type        VARCHAR(20)    NOT NULL DEFAULT 'DEFAULT' COMMENT '로그인 타입 (DEFAULT/KAKAO/NAVER)',
                        profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
                        status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
                        created_by        VARCHAR(10)    NOT NULL COMMENT '생성자',
