@@ -13,6 +13,7 @@
  import org.springframework.security.crypto.password.PasswordEncoder;
  import org.springframework.stereotype.Service;
 
+ import java.time.LocalDate;
  import java.time.LocalDateTime;
  import java.util.Optional;
 
@@ -90,7 +91,9 @@
                      passwordEncoder.encode(request.getPassword()),
                      request.getEmail(),
                      request.getPhone(),
-                     request.getUserTypeCode()
+                     request.getUserTypeCode(),
+                     null,
+                     null
              );
 
              return JoinResponseDto.success("회원가입이 완료되었습니다.");

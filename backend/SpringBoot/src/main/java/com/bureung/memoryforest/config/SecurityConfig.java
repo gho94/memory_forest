@@ -52,13 +52,20 @@ public class SecurityConfig {
                                         "/*.js",
                                         "/*.css",
                                         "/error",
+                                        "/api/files/**",
+                                        "/api/common-codes/**",
+                                        "/api/game/**",
+                                        "/api/recorder/**",
+                                        "/recorder/**",
+                                        "/companion/**",
+                                        "/api/alarms/**",          // 알람 API 경로 수정
                                         "/login/oauth2/code/**"
                                 ).permitAll()
 
                                 // 기록자(RECORDER) 전용 경로
                                 .requestMatchers("/recorder", "/recorder/**")
 //                        .hasRole("RECORDER")
-                                .hasAuthority("ROLE_A20001")
+                               // .hasAuthority("ROLE_A20001")
 
 //                         /* // 동행자(COMPANION) 전용 경로
 //                         .requestMatchers("/companion", "/companion/**")
