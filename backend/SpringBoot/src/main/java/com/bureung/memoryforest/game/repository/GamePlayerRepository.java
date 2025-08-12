@@ -80,4 +80,6 @@ public interface GamePlayerRepository extends JpaRepository<GamePlayer, GamePlay
     Optional<GamePlayer> findByIdPlayerIdAndEndTimeIsNullAndStartTimeIsNotNull(String playerId);
     Optional<GamePlayer> findFirstByIdPlayerIdAndEndTimeIsNotNullOrderByEndTimeDesc(String playerId);
     Optional<Integer> countByIdPlayerIdAndEndTimeIsNotNull(String playerId);
+    
+    List<GamePlayer> findByIdGameId(String gameId);
 }
