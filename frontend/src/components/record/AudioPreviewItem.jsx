@@ -3,7 +3,7 @@ const AudioPreview = ({ audioBlob, onReRecord }) => {
 
     return (
         <div className="re-record-con">
-            <audio controls src={URL.createObjectURL(audioBlob)} className="mb-2"/>
+            <audio controls src={URL.createObjectURL(audioBlob)} className="mb-2" preload="metadata"/>
             <button onClick={onReRecord}>
                 재녹음
             </button>

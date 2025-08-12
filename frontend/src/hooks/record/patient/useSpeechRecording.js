@@ -1,5 +1,5 @@
-// hooks/useSpeechRecording.js
 import { useState, useRef } from 'react';
+import useFileUpload from '@/hooks/common/useFileUpload';
 
 const useSpeechRecording = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -7,7 +7,7 @@ const useSpeechRecording = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [transcriptText, setTranscriptText] = useState('');
-
+    const { uploadFile } = useFileUpload();
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
     const timerRef = useRef(null);
@@ -69,6 +69,19 @@ const useSpeechRecording = () => {
 
                 recognition.onerror = (event) => {
                     console.warn('음성 인식 오류:', event.error);
+
+                    if (event.error === 'no-speech') {
+                        console.log('음성이 감지되지 않았습니다.');
+                        // 조용한 경우는 오류로 처리하지 않음
+                    } else if (event.error === 'audio-capture') {
+                        alert('마이크에 문제가 있습니다. 재녹음해주세요.');
+                    } else if (event.error === 'not-allowed') {
+                        alert('마이크 권한이 필요합니다. 재녹음해주세요.');
+                    } else if (event.error === 'network') {
+                        alert('네트워크 오류가 발생했습니다. 재녹음해주세요.');
+                    } else {
+                        alert('음성 인식에 문제가 발생했습니다. 재녹음을 권장합니다.');
+                    }
                 };
 
                 recognitionRef.current = recognition;
@@ -175,7 +188,7 @@ const useSpeechRecording = () => {
         return arrayBuffer;
     };
 
-    // 서버로 전송
+    // 서버로 전송 (2단계: 파일 업로드 → 레코드 저장)
     const uploadToServer = async () => {
         if (!audioBlob) {
             alert('녹음된 파일이 없습니다.');
@@ -185,15 +198,27 @@ const useSpeechRecording = () => {
         setIsUploading(true);
 
         try {
-            const formData = new FormData();
+            // 1단계: 파일 업로드
             const wavBlob = await convertToWav(audioBlob);
-            formData.append('file', wavBlob, 'recording.wav');
-            formData.append('text', transcriptText.trim());
-            formData.append('duration', recordingTime.toString());
+            const fileId = await uploadFile(wavBlob);
 
+            if (!fileId) {
+                throw new Error('파일 업로드에 실패했습니다.');
+            }
+
+            console.log(transcriptText);
+            // 2단계: 레코드 저장
             const response = await fetch(`${window.API_BASE_URL}/recorder/record/create`, {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    fileId: fileId,
+                    text: transcriptText.trim(),
+                    duration: recordingTime
+                }),
             });
 
             if (!response.ok) {

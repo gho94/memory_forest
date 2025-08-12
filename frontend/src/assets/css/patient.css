@@ -364,6 +364,24 @@
   font-weight: 700;
 }
 
+.patient-con .records-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.patient-con .records-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.patient-con .records-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.patient-con .records-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
 @keyframes patient-dashboard-skeleton-loading {
   0% {
     background-position: -200% 0;

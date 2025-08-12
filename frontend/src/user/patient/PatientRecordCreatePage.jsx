@@ -1,4 +1,3 @@
-// pages/PatientRecord.jsx
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from "@/components/layout/header/PatientHeader";
@@ -7,11 +6,10 @@ import RecordButtonItem from "@/components/record/RecordButtonItem";
 import RecordingStatusItem from "@/components/record/RecordingStatusItem";
 import AudioPreviewItem from "@/components/record/AudioPreviewItem";
 import RecordDescriptionItem from "@/components/record/RecordDescriptionItem";
-import TranscriptPreviewItem from "@/components/record/TranscriptPreviewItem";
 import useSpeechRecording from "@/hooks/record/patient/useSpeechRecording";
 import { useNavigate } from 'react-router-dom';
 
-function PatientRecord() {
+function PatientRecordCreatePage() {
   const navigate = useNavigate();
   const {
     isRecording,
@@ -80,8 +78,6 @@ function PatientRecord() {
 
           <RecordDescriptionItem isRecording={isRecording} />
 
-          <TranscriptPreviewItem transcriptText={transcriptText} />
-
           <button
               className="btn btn-patient"
               onClick={handleComplete}
@@ -98,4 +94,4 @@ function PatientRecord() {
   );
 }
 
-export default PatientRecord;
+export default PatientRecordCreatePage;
