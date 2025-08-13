@@ -54,24 +54,81 @@ function FamilyDashboardPage() {
     loadCommonCodes();
   }, []);
 
-  useEffect(() => {
-    const getUserInfo = () => {      
-      const userInfo = localStorage.getItem('user');
-      if (userInfo) {
-        try {
-          const user = JSON.parse(userInfo);
-          console.log('사용자 정보:', user);
-          setUserId(user.userId);
-        } catch (error) {
-          console.error('사용자 정보 파싱 오류:', error);
-        }
-      } else {
-        console.log('localStorage에 사용자 정보가 없습니다.');
-      }
-    };
 
-    getUserInfo();
-  }, []);
+  // useEffect(() => {
+  //   const getUserInfo = () => {
+  //     const userInfo = localStorage.getItem('user');
+  //     if (userInfo) {
+  //       try {
+  //         const user = JSON.parse(userInfo);
+  //         console.log('사용자 정보:', user);
+  //         setUserId(user.userId);
+  //       } catch (error) {
+  //         console.error('사용자 정보 파싱 오류:', error);
+  //       }
+  //     } else {
+  //       console.log('localStorage에 사용자 정보가 없습니다.');
+  //     }
+  //   };
+  //
+  //   getUserInfo();
+  // }, []);
+
+
+
+    useEffect(() => {
+        const getUserInfo = async () => {
+            // 1단계: sessionStorage에서 먼저 확인
+            const userInfo = sessionStorage.getItem('user');
+            if (userInfo) {
+                try {
+                    const user = JSON.parse(userInfo);
+                    console.log('SessionStorage에서 가져온 사용자 정보:', user);
+                    setUserId(user.userId);
+                    return; // sessionStorage에 있으면 여기서 끝
+                } catch (error) {
+                    console.error('사용자 정보 파싱 오류:', error);
+                    sessionStorage.removeItem('user'); // 잘못된 데이터 제거
+                }
+            }
+
+            console.log('SessionStorage에 사용자 정보가 없음. 서버 세션에서 조회 중...');
+
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/auth/session-info`, {
+                    credentials: 'include' // 쿠키 포함
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('서버 세션에서 가져온 사용자 정보:', data);
+
+                        // sessionStorage 저장
+                        const userInfo = {
+                            userId: data.userId,
+                            userName: data.userName,
+                            userTypeCode: data.userTypeCode,
+                            email: data.email,
+                            loginType: data.loginType,
+                            loginId: data.loginId
+                        };
+                        sessionStorage.setItem('user', JSON.stringify(userInfo));
+                        setUserId(data.userId);
+                    } else {
+                        console.error('세션 정보 조회 실패:', data.message);
+                    }
+                } else {
+                    console.error('세션 정보 조회 실패:', response.status);
+                }
+            } catch (error) {
+                console.error('세션 정보 조회 중 오류:', error);
+            }
+        };
+
+        getUserInfo();
+    }, []);
+
 
   useEffect(() => {
     if (location.state) {
