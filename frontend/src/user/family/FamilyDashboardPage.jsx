@@ -22,6 +22,12 @@ function FamilyDashboardPage() {
   const [selectedPatients, setSelectedPatients] = useState([]);
   const [gameName, setGameName] = useState('');
 
+  const [shareUrl, setShareUrl] = useState('');
+  const [currentPatientName, setCurrentPatientName] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+
+
+
   const fetchCommonCodes = async (parentCodeId) => {
     try {
       setLoading(true);
@@ -78,7 +84,6 @@ function FamilyDashboardPage() {
 
     useEffect(() => {
         const getUserInfo = async () => {
-            // 1단계: sessionStorage에서 먼저 확인
             const userInfo = sessionStorage.getItem('user');
             if (userInfo) {
                 try {
@@ -140,6 +145,115 @@ function FamilyDashboardPage() {
       }
     }
   }, [location.state]);
+
+
+
+
+
+
+
+    // 공유 버튼 클릭 처리
+    const handleShareClick = async (patientId, patientName) => {
+        if (isSharing) return; // 중복 클릭 방지
+
+        setIsSharing(true);
+
+        try {
+            console.log('공유 링크 생성 시작 - 환자ID:', patientId, '이름:', patientName);
+
+            const response = await fetch(`${window.API_BASE_URL}/api/recorder/${patientId}/share`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' // 세션 쿠키 포함
+            });
+
+            const data = await response.json();
+            console.log('서버 응답:', data);
+
+            if (data.success) {
+                setShareUrl(data.shareUrl);
+                setCurrentPatientName(patientName);
+
+                // 모달 열기
+                document.getElementById('toggle-account-modal').checked = true;
+
+                console.log('공유 링크 생성 성공:', data.shareUrl);
+            } else {
+                alert(data.message || '공유 링크 생성에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('공유 링크 생성 실패:', error);
+            alert('공유 링크 생성에 실패했습니다. 네트워크를 확인해주세요.');
+        } finally {
+            setIsSharing(false);
+        }
+    };
+
+    // 카카오톡 공유 함수
+    const shareKakao = () => {
+        if (!window.Kakao) {
+            alert('카카오 SDK가 로드되지 않았습니다.');
+            return;
+        }
+
+        if (!shareUrl) {
+            alert('공유할 링크가 없습니다.');
+            return;
+        }
+
+        try {
+            window.Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: '환자 프로필 공유',
+                    description: `${currentPatientName}님의 의료 정보를 확인해보세요`,
+                    link: {
+                        mobileWebUrl: shareUrl,
+                        webUrl: shareUrl
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('카카오톡 공유 실패:', error);
+            alert('카카오톡 공유에 실패했습니다.');
+        }
+    };
+
+    // 링크 복사 함수
+    const copyLink = () => {
+        if (!shareUrl) {
+            alert('공유할 링크가 없습니다.');
+            return;
+        }
+
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => {
+                alert('링크가 복사되었습니다!');
+            })
+            .catch(() => {
+                // 복사 실패 시 대체 방법
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('링크가 복사되었습니다!');
+            });
+    };
+
+
+
+
+
+
+
+
+
+
+
 
   const handleNextStep = () => {
     if (selectedPatients.length === 0) {
@@ -376,8 +490,8 @@ function FamilyDashboardPage() {
               <div className="qr-code">qr</div>
             </div>
             <div className="row gx-0 share-icon-con">
-              <div className="col-6 me-4 kakaotalk-icon"></div>
-              <div className="col-6 link-icon"></div>
+              <div className="col-6 me-4 kakaotalk-icon" onClick={shareKakao}></div>
+              <div className="col-6 link-icon" onClick={copyLink}></div>
             </div>
           </div>
         </div>
