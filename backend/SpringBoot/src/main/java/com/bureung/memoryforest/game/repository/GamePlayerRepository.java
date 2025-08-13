@@ -3,12 +3,14 @@ package com.bureung.memoryforest.game.repository;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.domain.GamePlayerId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,4 +84,10 @@ public interface GamePlayerRepository extends JpaRepository<GamePlayer, GamePlay
     Optional<Integer> countByIdPlayerIdAndEndTimeIsNotNull(String playerId);
     Optional<GamePlayer> findByIdPlayerIdAndStartTimeIsNull(@Param("playerId") String playerId);
     List<GamePlayer> findByIdGameId(String gameId);
+
+    @Modifying
+    @Query("UPDATE GamePlayer gp SET gp.startTime = :currentTime WHERE gp.id.playerId = :playerId AND gp.id.gameId = :gameId AND gp.startTime IS NULL")
+    int updateStartTimeIfNull(@Param("playerId") String playerId,
+                              @Param("gameId") String gameId,
+                              @Param("currentTime") LocalDateTime currentTime);
 }

@@ -184,6 +184,7 @@ public class GameQueryServiceImpl implements GameQueryService {
 
     @Override
     public GameStageResponseDto getGameStageData(String playerId, String gameId) {
+        gamePlayerService.updateStartTimeIfNull(playerId, gameId);
         int currentProgress = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, playerId);
         int totalQuestions = gameMasterService.getGameCountByGameId(gameId);
         log.info("currentProgress : {}, totalQuestions : {}", currentProgress, totalQuestions);
