@@ -1,5 +1,6 @@
 package com.bureung.memoryforest.record.application.impl;
 
+import com.bureung.memoryforest.ai.application.EmotionAnalysisService;
 import com.bureung.memoryforest.record.application.RecordService;
 import com.bureung.memoryforest.record.dto.response.RecordListResponseDto;
 import com.bureung.memoryforest.record.repository.RecordRepository;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecordServiceImpl implements RecordService {
     private final RecordRepository recordRepository;
+    private final EmotionAnalysisService emotionAnalysisService;
 
     @Override
     @Transactional
@@ -26,7 +28,11 @@ public class RecordServiceImpl implements RecordService {
         log.info("레코드 저장 시작: fileId={}, userId={}, duration={}", fileId, userId, duration);
 
         try {
+            Integer score = emotionAnalysisService.analyzeEmotion(text);
+            log.info("감정 분석 결과: score={}", score);
+
             Record record = Record.builder()
+                    .score(score)
                     .userId(userId)
                     .fileId(fileId)
                     .text(text)
