@@ -69,4 +69,6 @@ public interface GamePlayerService {
     Map<String, Object> getPlayerStats(String playerId);
 
     Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId);
+
+    void updateStartTimeIfNull(String playerId, String gameId);
 }
