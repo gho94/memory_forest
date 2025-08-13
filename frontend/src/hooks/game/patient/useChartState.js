@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {usePatientOverviewLogic} from '@/hooks/game/common/usePatientOverviewLogic';
+import {usePatientOverviewLogic} from '@/hooks/game/patient/usePatientOverviewLogic';
 
 export const useChartState = (gameIdFromUrl) => {
     const [includeGameId, setIncludeGameId] = useState(true);

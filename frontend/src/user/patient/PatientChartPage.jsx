@@ -6,7 +6,7 @@ import PatientFooter from '@/components/layout/footer/PatientFooter';
 import GamePlayerChartItem from '@/components/game/GamePlayerChartItem';
 import GamePlayerChartStatsItem from '@/components/game/GamePlayerChartStatsItem';
 import { useChartDataLogic } from '@/hooks/game/common/useChartDataLogic';
-import { useChartState } from '@/hooks/game/common/useChartState';
+import { useChartState } from '@/hooks/game/patient/useChartState';
 
 function PatientChartPage() {
   // URL에서 gameId 추출

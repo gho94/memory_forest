@@ -17,7 +17,8 @@ import FamilyGameListPage from '@/game/family/FamilyGameListPage';
 import PatientDashboardPage from '@/game/patient/PatientDashboardPage';
 import PatientChartPage from '@/user/patient/PatientChartPage';
 import PatientMyPage from '@/user/patient/PatientMyPage';
-import PatientRecord from '@/user/patient/PatientRecord';
+import PatientRecordCreatePage from '@/user/patient/PatientRecordCreatePage';
+import PatientRecordListPage from '@/user/patient/PatientRecordListPage';
 import GamePage from '@/game/patient/GamePage';
 import CommonCodePage from '@/user/common/CommonCodePage';
 
@@ -47,7 +48,8 @@ function Router() {
         <Route path="/recorder/dashboard" element={<PatientDashboardPage />} />
         <Route path="/recorder/chart" element={<PatientChartPage />} />
         <Route path="/recorder/mypage" element={<PatientMyPage />} />
-        <Route path="/recorder/record" element={<PatientRecord />} />
+        <Route path="/recorder/record/create" element={<PatientRecordCreatePage />} />
+        <Route path="/recorder/record/list" element={<PatientRecordListPage />} />
         {/* 기록자-게임 */}
         <Route path="/recorder/game" element={<GamePage />} />
 
