@@ -1,7 +1,6 @@
 package com.bureung.memoryforest.game.application.impl;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -102,6 +101,12 @@ public class GameServiceImpl implements GameService {
         }
 
         return gameMaster;
+    }
+
+    @Override
+    public GameMaster updateGame(GameDetail gameDetail) {
+        GameDetail updatedGameDetail = gameDetailRepository.save(gameDetail);
+        return gameMasterRepository.findById(updatedGameDetail.getGameId()).orElse(null);
     }
 
     @Override

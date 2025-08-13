@@ -49,4 +49,16 @@ public class GameController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/api/game/update")
+    public ResponseEntity<GameMaster> updateGame(@RequestBody GameDetail gameDetail) {
+        log.info("게임 수정 API 호출: {}", gameDetail);
+        try {   
+            GameMaster updatedGameMaster = gameService.updateGame(gameDetail);
+            return ResponseEntity.ok(updatedGameMaster);
+        } catch (Exception e) {
+            log.error("게임 수정 실패", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
