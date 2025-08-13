@@ -13,7 +13,8 @@
  import org.springframework.security.crypto.password.PasswordEncoder;
  import org.springframework.stereotype.Service;
 
- import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
  import java.util.Optional;
 
  @Service
@@ -85,13 +86,15 @@
              }
 
              userService.createUser(
-                     request.getLoginId(),
-                     request.getUserName(),
-                     passwordEncoder.encode(request.getPassword()),
-                     request.getEmail(),
-                     request.getPhone(),
-                     request.getUserTypeCode()
-             );
+                    request.getLoginId(),
+                    request.getUserName(),
+                    passwordEncoder.encode(request.getPassword()),
+                    request.getEmail(),
+                    request.getPhone(),
+                    request.getUserTypeCode(),
+                    LocalDate.now(),  // 생년월일 또는 가입일
+                    "A20005"          // 기본 상태코드 (활성 상태)
+            );
 
              return JoinResponseDto.success("회원가입이 완료되었습니다.");
 
