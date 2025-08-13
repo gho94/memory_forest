@@ -3,13 +3,14 @@ import { useNavigate,Link } from 'react-router-dom';
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import '@/assets/css/login.css';
+import '@/assets/css/test.css';
 
 function LoginPage() {
 
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        userId: '',
+        loginId: '',
         password: ''
     });
     const [error, setError] = useState('');
@@ -27,7 +28,7 @@ function LoginPage() {
     };
 
     // 로그인 처리 - axios 오류남....ㅠㅠㅠㅠㅠㅠㅠㅠ 일단 fetch 사용해서 직접 url 넣었음...
-    const handleLogin = async (userId, password) => {
+    const handleLogin = async (loginId, password) => {
         setLoading(true);
         setError('');
 
@@ -39,7 +40,7 @@ function LoginPage() {
                 },
                 credentials: 'include', // 세션 쿠키 포함
                 body: JSON.stringify({
-                    userId: userId,
+                    loginId: loginId,
                     password: password
                 })
             });
@@ -57,15 +58,16 @@ function LoginPage() {
                     userId: data.userId,
                     userName: data.userName,
                     userTypeCode: data.userTypeCode,
-                    email: data.email
+                    email: data.email,
+                    loginType: data.loginType || 'DEFAULT'
                 }));
 
                 //console창에 띄워보기
                 console.log(`로그인 성공! 환영합니다, ${data.userName}님!`);
 
-                if (data.userTypeCode === 'COMPANION') {
+                if (data.userTypeCode === 'A20002') { //COMPANION == A20002
                     navigate('/companion/dashboard');
-                } else if (data.userTypeCode === 'RECORDER') {
+                } else if (data.userTypeCode === 'A20001') { //RECORDER == A20001
                     navigate('/recorder/dashboard');
                 } else {
                     navigate('/companion/dashboard'); // 기본값
@@ -81,11 +83,18 @@ function LoginPage() {
         }
     };
 
+    // 소셜 로그인
+    const handleSocialLogin = (provider) => {
+        // Spring Security OAuth2 엔드포인트로 직접 리다이렉트 처리하기
+        window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+    };
+
+
     // 폼 제출 처리
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.userId.trim()) {
+        if (!formData.loginId.trim()) {
             setError('아이디를 입력해주세요.');
             return;
         }
@@ -94,7 +103,7 @@ function LoginPage() {
             return;
         }
 
-        handleLogin(formData.userId, formData.password);
+        handleLogin(formData.loginId, formData.password);
     };
 
   return (
@@ -107,7 +116,7 @@ function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <input type="text" name="userId" className="form-control" placeholder="아이디" value={formData.userId} onChange={handleChange} disabled={loading}/>
+            <input type="text" name="loginId" className="form-control" placeholder="아이디" value={formData.loginId} onChange={handleChange} disabled={loading}/>
           </div>
           <div className="mb-4">
             <input type="password" name="password" className="form-control" placeholder="비밀번호" value={formData.password} onChange={handleChange} disabled={loading}/>
@@ -127,6 +136,34 @@ function LoginPage() {
           <Link to="/findPw">비밀번호 찾기</Link>
           <Link to="/signup">회원가입</Link>
         </div>
+
+
+          {/* 소셜 로그인 버튼들 */}
+          <div className="social-login-section">
+              <button
+                  type="button"
+                  className="btn btn-naver mb-2"
+                  onClick={() => handleSocialLogin('naver')}
+                  disabled={loading}
+              >
+                  <span className="naver-icon">N</span>
+                  네이버로 로그인
+              </button>
+
+              <button
+                  type="button"
+                  className="btn btn-kakao mb-2"
+                  onClick={() => handleSocialLogin('kakao')}
+                  disabled={loading}
+              >
+                  <span className="kakao-icon">K</span>
+                  카카오로 로그인
+              </button>
+          </div>
+
+
+
+
       </main>
     </div>
   );

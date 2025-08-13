@@ -1,0 +1,125 @@
+/* 소셜 로그인 관련 CSS (login.css에 추가) */
+
+/* 구분선 스타일 */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+}
+
+.divider span {
+    background-color: white;
+    padding: 0 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 소셜 로그인 섹션 */
+.social-login-section {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* 네이버 로그인 버튼 */
+.btn-naver {
+    width: 100%;
+    background-color: #03C75A;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-naver:hover {
+    background-color: #02B350;
+    color: white;
+}
+
+.btn-naver:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.naver-icon {
+    background-color: white;
+    color: #03C75A;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+/* 카카오 로그인 버튼 */
+.btn-kakao {
+    width: 100%;
+    background-color: #FEE500;
+    color: #181600;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.btn-kakao:hover {
+    background-color: #FDD835;
+    color: #181600;
+}
+
+.btn-kakao:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.kakao-icon {
+    background-color: #181600;
+    color: #FEE500;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    .btn-naver, .btn-kakao {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+    .naver-icon, .kakao-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 12px;
+    }
+}

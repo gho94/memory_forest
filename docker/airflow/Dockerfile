@@ -29,6 +29,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     gensim==4.3.2 \
     && pip install --no-cache-dir -r /tmp/requirements.txt
 
+RUN python -c "import konlpy; from konlpy.tag import Okt; okt = Okt()" || true
 
 # 권한 설정
 USER root

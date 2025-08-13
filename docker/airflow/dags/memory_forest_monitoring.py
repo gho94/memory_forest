@@ -1,6 +1,5 @@
 """
-Memory Forest 모니터링 DAG
-시스템 상태 모니터링, 알림, 긴급 상황 대응
+Memory Forest 모니터링 DAG - 기존 코드 호환
 """
 
 from airflow import DAG
@@ -15,11 +14,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import DAG_DEFAULT_ARGS, MONITORING_CONFIG, STATUS_CODES
+from config import (
+    DAG_DEFAULT_ARGS, MONITORING_CONFIG, STATUS_CODES,
+    SCHEDULES, DEFAULT_ARGS, LOCAL_TZ
+)
 from utils.database import db_manager
 from utils.ai_service import ai_client
 
-local_tz = pendulum.timezone("Asia/Seoul")
 logger = logging.getLogger(__name__)
 
 def check_critical_metrics(**context):
@@ -49,7 +50,7 @@ def check_critical_metrics(**context):
             # 대기 중인 게임 수 체크
             pending_count = 0
             for stat in stats['status_breakdown']:
-                if stat['ai_status_code'] == STATUS_CODES['PENDING']:
+                if stat['ai_status_code'] == 'B20005':  # PENDING
                     pending_count = stat['total_count']
                     break
             
@@ -223,8 +224,8 @@ def emergency_response(**context):
 
 # 모니터링 DAG 정의
 monitoring_default_args = {
-    **DAG_DEFAULT_ARGS,
-    'start_date': datetime(2024, 1, 1, tzinfo=local_tz),  # start_date 추가
+    **DEFAULT_ARGS,
+    'start_date': datetime(2024, 1, 1, tzinfo=LOCAL_TZ),
     'retries': 1,
     'retry_delay': timedelta(minutes=2),
 }
@@ -233,7 +234,7 @@ monitoring_dag = DAG(
     'memory_forest_monitoring',
     default_args=monitoring_default_args,
     description='Memory Forest 시스템 모니터링 및 알림',
-    schedule_interval='*/15 * * * *',  # 15분마다 실행
+    schedule_interval=SCHEDULES['monitoring'],  # 15분마다 실행
     catchup=False,
     max_active_runs=1,
     tags=['memory-forest', 'monitoring', 'alerts']

@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -22,10 +23,13 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Column(name = "USER_ID", length = 10, nullable = false)
     private String userId;
     
+    @Column(name = "LOGIN_ID", nullable = false, length = 100, unique = true)
+    private String loginId;
+    
     @Column(name = "USER_NAME", nullable = false, length = 100)
     private String userName;
     
-    @Column(name = "PASSWORD", nullable = false, length = 60)
+    @Column(name = "PASSWORD", nullable = true, length = 60) // OAuth 사용자는 null 가능
     private String password;
     
     @Column(name = "EMAIL", nullable = false, length = 100)
@@ -33,6 +37,12 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     
     @Column(name = "PHONE", length = 20)
     private String phone;
+    
+    @Column(name = "BIRTH_DATE")
+    private LocalDate birthDate;
+    
+    @Column(name = "GENDER_CODE", length = 6)
+    private String genderCode;
     
     @Column(name = "USER_TYPE_CODE", nullable = false, length = 6)
     private String userTypeCode;
@@ -58,6 +68,12 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     @Column(name = "LOGIN_AT")
     private LocalDateTime loginAt;
 
+    @Builder.Default    //null - default으로 해주기 위해서 필요한거임
+    @Column(name = "LOGIN_TYPE",length = 20,nullable=false)
+    private String loginType  ="DEFAULT";
+//
+//    @Column(name = "SOCIAL_ID",length = 100)
+//    private String socialId;
 
     // UserDetails 인터페이스 구현하는 부분임다.
     @Override
@@ -68,7 +84,8 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
 
     @Override
     public String getUsername() {
-        return this.userId; // userId를 username으로 - 시큐리티는 로그인시 입력하는 id값을 username으로 인식하는 규칙..
+//        return this.loginId; // loginId를 username으로 - 시큐리티는 로그인시 입력하는 id값을 username으로 인식하는 규칙..
+        return this.loginId != null ? this.loginId : this.email; // loginId가 null이면 email 사용
     }
 
     @Override
@@ -80,8 +97,6 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
     public boolean isAccountNonExpired() {
         return true;
     }
-
-
 
     // A20005 - 활성, A20006  - 비활성 , A20007  - 정지 , A20008  - 삭제 (공통코드 발췌 )
     @Override
@@ -105,4 +120,7 @@ public class User implements UserDetails{ //UserDetail이라는 인터페이스�
         return this.userName;
     }
 
+    public String getLoginType() {
+        return this.loginType;
+    }
 }

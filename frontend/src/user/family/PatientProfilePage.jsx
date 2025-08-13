@@ -1,13 +1,129 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';
 import '@/assets/css/family.css';
 
 import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
+import { useNavigate } from 'react-router-dom';
 
 function PatientProfilePage() {
   const [showAlarmModal, setShowAlarmModal] = useState(false);
+  const [relationshipCodes, setRelationshipCodes] = useState([]);
+  const [genderCodes, setGenderCodes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    userName: '',
+    birthDate: '',
+    genderCode: '',
+    relationshipCode: '',
+    userTypeCode: 'A20001', // 기록자 타입 코드 (고정값)
+  });
+
+  // 현재 로그인된 사용자 ID 가져오기
+  useEffect(() => {
+    const getCurrentUserId = () => {
+      // localStorage에서 사용자 정보 가져오기
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        try {
+          const user = JSON.parse(userInfo);
+          console.log('현재 로그인된 사용자 정보:', user);
+          setCurrentUserId(user.userId);
+        } catch (error) {
+          console.error('사용자 정보 파싱 오류:', error);
+        }
+      } else {
+        console.log('localStorage에 사용자 정보가 없습니다.');
+      }
+    };
+
+    getCurrentUserId();
+  }, []);
+
+  const fetchCommonCodes = async (parentCodeId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${window.API_BASE_URL}/api/common-codes?parentCodeID=${parentCodeId || ''}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        console.error('공통코드 조회 실패:', response.status);
+        return [];
+      }
+    } catch (error) {
+      console.error('공통코드 조회 중 오류:', error);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadCommonCodes = async () => {
+      const relationshipData = await fetchCommonCodes('A10003');
+      setRelationshipCodes(relationshipData);
+
+      const genderData = await fetchCommonCodes('A10005');
+      setGenderCodes(genderData);
+    };
+
+    loadCommonCodes();
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {    
+    e.preventDefault();
+
+    // 현재 로그인된 사용자 ID가 없으면 처리 중단
+    if (!currentUserId) {
+      alert('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+      return;
+    }
+
+    try {
+      // 전송할 데이터 구성
+      const requestData = {
+        ...formData,
+        loginId: currentUserId, // 현재 로그인된 사용자 ID
+      };
+
+      console.log('전송할 데이터:', requestData);
+
+      const response = await fetch(`${window.API_BASE_URL}/api/recorder/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('등록 성공:', result);
+        alert('기록자가 성공적으로 등록되었습니다.');
+
+        navigate('/companion/dashboard');
+      } else {
+        console.error('등록 실패:', response.status);
+        alert('등록에 실패했습니다. 다시 시도해주세요.');
+      }
+
+    } catch (error) {
+      console.error('등록 실패:', error);
+      alert('등록 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <div className="app-container d-flex flex-column">
@@ -19,7 +135,7 @@ function PatientProfilePage() {
           <div></div>
         </div>
 
-        <form className="signup-form patient-signup-form">
+        <form className="signup-form patient-signup-form" onSubmit={handleSubmit}>
           <div className="profile-upload-con">
             <div className="profile-upload">
               <input type="file" id="fileInput" accept="image/*" />
@@ -30,39 +146,67 @@ function PatientProfilePage() {
           </div>
 
           <div className="form-control-con">
-            <input type="text" className="form-control" placeholder="이름" />
+            <input 
+              type="text" 
+              className="form-control" 
+              placeholder="이름" 
+              name="userName"
+              value={formData.userName}
+              onChange={handleInputChange}
+              required
+            />
           </div>
 
           <div className="form-control-con">
-            <input type="date" className="form-control" placeholder="생년월일" />
+            <input 
+              type="date" 
+              className="form-control" 
+              placeholder="생년월일" 
+              name="birthDate"
+              value={formData.birthDate}
+              onChange={handleInputChange}
+              required
+            />
             <i className="bi bi-calendar calendar-icon"></i>
           </div>
 
           <div className="form-control-con">
-            <select className="form-control" placeholder="성별" defaultValue="">
+            <select 
+              className="form-control" 
+              placeholder="성별" 
+              name="genderCode"
+              value={formData.genderCode}
+              onChange={handleInputChange}
+              required
+            >
               <option disabled hidden value="">
                 성별
               </option>
-              <option value="m">남성</option>
-              <option value="w">여성</option>
+              {genderCodes.map((code) => (
+                <option key={code.codeId} value={code.codeId}>
+                  {code.codeName}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="form-control-con">
-            <select className="form-control" placeholder="관계" defaultValue="">
+            <select 
+              className="form-control" 
+              placeholder="관계" 
+              name="relationshipCode"
+              value={formData.relationshipCode}
+              onChange={handleInputChange}
+              required
+            >
               <option disabled hidden value="">
                 관계
               </option>
-              <option value="parent">부모</option>
-              <option value="spouse">배우자</option>
-              <option value="sibling">형제자매</option>
-              <option value="child">자녀</option>
-              <option value="grandchild">손자/손녀</option>
-              <option value="relative">기타 친척</option>
-              <option value="friend">친구</option>
-              <option value="neighbor">이웃</option>
-              <option value="caregiver">요양보호사</option>
-              <option value="etc">기타</option>
+              {relationshipCodes.map((code) => (
+                <option key={code.codeId} value={code.codeId}>
+                  {code.codeName}                  
+                </option>
+              ))}
             </select>
           </div>
 

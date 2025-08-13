@@ -14,7 +14,7 @@ function FindIdPage() {
 
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [isEmailVerified, setIsEmailVerified] = useState(false);
-    const [foundUserId, setFoundUserId] = useState('');
+    const [foundLoginId, setFoundLoginId] = useState(''); //0811수정
     const [error, setError] = useState('');
     const [timeLeft, setTimeLeft] = useState(0); // 남은 시간 (초)
 
@@ -145,7 +145,7 @@ function FindIdPage() {
 
             if (response.ok && data.success) {
                 setIsEmailVerified(true);
-                setFoundUserId(data.userId);
+                setFoundLoginId(data.loginId);
                 setTimeLeft(0); // 타이머 정지
                 setError('');
             } else {
@@ -238,8 +238,8 @@ function FindIdPage() {
 
 
             {/* 아이디 찾기 결과 */}
-            {foundUserId && (
-                <div className="find-id-result-con2">가입하신 아이디는<br/><span>{foundUserId}</span>입니다.</div>
+            {foundLoginId  && (
+                <div className="find-id-result-con2">가입하신 아이디는<br/><span>{foundLoginId }</span>입니다.</div>
             )}
 
             {/* 에러 메시지 */}

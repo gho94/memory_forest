@@ -25,7 +25,16 @@ function ResetPasswordPage() {
 
     // 이전 페이지에서 전달받은 인증 정보
     const authInfo = location.state;
-
+    
+    //삭제
+    useEffect(() => {
+        console.log("=== ResetPasswordPage authInfo 확인 ===");
+        console.log("location.state:", location.state);
+        console.log("authInfo:", authInfo);
+        console.log("authInfo?.loginId:", authInfo?.loginId);
+        console.log("authInfo?.email:", authInfo?.email);
+        console.log("authInfo?.verificationCode:", authInfo?.verificationCode);
+    }, [authInfo, location.state]);
 
     //에러 메세지...아아ㅏㅏㅏㅏㅏㅏ
     const showError = (message) => {
@@ -140,7 +149,7 @@ function ResetPasswordPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: authInfo?.userId,
+                    loginId: authInfo?.loginId,
                     email: authInfo?.email,
                     code: authInfo?.verificationCode,
                     newPassword: formData.newPassword,
@@ -186,7 +195,7 @@ function ResetPasswordPage() {
                     {/* 비밀번호 재설정할 사람에 대해서 ... 내용 띄우는거  */}
                     {!isPasswordReset && (
                     <div className="user-information">
-                        <div className="text3"><strong>{authInfo?.userId || 'USER'}</strong> 계정의 비밀번호를 재설정합니다.</div>
+                        <div className="text3"><strong>{authInfo?.loginId || 'USER'}</strong> 계정의 비밀번호를 재설정합니다.</div>
                     </div>
                     )}
 
