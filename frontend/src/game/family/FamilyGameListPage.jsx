@@ -27,6 +27,13 @@ function FamilyGameListPage() {
     }
   }, [location.state]);
 
+  const handleEditGame = (gameDetail) => {
+    console.log('gameDetail:', gameDetail);
+    navigate('/companion/games/update', { 
+      state: {gameDetail: gameDetail, fileUrl: fileUrls[gameDetail.gameSeq]} 
+    });
+  };
+
   const handleGoToList = () => {
     navigate('/companion/dashboard', { 
       state: { isGame: true } 
@@ -100,7 +107,7 @@ function FamilyGameListPage() {
                     <div className="game-title">{gameDetail.gameDesc}</div>
                     <div className="game-answer">정답 : {gameDetail.answerText}</div>
                   </div>
-                  <button className="game-edit-btn">수정</button>
+                  <button className="game-edit-btn" onClick={() => handleEditGame(gameDetail)}>수정</button>
                 </div>
               </div>
             ))}

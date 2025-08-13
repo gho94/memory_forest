@@ -8,24 +8,11 @@ import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 import useFileUpload from '@/hooks/common/useFileUpload';
 
-function FamilyGameCreatePage() {
+function FamilyGameUpdatePage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [problems, setProblems] = useState([]);
-  const [gameName, setGameName] = useState('');
-  const [selectedPatients, setSelectedPatients] = useState([]);
-  const totalProblems = problems.length;
-  const progressPercentage = Math.min((totalProblems / 10) * 100, 100);
   const [userId, setUserId] = useState('');
-
-  const gameData = {
-    gameName: gameName,
-    createdBy: userId,
-    gameDetails: problems,
-    totalProblems: totalProblems,
-    selectedPatients: selectedPatients
-  }  
-  const [currentProblem, setCurrentProblem] = useState({
+  const [gameDetail, setGameDetail] = useState({    
     gameTitle: '',
     gameDesc: '',
     fileId: null,
@@ -37,10 +24,11 @@ function FamilyGameCreatePage() {
   const [fileImage, setFileImage] = useState(null);
   const { uploadFile } = useFileUpload();
 
+  console.log('gameDetail:', gameDetail);
   useEffect(() => {
-    if (location.state && location.state.gameName) {
-      setGameName(location.state.gameName);
-      setSelectedPatients(location.state.selectedPatients);
+    if (location.state && location.state.gameDetail) {
+      setGameDetail(location.state.gameDetail);
+      setFileImage(location.state.fileUrl);
     }
   }, [location.state]);
 
@@ -69,74 +57,54 @@ function FamilyGameCreatePage() {
 
     const reader = new FileReader();
     reader.onload = (e) => {
+      console.log('e.target.result:', e.target.result);
       setFileImage(e.target.result);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleAddProblem = async () => {
-    if (!file || !currentProblem.answerText.trim() || !currentProblem.gameTitle.trim()) {
-      alert('게임 제목, 파일과 정답 단어를 모두 입력해주세요.');
+  const handleUpdateGame = async () => {
+    if (!fileImage || !gameDetail.answerText.trim() || !gameDetail.gameTitle.trim()) {
+      alert('파일 또는 게임 제목과 정답 단어를 모두 입력해주세요.');
       return;
     }
-
-    const uploadedFileId = await uploadFile(file);
-    
-    if (uploadedFileId) {
-      const newProblem = {
-        ...currentProblem,
-        fileId: uploadedFileId
-      };
-
-      setProblems(prev => [...prev, newProblem]);
-      setCurrentProblem({
-        gameTitle: '',
-        gameDesc: '',
-        fileId: null,
-        answerText: ''
-      });
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-        setFile(null);
-        setFileImage(null);
-      }
-    }
-  };
-
-  const handleCreateGame = async () => {
-    if (problems.length === 0) {
-      alert('최소 하나의 문제를 추가해주세요.');
-      return;
-    }
-
-    console.log('gameData:', gameData);
 
     try {
-      const response = await fetch(`${window.API_BASE_URL}/api/game`, {
+      if (file) {
+        const uploadFileId = await uploadFile(file);
+        if (uploadFileId) {
+          gameDetail.fileId = uploadFileId;
+        } else {
+          alert('이미지 업로드에 실패했습니다.');
+          return;
+        }
+      }
+      
+      const response = await fetch(`${window.API_BASE_URL}/api/game/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(gameData),
+        body: JSON.stringify(gameDetail),
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert('게임이 성공적으로 생성되었습니다!');
-        console.log('게임 생성 성공:', result);
-        navigate('/companion/games/complete', {
+        alert('게임이 성공적으로 수정되었습니다!');
+        console.log('게임 수정 성공:', result);
+        navigate('/companion/games/list', {
           state: {
-            gameData: gameData
+            gameId: result.gameId,
+            gameName: result.gameName
           }
         });
       } else {
-        console.error('게임 생성 실패');
-        alert('게임 생성에 실패했습니다.');
+        console.error('게임 수정 실패');
+        alert('게임 수정에 실패했습니다.');
       }
     } catch (error) {
-      console.error('게임 생성 중 오류 발생:', error);
-      alert('게임 생성 중 오류가 발생했습니다.');
+      console.error('게임 수정 중 오류 발생:', error);
+      alert('게임 수정 중 오류가 발생했습니다.');
     }
   }
 
@@ -146,18 +114,7 @@ function FamilyGameCreatePage() {
 
       <main className="content-area guardian-con">
         <div className="menu-title">
-          <div>게임 만들기</div>
-          <div className="progress">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{ width: `${progressPercentage}%` }}
-              aria-valuenow={totalProblems}
-              aria-valuemin="0"
-              aria-valuemax="10"
-            ></div>
-            <div className="progress-label">{totalProblems} / 10</div>
-          </div>
+          <div>게임 수정하기</div>          
         </div>
 
         <form className="signup-form game-signup-form">
@@ -166,8 +123,8 @@ function FamilyGameCreatePage() {
               type="text"
               className="form-control"
               placeholder="게임 제목을 입력하세요."
-              value={currentProblem.gameTitle}
-              onChange={(e) => setCurrentProblem(prev => ({
+              value={gameDetail.gameTitle}
+              onChange={(e) => setGameDetail(prev => ({
                 ...prev,
                 gameTitle: e.target.value
               }))}
@@ -183,8 +140,12 @@ function FamilyGameCreatePage() {
                 if (fileInputRef.current) {
                   fileInputRef.current.value = '';
                 }
-              }}>×</button>}           
-              <div className={`game-file-desc mb-3 mt-5 ${file ? 'd-none' : ''}`}>
+              }}>×</button>}
+              {!file && fileImage && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}
+              {!file && fileImage && <button onClick={() => {
+                setFileImage(null);
+              }}>×</button>}
+              <div className={`game-file-desc mb-3 mt-5 ${file || fileImage ? 'd-none' : ''}`}>
                 게임에 사용할 사진을 업로드하세요.
               </div>
               <input
@@ -195,7 +156,7 @@ function FamilyGameCreatePage() {
                 style={{ display: 'none' }}
               />
               <button 
-                className={`btn btn-add ${file ? 'd-none' : ''}`}
+                className={`btn btn-add ${file || fileImage ? 'd-none' : ''}`}
                 type="button" 
                 onClick={() => fileInputRef.current?.click()}
               >파일 선택</button>
@@ -207,8 +168,8 @@ function FamilyGameCreatePage() {
               type="text"
               className="form-control"
               placeholder="정답 단어를 입력하세요."
-              value={currentProblem.answerText}
-              onChange={(e) => setCurrentProblem(prev => ({
+              value={gameDetail.answerText}
+              onChange={(e) => setGameDetail(prev => ({
                 ...prev,
                 answerText: e.target.value
               }))}
@@ -219,8 +180,8 @@ function FamilyGameCreatePage() {
             <textarea
               className="form-control"
               placeholder="설명을 입력하세요."
-              value={currentProblem.gameDesc}
-              onChange={(e) => setCurrentProblem(prev => ({
+              value={gameDetail.gameDesc}
+              onChange={(e) => setGameDetail(prev => ({
                 ...prev,
                 gameDesc: e.target.value
               }))}
@@ -230,18 +191,11 @@ function FamilyGameCreatePage() {
           <button 
             type="button" 
             className="btn btn-login"
-            onClick={handleAddProblem}
-            disabled={!file || !currentProblem.answerText.trim() || !currentProblem.gameTitle.trim()}
+            onClick={handleUpdateGame}
+            disabled={!fileImage || !gameDetail.answerText.trim() || !gameDetail.gameTitle.trim()}
           >
-            다음 문제 추가하기
-          </button>
-          <button 
-            type="button" 
-            className="btn btn-login" 
-            onClick={handleCreateGame}
-          >
-            게임 생성완료
-          </button>
+            게임 수정하기
+          </button>          
         </form>
       </main>
 
@@ -291,4 +245,4 @@ function FamilyGameCreatePage() {
   );
 }
 
-export default FamilyGameCreatePage;
+export default FamilyGameUpdatePage;

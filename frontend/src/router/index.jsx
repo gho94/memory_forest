@@ -11,6 +11,7 @@ import FamilyDashboardPage from '@/user/family/FamilyDashboardPage';
 import PatientProfilePage from '@/user/family/PatientProfilePage';
 import PatientDetailPage from '@/user/family/PatientDetailPage';
 import FamilyGameCreatePage from '@/game/family/FamilyGameCreatePage';
+import FamilyGameUpdatePage from '@/game/family/FamilyGameUpdatePage';
 import FamilyGameCompletePage from '@/game/family/FamilyGameCompletePage';
 import FamilyGameListPage from '@/game/family/FamilyGameListPage';
 
@@ -41,6 +42,7 @@ function Router() {
         <Route path="/companion/detail" element={<PatientDetailPage />} />
         {/* 동행자-게임 */}
         <Route path="/companion/games/create" element={<FamilyGameCreatePage />} />
+        <Route path="/companion/games/update" element={<FamilyGameUpdatePage />} />
         <Route path="/companion/games/complete" element={<FamilyGameCompletePage />} />
         <Route path="/companion/games/list" element={<FamilyGameListPage />} />
         
