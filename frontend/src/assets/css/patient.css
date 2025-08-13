@@ -14,6 +14,10 @@
   gap: 35px;
 }
 
+.patient-con.content-area.record-result-area {
+  gap: 15px;
+}
+
 .patient-con.content-area .greeting {
   font-size: 3rem;
   font-weight: 800;
@@ -380,6 +384,135 @@
 
 .patient-con .records-list::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* 커스텀 드롭다운 */
+.patient-con .custom-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.patient-con .custom-dropdown-display {
+  border-radius: 20px;
+  border: 2px solid #e0e0e0;
+  background-color: white;
+  color: #6b8e5a;
+  font-weight: 800;
+  font-size: 34px;
+  text-align: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.patient-con .custom-dropdown-display:hover {
+  border-color: #6b8e5a;
+  background-color: #f8f9fa;
+}
+
+.patient-con .custom-dropdown-display:focus {
+  outline: none;
+  border-color: #6b8e5a;
+  box-shadow: 0 0 0 0.2rem rgba(107, 142, 90, 0.25);
+}
+
+.patient-con .custom-dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 2px solid #6b8e5a;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  font-size: 25px;
+  margin: 2px 0 0 0;
+  padding: 0;
+  list-style: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.patient-con .custom-dropdown-options li {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #333;
+  font-weight: 600;
+}
+
+.patient-con .custom-dropdown-options li:hover {
+  background-color: #f0f7ed;
+  color: #2d5016;
+}
+
+.patient-con .custom-dropdown-options li.selected {
+  background-color: #6b8e5a;
+  color: white;
+  font-weight: 600;
+}
+
+.patient-con .custom-dropdown-options li:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.patient-con .custom-dropdown-options li:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+/* 스크롤바 커스텀 (드롭다운) */
+.patient-con .custom-dropdown-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.patient-con .custom-dropdown-options::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-dropdown-options::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.custom-dropdown-options::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.date-label {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.record-header{
+  background-color: #F7F9F9;
+  border: 1px solid rgba(108, 154, 139, 0.5);
+  border-radius: 15px;
+}
+
+.record-date{
+  color:#054E26;
+  font-weight: 800;
+  font-size: 21px;
+}
+
+.records-list{
+  text-align: left;
+  height: 395px;
+  overflow-y: auto;
+}
+
+.record-text{
+  font-weight: 600;
+  font-size: 25px;
+}
+
+.record-content{
+  background-color: #FFFCF3;
+  border-radius: 15px;
+  margin-top: 13px;
+  padding: 1rem 1.4rem;
 }
 
 @keyframes patient-dashboard-skeleton-loading {
