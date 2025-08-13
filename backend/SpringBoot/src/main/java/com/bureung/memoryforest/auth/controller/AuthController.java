@@ -16,6 +16,8 @@
  import org.springframework.security.core.Authentication;
  import org.springframework.security.core.context.SecurityContextHolder;
  import org.springframework.web.bind.annotation.*;
+ import jakarta.servlet.http.HttpServletRequest; //session 추가
+ import org.springframework.http.HttpStatus;  //session 추가
 
  import jakarta.servlet.http.HttpSession;
  import java.util.HashMap;
@@ -422,6 +424,68 @@
 
          return ResponseEntity.ok(response);
      }
+
+
+    //localStorage 대신에 SessionStorage 으로 수정
+     @GetMapping("/session-info")
+     public ResponseEntity<Map<String, Object>> getSessionInfo(HttpServletRequest request) {
+         try {
+             HttpSession session = request.getSession(false);
+
+             if (session == null) {
+                 Map<String, Object> errorResponse = new HashMap<>();
+                 errorResponse.put("success", false);
+                 errorResponse.put("message", "세션이 없습니다.");
+                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+             }
+
+             String userId = (String) session.getAttribute("userId");
+             String userName = (String) session.getAttribute("userName");
+             String userTypeCode = (String) session.getAttribute("userTypeCode");
+             String loginType = (String) session.getAttribute("loginType");
+             String loginId = (String) session.getAttribute("loginId");
+
+             if (userId == null) {
+                 Map<String, Object> errorResponse = new HashMap<>();
+                 errorResponse.put("success", false);
+                 errorResponse.put("message", "로그인이 필요합니다.");
+                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+             }
+
+             Map<String, Object> response = new HashMap<>();
+             response.put("success", true);
+             response.put("userId", userId);
+             response.put("userName", userName != null ? userName : "");
+             response.put("userTypeCode", userTypeCode != null ? userTypeCode : "");
+             response.put("loginType", loginType != null ? loginType : "DEFAULT");
+             response.put("loginId", loginId != null ? loginId : "");
+
+             // 추가 정보가 필요하면 User 조회
+             Optional<User> userOptional = authService.findByUserId(userId);
+             if (userOptional.isPresent()) {
+                 User user = userOptional.get();
+                 response.put("email", user.getEmail() != null ? user.getEmail() : "");
+                 response.put("phone", user.getPhone() != null ? user.getPhone() : "");
+             }
+
+             log.info("세션 정보 조회 성공: {}", userId);
+             return ResponseEntity.ok(response);
+
+         } catch (Exception e) {
+             log.error("세션 정보 조회 중 오류: ", e);
+             Map<String, Object> errorResponse = new HashMap<>();
+             errorResponse.put("success", false);
+             errorResponse.put("message", "서버 오류가 발생했습니다.");
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+         }
+     }
+
+
+
+
+
+
+
 
      @GetMapping("/check/email/{email}")
      public ResponseEntity<Map<String, Object>> checkEmailDuplicate(@PathVariable String email) {

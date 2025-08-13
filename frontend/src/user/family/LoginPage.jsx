@@ -27,7 +27,8 @@ function LoginPage() {
         if (error) setError('');
     };
 
-    // 로그인 처리 - axios 오류남....ㅠㅠㅠㅠㅠㅠㅠㅠ 일단 fetch 사용해서 직접 url 넣었음...
+
+    ////localStorage 대신에 SessionStorage 으로 수정
     const handleLogin = async (loginId, password) => {
         setLoading(true);
         setError('');
@@ -52,17 +53,6 @@ function LoginPage() {
 
             if (response.ok && data.success) {
                 console.log('로그인 성공:', data);
-
-                // 사용자 정보를 localStorage에 저장해서
-                localStorage.setItem('user', JSON.stringify({
-                    userId: data.userId,
-                    userName: data.userName,
-                    userTypeCode: data.userTypeCode,
-                    email: data.email,
-                    loginType: data.loginType || 'DEFAULT'
-                }));
-
-                //console창에 띄워보기
                 console.log(`로그인 성공! 환영합니다, ${data.userName}님!`);
 
                 if (data.userTypeCode === 'A20002') { //COMPANION == A20002

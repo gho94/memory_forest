@@ -43,7 +43,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             session.setAttribute("userTypeCode", user.getUserTypeCode());
             session.setAttribute("loginType", user.getLoginType());
 
-            // 사용자 타입에 따라 리다이렉트 URL 결정
 //        String redirectUrl = determineRedirectUrl(user.getUserTypeCode());
             String redirectUrl = "http://localhost:3000/companion/dashboard";
 
