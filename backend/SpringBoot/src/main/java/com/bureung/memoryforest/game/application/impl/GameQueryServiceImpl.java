@@ -108,21 +108,21 @@ public class GameQueryServiceImpl implements GameQueryService {
 
 
     @Override
-    public GameRecorderDashboardResponseDto getRecorderDashboardData(String recorderId, String userName){
+    public GameRecorderDashboardResponseDto getRecorderDashboardData(String recorderId, String userName) {
         // 1. 먼저 진행중인 게임이 있는지 확인
         Optional<GamePlayer> inProgressGame = gamePlayerService.getInProgressGameByPlayerId(recorderId);
         log.info("1번: {}", inProgressGame);
         if (inProgressGame.isPresent()) {
             // 진행중인 게임이 있는 경우
-            return buildDashboard(inProgressGame.get(), null, "IN_PROGRESS", userName, null);
+            return buildDashboard(inProgressGame.get(), "IN_PROGRESS", userName, null);
         }
 
         // 2. 진행중인 게임이 없으면, 안 푼 게임 중 가장 오래된 것 찾기
-        Optional<GameMaster> unplayedGame = gameMasterService.getOldestUnplayedGameByPlayerId(recorderId);
+        Optional<GamePlayer> unplayedGame = gamePlayerService.getOldestUnplayedGameByPlayerId(recorderId);
         log.info("2번: {}", unplayedGame);
         if (unplayedGame.isPresent()) {
             // 새로운 게임이 있는 경우
-            return buildDashboard(null, unplayedGame.get(), "NEW_GAME", userName, null);
+            return buildDashboard(unplayedGame.get(), "NEW_GAME", userName, null);
         }
 
         // 3. 모든 게임을 다 푼 경우, 가장 최근에 푼 게임을 보여주기
@@ -130,43 +130,35 @@ public class GameQueryServiceImpl implements GameQueryService {
 
         log.info("3번: {}", mostRecentCompletedGame);
         if (mostRecentCompletedGame.isPresent()) {
-            return buildDashboard(mostRecentCompletedGame.get(), null, "COMPLETED", userName, mostRecentCompletedGame.get().getAccuracyRate());
+            return buildDashboard(mostRecentCompletedGame.get(), "COMPLETED", userName, mostRecentCompletedGame.get().getAccuracyRate());
         }
 
         // 4. 게임이 아예 없는 경우 (예외 상황)
         throw new RuntimeException("사용 가능한 게임이 없습니다.");
     }
 
-    private GameRecorderDashboardResponseDto buildDashboard(GamePlayer gamePlayer, GameMaster gameMaster, String status, String userName, BigDecimal recentAccuracyRate) {
+    private GameRecorderDashboardResponseDto buildDashboard(GamePlayer gamePlayer, String status, String userName, BigDecimal recentAccuracyRate) {
         try {
-
+            log.info("기록: {}, 상태 : {}, 이름:{}", gamePlayer, status, userName);
             String gameId;
             int totalQuestions;
             int answeredQuestions = 0;
             Integer beforeDays = null;
             boolean isNewGame = false;
 
-            // 공통 데이터 설정
-            if (gamePlayer != null) {
-                // 진행중 또는 완료된 게임
-                gameId = gamePlayer.getId().getGameId();
-                totalQuestions = gameMasterService.getGameCountByGameId(gameId);
-                answeredQuestions = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, gamePlayer.getId().getPlayerId());
+            // 진행중 또는 완료된 게임
+            gameId = gamePlayer.getId().getGameId();
+            totalQuestions = gameMasterService.getGameCountByGameId(gameId);
+            answeredQuestions = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, gamePlayer.getId().getPlayerId());
 
-                // 완료된 게임인 경우 날짜 계산
-                if ("COMPLETED".equals(status)) {
-                    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-                    LocalDateTime gameCompletedDate = gamePlayer.getEndTime();
-                    beforeDays = (int) ChronoUnit.DAYS.between(gameCompletedDate.toLocalDate(), now.toLocalDate());
-                }
-            } else {
-                // 새 게임
-                gameId = gameMaster.getGameId();
-                totalQuestions = gameMasterService.getGameCountByGameId(gameId);
-                isNewGame = true;
+            // 완료된 게임인 경우 날짜 계산
+            if ("COMPLETED".equals(status)) {
+                LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+                LocalDateTime gameCompletedDate = gamePlayer.getEndTime();
+                beforeDays = (int) ChronoUnit.DAYS.between(gameCompletedDate.toLocalDate(), now.toLocalDate());
             }
 
-            if (recentAccuracyRate == null && gamePlayer !=null) {
+            if (recentAccuracyRate == null && gamePlayer != null) {
                 recentAccuracyRate = gamePlayerService
                         .getMostRecentCompletedGameByPlayerId(gamePlayer.getId().getPlayerId())
                         .map(GamePlayer::getAccuracyRate)
@@ -191,13 +183,15 @@ public class GameQueryServiceImpl implements GameQueryService {
     }
 
     @Override
-    public GameStageResponseDto getGameStageData(String playerId, String gameId){
+    public GameStageResponseDto getGameStageData(String playerId, String gameId) {
         int currentProgress = gamePlayerAnswerService.getCountByGameIdAndPlayerId(gameId, playerId);
         int totalQuestions = gameMasterService.getGameCountByGameId(gameId);
         log.info("currentProgress : {}, totalQuestions : {}", currentProgress, totalQuestions);
-        if(currentProgress >= totalQuestions){ throw new RuntimeException("이용 가능한 게임이 없습니다.");}
+        if (currentProgress >= totalQuestions) {
+            throw new RuntimeException("이용 가능한 게임이 없습니다.");
+        }
 
-        Integer gameSeq = gamePlayerAnswerService.getMaxGameSeqByGameIdAndPlayerId(gameId, playerId)+1;
+        Integer gameSeq = gamePlayerAnswerService.getMaxGameSeqByGameIdAndPlayerId(gameId, playerId) + 1;
         GameDetail gameDetail = gameDetailService.getGameDetailByGameIdAndGameSeq(gameId, gameSeq).orElseThrow(() -> new RuntimeException("게임을 찾을 수 없습니다: " + gameId));
 
         return GameStageResponseDto.builder()
@@ -219,7 +213,7 @@ public class GameQueryServiceImpl implements GameQueryService {
     }
 
     @Override
-    public GameDashboardResponseDto getWeeklyAccuracyChartForRecorder(String gameId, String playerId){
+    public GameDashboardResponseDto getWeeklyAccuracyChartForRecorder(String gameId, String playerId) {
         GameDashboardRequestDto request = new GameDashboardRequestDto();
         request.setGameId(gameId);
         Map<String, LocalDate> dates = determineDates(request, playerId);

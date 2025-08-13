@@ -124,4 +124,9 @@ public class GamePlayerServiceImpl implements GamePlayerService {
                 "averageAccuracy", getOverallAccuracyRate(playerId)
         );
     }
+
+    @Override
+    public Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId){
+        return gamePlayerRepository.findByIdPlayerIdAndStartTimeIsNull(playerId);
+    }
 }

@@ -348,11 +348,6 @@ public class GameMasterServiceImpl implements GameMasterService  {
     }
 
     @Override
-    public Optional<GameMaster> getOldestUnplayedGameByPlayerId(String playerId) {
-        return gameMasterRepository.findOldestUnplayedGameByPlayerId(playerId);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getProcessingStatistics() {
         try {
