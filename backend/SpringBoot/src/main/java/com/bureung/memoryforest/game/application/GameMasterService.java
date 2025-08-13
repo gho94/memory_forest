@@ -28,6 +28,5 @@ public interface GameMasterService {
     Map<String, Object> getProcessingStatistics();
     List<GameMaster> getGamesByGameName(String gameName);
     Optional<GameMaster> getGamesByGameId(String gameId);
-    Optional<GameMaster> getOldestUnplayedGameByPlayerId(String playerId);
     int getGameCountByGameId(String gameId);
 }
