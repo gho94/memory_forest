@@ -174,6 +174,25 @@ CREATE TABLE alarms (
                         KEY idx_player_game (player_id, game_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='알람 테이블';
 
+-- 녹음 기록 테이블
+CREATE TABLE records (
+                         record_id   INT           NOT NULL AUTO_INCREMENT COMMENT '녹음 기록 ID (자동증가)',
+                         score       INT           NULL COMMENT '채점 점수',
+                         user_id     VARCHAR(10)   NOT NULL COMMENT '사용자 ID',
+                         file_id     INT           NULL COMMENT '파일 ID',
+                         text        LONGTEXT      NULL COMMENT '녹음 텍스트',
+                         duration    INT           NOT NULL COMMENT '녹음 시간(초 단위)',
+                         created_at  TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+                         PRIMARY KEY (record_id),
+                         KEY idx_user_id (user_id),
+                         KEY idx_file_id (file_id),
+                         CONSTRAINT fk_records_user
+                             FOREIGN KEY (user_id) REFERENCES users (user_id)
+                                 ON DELETE CASCADE,
+                         CONSTRAINT fk_records_file
+                             FOREIGN KEY (file_id) REFERENCES file_info (file_id)
+                                 ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='녹음 기록';
 
 -- =====================================================
 -- 1. 사용자 도메인 (A)
