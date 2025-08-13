@@ -48,12 +48,13 @@ CREATE TABLE users (
                        user_id           VARCHAR(10)    NOT NULL COMMENT '사용자 ID (10자리)',
                        user_name         VARCHAR(100)   NOT NULL COMMENT '사용자명',
                        login_id          VARCHAR(100)   NOT NULL COMMENT '로그인 ID',
-                       password          VARCHAR(60)    NOT NULL COMMENT '암호화된 비밀번호',
+                       password          VARCHAR(60)    NULL COMMENT '암호화된 비밀번호 (OAuth 로그인 시 null 가능)',
                        email             VARCHAR(100)   NOT NULL COMMENT '이메일 (고유값)',
                        phone             VARCHAR(20)    NULL     COMMENT '전화번호',
                        birth_date        DATE           NULL     COMMENT '생년월일',
                        gender_code       VARCHAR(6)     NULL     COMMENT '성별 코드 (M/F)',
                        user_type_code    VARCHAR(6)     NOT NULL COMMENT '사용자 유형 코드 (환자/가족/관리자/의료진)',
+                       login_type        VARCHAR(20)    NOT NULL DEFAULT 'DEFAULT' COMMENT '로그인 타입 (DEFAULT/NAVER/KAKAO)',
                        profile_image_file_id INT        NULL     COMMENT '프로필 이미지 파일 ID (FILE_INFO FK)',
                        status_code       VARCHAR(6)     NOT NULL COMMENT '계정 상태 코드 (활성/비활성/정지/삭제)',
                        created_by        VARCHAR(10)    NOT NULL COMMENT '생성자',
@@ -173,6 +174,25 @@ CREATE TABLE alarms (
                         KEY idx_player_game (player_id, game_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='알람 테이블';
 
+-- 녹음 기록 테이블
+CREATE TABLE records (
+                         record_id   INT           NOT NULL AUTO_INCREMENT COMMENT '녹음 기록 ID (자동증가)',
+                         score       INT           NULL COMMENT '채점 점수',
+                         user_id     VARCHAR(10)   NOT NULL COMMENT '사용자 ID',
+                         file_id     INT           NULL COMMENT '파일 ID',
+                         text        LONGTEXT      NULL COMMENT '녹음 텍스트',
+                         duration    INT           NOT NULL COMMENT '녹음 시간(초 단위)',
+                         created_at  TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+                         PRIMARY KEY (record_id),
+                         KEY idx_user_id (user_id),
+                         KEY idx_file_id (file_id),
+                         CONSTRAINT fk_records_user
+                             FOREIGN KEY (user_id) REFERENCES users (user_id)
+                                 ON DELETE CASCADE,
+                         CONSTRAINT fk_records_file
+                             FOREIGN KEY (file_id) REFERENCES file_info (file_id)
+                                 ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='녹음 기록';
 
 -- =====================================================
 -- 1. 사용자 도메인 (A)

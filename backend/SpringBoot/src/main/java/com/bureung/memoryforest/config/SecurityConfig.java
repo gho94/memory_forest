@@ -33,40 +33,48 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 일단 1차로 기본 세션 관리만 설정 (JWT는 나중에 추가)
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
+////                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 일단 1차로 기본 세션 관리만 설정 (JWT는 나중에 추가)
+//                .sessionManagement(session -> session
+//                        .maximumSessions(1)
+//                        .maxSessionsPreventsLogin(false)
+//                )
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers( //공통 접근 허용된 경로들
-                                        "/",
-                                        "/api/auth/**",           // 로그인/회원가입/로그아웃 API
-                                        "/api/auth/check/**",    // 중복체크 API
-                                        "/findId",
-                                        "/signup",
-                                        "/welcome",
-                                        "/findPw",
-                                        "/static/**",             // React 정적 파일들
-                                        "/assets/**",
-                                        "/*.js",
-                                        "/*.css",
-                                        "/error",
-                                        "/login/oauth2/code/**"
-                                ).permitAll()
-
-                                // 기록자(RECORDER) 전용 경로
-                                .requestMatchers("/recorder", "/recorder/**")
-//                        .hasRole("RECORDER")
-                                .hasAuthority("ROLE_A20001")
-
-//                         /* // 동행자(COMPANION) 전용 경로
-//                         .requestMatchers("/companion", "/companion/**")
-// //                        .hasRole("COMPANION")
-//                         .hasAuthority("ROLE_A20002") */
-
-//                        .anyRequest().permitAll()  // 모든 요청 허용
-                        .anyRequest().authenticated()
+                      .requestMatchers("/**").permitAll()
+//                                .requestMatchers( //공통 접근 허용된 경로들
+//                                        "/",
+//                                        "/api/auth/**",           // 로그인/회원가입/로그아웃 API
+//                                        "/api/auth/check/**",    // 중복체크 API
+//                                        "/findId",
+//                                        "/signup",
+//                                        "/welcome",
+//                                        "/findPw",
+//                                        "/static/**",             // React 정적 파일들
+//                                        "/assets/**",
+//                                        "/*.js",
+//                                        "/*.css",
+//                                        "/error",
+//                                        "/api/files/**",
+//                                        "/api/common-Scodes/**",
+//                                        "/api/game/**",
+//                                        "/api/recorder/**",
+//                                        "/recorder/**",
+//                                        "/companion/**",
+//                                        "/api/alarms/**",          // 알람 API 경로 수정
+//                                        "/login/oauth2/code/**"
+//                                ).permitAll()
+//
+//                                // 기록자(RECORDER) 전용 경로
+//                                .requestMatchers("/recorder", "/recorder/**");
+////                        .hasRole("RECORDER")
+//                               // .hasAuthority("ROLE_A20001")
+//
+////                         /* // 동행자(COMPANION) 전용 경로
+////                         .requestMatchers("/companion", "/companion/**")
+//// //                        .hasRole("COMPANION")
+////                         .hasAuthority("ROLE_A20002") */
+//
+////                        .anyRequest().permitAll()  // 모든 요청 허용
+////                        .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())  // HTTP Basic 인증 비활성화
                 .formLogin(form -> form.disable())  // 폼 로그인 비활성화
@@ -77,7 +85,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureUrl("http://localhost:3000/?error=oauth")
                 )
-                .logout(logout -> logout.disable());  // 로그아웃 비활성화
+                .logout(logout -> logout.disable()); // 로그아웃 비활성화
 
         return http.build();
     }

@@ -43,7 +43,7 @@ function FamilyGameListPage() {
         return null;
       }
       const fileData = await response.json();
-      return fileData.fileUrl;
+      return fileData.s3Url;
     } catch (error) {
       console.error('파일 URL 조회 오류:', error);
       return null;
@@ -114,7 +114,7 @@ function FamilyGameListPage() {
                     <img src={fileUrls[gameDetail.gameSeq]} alt="문제 이미지" height="100%" width="100%" />
                   </div>
                   <div className="game-texts">
-                    <div className="game-title">{gameDetail.description}</div>
+                    <div className="game-title">{gameDetail.gameDesc}</div>
                     <div className="game-answer">정답 : {gameDetail.answerText}</div>
                   </div>
                   <button className="game-edit-btn">수정</button>

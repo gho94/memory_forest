@@ -95,6 +95,11 @@ public class UserService {
         // userId 자동 생성
         String userId = generateNextUserId();
 
+        if (email == null || email.trim().isEmpty()) {
+            //recorder 이메일이 없음
+            email = userId + "@memoryforest.com";
+        }
+
         User newUser = User.builder()
                 .userId(userId)
                 .loginId(loginId)
@@ -102,6 +107,8 @@ public class UserService {
                 .password(encodedPassword) // 이미 암호화된 상태로 받음
                 .email(email)
                 .phone(phone)
+                .birthDate(birthDate)
+                .genderCode(genderCode)
                 .userTypeCode(userTypeCode)
                 .loginType ("DEFAULT")
                 .statusCode("A20005") // 활성 상태

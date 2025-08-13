@@ -31,6 +31,12 @@ public class GameDetail {
     @Column(name = "game_order", nullable = false)
     private Integer gameOrder;
 
+    @Column(name = "game_title", length = 100, nullable = false)
+    private String gameTitle;
+
+    @Column(name = "game_desc", length = 200)
+    private String gameDesc;
+
     @Column(name = "file_id", nullable = false)
     private Integer fileId;
 

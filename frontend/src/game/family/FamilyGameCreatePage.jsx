@@ -6,40 +6,62 @@ import '@/assets/css/family.css';
 
 import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
+import useFileUpload from '@/hooks/common/useFileUpload';
 
 function FamilyGameCreatePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [problems, setProblems] = useState([]);
-  const [gameTitle, setGameTitle] = useState('');
+  const [gameName, setGameName] = useState('');
   const [selectedPatients, setSelectedPatients] = useState([]);
   const totalProblems = problems.length;
   const progressPercentage = Math.min((totalProblems / 10) * 100, 100);
+  const [userId, setUserId] = useState('');
 
   const gameData = {
-    gameName: gameTitle,
-    gameDesc: '',
+    gameName: gameName,
+    createdBy: userId,
     gameDetails: problems,
     totalProblems: totalProblems,
     selectedPatients: selectedPatients
   }  
   const [currentProblem, setCurrentProblem] = useState({
+    gameTitle: '',
+    gameDesc: '',
     fileId: null,
-    answerText: '',
-    description: ''
+    answerText: ''
   });
 
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const [fileImage, setFileImage] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { uploadFile } = useFileUpload();
 
   useEffect(() => {
-    if (location.state && location.state.gameTitle) {
-      setGameTitle(location.state.gameTitle);
+    if (location.state && location.state.gameName) {
+      setGameName(location.state.gameName);
       setSelectedPatients(location.state.selectedPatients);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    const getUserInfo = () => {      
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        try {
+          const user = JSON.parse(userInfo);
+          console.log('사용자 정보:', user);
+          setUserId(user.userId);
+        } catch (error) {
+          console.error('사용자 정보 파싱 오류:', error);
+        }
+      } else {
+        console.log('localStorage에 사용자 정보가 없습니다.');
+      }
+    };
+
+    getUserInfo();
+  }, []);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -53,12 +75,12 @@ function FamilyGameCreatePage() {
   };
 
   const handleAddProblem = async () => {
-    if (!file || !currentProblem.answerText.trim()) {
-      alert('파일과 정답 단어를 모두 입력해주세요.');
+    if (!file || !currentProblem.answerText.trim() || !currentProblem.gameTitle.trim()) {
+      alert('게임 제목, 파일과 정답 단어를 모두 입력해주세요.');
       return;
     }
 
-    const uploadedFileId = await handleFileUpload(file);
+    const uploadedFileId = await uploadFile(file);
     
     if (uploadedFileId) {
       const newProblem = {
@@ -68,9 +90,10 @@ function FamilyGameCreatePage() {
 
       setProblems(prev => [...prev, newProblem]);
       setCurrentProblem({
+        gameTitle: '',
+        gameDesc: '',
         fileId: null,
-        answerText: '',
-        description: ''
+        answerText: ''
       });
 
       if (fileInputRef.current) {
@@ -81,42 +104,7 @@ function FamilyGameCreatePage() {
     }
   };
 
-  const handleFileUpload = async (file) => {    
-    setIsUploading(true);
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/files/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('파일 업로드 성공:', result);
-        return result.fileId;
-      } else {
-        console.error('파일 업로드 실패');
-        alert('파일 업로드에 실패했습니다.');
-        return null;
-      }
-    } catch (error) {
-      console.error('파일 업로드 실패:', error);
-      alert('파일 업로드 중 오류가 발생했습니다.');
-      return null;
-    } finally {
-      setIsUploading(false);
-    }
-  }
-
   const handleCreateGame = async () => {
-    if (!gameTitle.trim()) {
-      alert('게임 제목을 입력해주세요.');
-      return;
-    }
-
     if (problems.length === 0) {
       alert('최소 하나의 문제를 추가해주세요.');
       return;
@@ -178,8 +166,11 @@ function FamilyGameCreatePage() {
               type="text"
               className="form-control"
               placeholder="게임 제목을 입력하세요."
-              value={gameTitle}
-              onChange={(e) => setGameTitle(e.target.value)}
+              value={currentProblem.gameTitle}
+              onChange={(e) => setCurrentProblem(prev => ({
+                ...prev,
+                gameTitle: e.target.value
+              }))}
             />
           </div>
 
@@ -221,10 +212,10 @@ function FamilyGameCreatePage() {
             <textarea
               className="form-control"
               placeholder="설명을 입력하세요."
-              value={currentProblem.description}
+              value={currentProblem.gameDesc}
               onChange={(e) => setCurrentProblem(prev => ({
                 ...prev,
-                description: e.target.value
+                gameDesc: e.target.value
               }))}
             ></textarea>
           </div>
@@ -233,7 +224,7 @@ function FamilyGameCreatePage() {
             type="button" 
             className="btn btn-login"
             onClick={handleAddProblem}
-            disabled={!file || !currentProblem.answerText.trim()}
+            disabled={!file || !currentProblem.answerText.trim() || !currentProblem.gameTitle.trim()}
           >
             다음 문제 추가하기
           </button>

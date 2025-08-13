@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GameDetailDto {
+    private String gameTitle;
+    private String gameDesc;
     private Integer fileId;
     private String answerText;
-    private String description;
 }
