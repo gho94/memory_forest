@@ -13,13 +13,8 @@
  import org.springframework.security.crypto.password.PasswordEncoder;
  import org.springframework.stereotype.Service;
 
-<<<<<<< HEAD
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-=======
  import java.time.LocalDate;
  import java.time.LocalDateTime;
->>>>>>> 155c4de7ccf9d157e8228bb97c7bd5937d7e4c2c
  import java.util.Optional;
 
  @Service
