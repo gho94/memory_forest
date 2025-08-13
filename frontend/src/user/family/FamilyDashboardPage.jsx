@@ -277,7 +277,7 @@ function FamilyDashboardPage() {
             <label htmlFor="toggle-game-modal" className="btn btn-add">게임 추가</label>
           </div>
 
-          <div className="d-flex flex-column gap-3 card-box-con">
+          <div className="d-flex flex-column gap-3 card-box2-con">
             {gameList.map((game) => (              
             <div className="card-box" key={game.gameId}>
               <div className="d-flex align-items-center">
