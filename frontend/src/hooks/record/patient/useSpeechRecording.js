@@ -206,7 +206,6 @@ const useSpeechRecording = () => {
                 throw new Error('파일 업로드에 실패했습니다.');
             }
 
-            console.log(transcriptText);
             // 2단계: 레코드 저장
             const response = await fetch(`${window.API_BASE_URL}/recorder/record/create`, {
                 method: 'POST',

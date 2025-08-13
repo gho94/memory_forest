@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RecordCreateRequest {
+public class RecordCreateRequestDto {
     private Integer fileId;
     private String text;
     private Integer duration;
