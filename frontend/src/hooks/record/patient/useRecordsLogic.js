@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useFileUrl from '@/hooks/common/useFileUrl';
+import useTodayRecordCheck from "@/hooks/record/patient/useTodayRecordCheck";
 
 export const useRecordsLogic = (selectedYear, selectedMonth) => {
     const [expandedItem, setExpandedItem] = useState(null);
@@ -7,7 +8,7 @@ export const useRecordsLogic = (selectedYear, selectedMonth) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { fetchFileUrl, isLoading: fileUrlLoading } = useFileUrl();
-    const [todayRecordExists, setTodayRecordExists] = useState(false);
+    const { todayRecordExists, checkTodayRecord } = useTodayRecordCheck();
 
     // API에서 기록 데이터 가져오기
     const fetchRecords = async () => {
@@ -86,17 +87,6 @@ export const useRecordsLogic = (selectedYear, selectedMonth) => {
         setExpandedItem(expandedItem === itemId ? null : itemId);
     };
 
-    // 오늘 날짜 기록 존재 확인
-    const checkTodayRecord = async () => {
-        try {
-            const response = await fetch(`${window.API_BASE_URL}/recorder/record/today-exists`);
-            const data = await response.json();
-            setTodayRecordExists(data.exists); // state 업데이트
-        } catch (error) {
-            console.error('오늘 기록 확인 실패:', error);
-            setTodayRecordExists(false);
-        }
-    };
 
     return {
         records,
