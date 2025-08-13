@@ -841,7 +841,7 @@ textarea::placeholder {
 }
 
 .game-signup-form .game-file-desc-con {
-  height: 130px;
+  height: 210px;
 }
 
 .game-signup-form .form-control {
@@ -940,7 +940,7 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
-  gap: 15px;
+  gap: 12px;
 }
 
 .game-list-wrap .game-number {
@@ -958,13 +958,13 @@ textarea::placeholder {
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 12px;
-  padding: 12px 16px;
+  padding: 10px 9px 10px 0px;
   gap: 12px;
 }
 
 .game-list-wrap .game-img {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   border-radius: 6px;
   object-fit: cover;
   background-size: contain;

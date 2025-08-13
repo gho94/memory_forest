@@ -1,13 +1,16 @@
 package com.bureung.memoryforest.game.application.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bureung.memoryforest.game.application.GameMasterService;
 import com.bureung.memoryforest.game.application.GameService;
 import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
 import com.bureung.memoryforest.game.dto.request.GameDetailDto;
@@ -41,6 +44,8 @@ public class GameServiceImpl implements GameService {
     private final GamePlayerAnswerRepository gamePlayerAnswerRepository;
     private final CommonCodeService commonCodeService;
     private final UserRepository userRepository;
+    private final GameMasterService gameMasterService;
+
 
     @Override
     public List<GameMaster> getAllGame() {
@@ -76,6 +81,25 @@ public class GameServiceImpl implements GameService {
         // AI 관련 컬럼값 변경 
         // gameDetail 테이블 변경점 wrong_option_1, wrong_option_2, wrong_option_3, wrong_score_1, wrong_score_2, wrong_score_3, ai_status_code, ai_processed_at
         // gameMaster 테이블 변경점 creation_status_code (완료 or 실패)
+
+        try {
+            CompletableFuture<Void> aiAnalysisFuture = gameMasterService.processAIAnalysis(gameId);
+            
+            aiAnalysisFuture.thenRun(() -> {
+                try {
+                    GameMaster updatedGameMaster = gameMasterRepository.findById(gameId).orElse(null);
+                    if (updatedGameMaster != null) {
+                        log.info("AI 분석 완료 후 GameMaster 상태: gameId={}, creationStatusCode={}", 
+                                gameId, updatedGameMaster.getCreationStatusCode());
+                    }
+                } catch (Exception e) {
+                    log.error("AI 분석 완료 후 GameMaster 상태 확인 실패: gameId={}", gameId, e);
+                }
+            });            
+            log.info("gameId : " + gameId + "AI 분석이 시작되었습니다.");
+        } catch (Exception e) {
+            log.error("AI 분석 요청 실패: gameId={}", gameId, e);
+        }
 
         return gameMaster;
     }
