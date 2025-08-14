@@ -5,7 +5,6 @@ import com.bureung.memoryforest.common.domain.Alarm;
 import com.bureung.memoryforest.common.dto.response.AlarmResponseDto;
 import com.bureung.memoryforest.common.repository.AlarmRepository;
 import com.bureung.memoryforest.game.application.GameMasterService;
-import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,30 +25,21 @@ public class AlarmServiceImpl implements AlarmService {
 
     private final AlarmRepository alarmRepository;
     private final GameMasterService gameMasterService;
-    private final GamePlayerService gamePlayerService;
 
     @Override
-    public void sendGameCompletionAlarm(String gameId) {
+    public void sendGameCompletionAlarm(GamePlayer gamePlayer) {
+        String gameId = gamePlayer.getId().getGameId();
         log.info("게임 완료 알람 발송 시작 - gameId: {}", gameId);
-//        String userId = (String) session.getAttribute("userId");
-        String playerId = "U0001"; //leb. I'll change user id of session
 
         // 게임 정보 조회 (가족 정보 포함)
         GameMaster gameMaster = gameMasterService.getGamesByGameId(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("게임을 찾을 수 없습니다."));
 
-        // 플레이어 점수 조회
-        GamePlayer gamePlayer = gamePlayerService.getGamesByGameIdAndPlayerId(gameId, playerId)
-                .orElseThrow(() -> new IllegalArgumentException("플레이어 정보를 찾을 수 없습니다."));
-
-        // 점수에 따른 메시지 생성
-        String message = generateAlarmMessage(gamePlayer.getTotalScore());
-
         // 가족(created_by)에게 알람 발송
         Alarm alarm = Alarm.builder()
                 .game(gamePlayer)
                 .isRead("N")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
                 .build();
 
         alarmRepository.save(alarm);

@@ -2,8 +2,6 @@ import { dateUtils } from '@/utils/dateUtils';
 
 export const useRecordChartDataLogic = (dashboardData) => {
     const generateChartData = () => {
-        console.log(dashboardData);
-
         if (!dashboardData?.weeklyChart || !dashboardData?.searchDate) {
             return { categories: [], data: [] };
         }
