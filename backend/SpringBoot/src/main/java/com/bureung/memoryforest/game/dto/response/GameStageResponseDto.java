@@ -8,6 +8,7 @@ import lombok.Getter;
 public class GameStageResponseDto {
     private String gameId;
     private Integer gameSeq;
+    private int fileId;
     private String answerText;
     private String wrongOption1;
     private String wrongOption2;

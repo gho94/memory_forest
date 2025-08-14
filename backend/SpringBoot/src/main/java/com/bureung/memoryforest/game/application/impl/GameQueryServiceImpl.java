@@ -193,6 +193,7 @@ public class GameQueryServiceImpl implements GameQueryService {
         return GameStageResponseDto.builder()
                 .gameId(gameId)
                 .gameSeq(gameSeq)
+                .fileId(gameDetail.getFileId())
                 .answerText(gameDetail.getAnswerText())
                 .wrongOption1(gameDetail.getWrongOption1())
                 .wrongOption2(gameDetail.getWrongOption2())

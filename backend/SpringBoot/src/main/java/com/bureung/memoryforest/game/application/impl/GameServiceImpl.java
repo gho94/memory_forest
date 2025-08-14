@@ -3,6 +3,7 @@ package com.bureung.memoryforest.game.application.impl;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -109,8 +110,14 @@ public class GameServiceImpl implements GameService {
                             .stream()
                             .map(gamePlayer -> userRepository.findByUserIdAndNotDeleted(gamePlayer.getId().getPlayerId()).orElse(null))
                             .filter(user -> user != null) // null 제거
-                            .collect(Collectors.toList());                    
-                    return new GameListResponseDto(game, players);
+                            .collect(Collectors.toList());                             
+                            
+                    List<Integer> fileIds = gameDetailRepository.findByGameId(game.getGameId()).stream()
+                            .map(GameDetail::getFileId)
+                            .collect(Collectors.toList());
+                    Integer fileId = fileIds.get(new Random().nextInt(fileIds.size()));
+
+                    return new GameListResponseDto(game, players, fileId);
                 })
                 .collect(Collectors.toList());
     }
