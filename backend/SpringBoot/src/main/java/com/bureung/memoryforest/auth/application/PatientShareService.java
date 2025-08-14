@@ -6,7 +6,7 @@ public interface PatientShareService {
     /**
      * 환자 공유 링크 생성 (24시간 유효)
      */
-    String generateShareLink(Long patientId);
+    String generateShareLink(String patientId);
 
     /**
      * 접근 코드로 환자 로그인 처리 (15분 Access + 2주 Refresh 토큰 발급)

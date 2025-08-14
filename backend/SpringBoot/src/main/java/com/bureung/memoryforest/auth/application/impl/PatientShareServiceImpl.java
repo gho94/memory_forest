@@ -34,7 +34,7 @@ public class PatientShareServiceImpl implements PatientShareService {
     private int linkExpirationHours;
 
     @Override
-    public String generateShareLink(Long patientId) {
+    public String generateShareLink(String patientId) {
         try {
             String accessCode = UUID.randomUUID().toString();
             String redisKey = "patient_access:" + accessCode;
