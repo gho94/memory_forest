@@ -7,7 +7,9 @@ import RecordingStatusItem from "@/components/record/RecordingStatusItem";
 import AudioPreviewItem from "@/components/record/AudioPreviewItem";
 import RecordDescriptionItem from "@/components/record/RecordDescriptionItem";
 import useSpeechRecording from "@/hooks/record/patient/useSpeechRecording";
+import useTodayRecordCheck from "@/hooks/record/patient/useTodayRecordCheck";
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 function PatientRecordCreatePage() {
   const navigate = useNavigate();
@@ -22,6 +24,22 @@ function PatientRecordCreatePage() {
     uploadToServer,
     resetRecording
   } = useSpeechRecording();
+
+
+  const { todayRecordExists, checkTodayRecord } = useTodayRecordCheck();
+
+  // 컴포넌트 마운트 시 오늘 기록 확인
+  useEffect(() => {
+    const checkAndRedirect = async () => {
+      const exists = await checkTodayRecord();
+      if (exists) {
+        alert('오늘은 이미 기록을 하였습니다.');
+        navigate('/recorder/record/list');
+      }
+    };
+
+    checkAndRedirect();
+  }, [checkTodayRecord, navigate]);
 
   const handleRecordClick = () => {
     if (isRecording) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-const WeeklyAccuracyChart = ({ chartData = [], categories = [] }) => {
+const WeeklyAccuracyChart = ({ chartData = [], categories = [], chartTitle, format, dataTitle }) => {
     const options = {
         colors: ['#4ec2e8'],
         chart: {
@@ -18,7 +18,7 @@ const WeeklyAccuracyChart = ({ chartData = [], categories = [] }) => {
         },
         dataLabels: {
             enabled: true,
-            formatter: (val) => val + "%",
+            formatter: (val) => val + format,
             offsetY: -20,
             style: {
                 fontSize: '12px',
@@ -60,7 +60,7 @@ const WeeklyAccuracyChart = ({ chartData = [], categories = [] }) => {
             }
         },
         title: {
-            text: '게임 일주일 정답률',
+            text: chartTitle,
             floating: true,
             offsetY: 0,
             align: 'center',
@@ -69,7 +69,7 @@ const WeeklyAccuracyChart = ({ chartData = [], categories = [] }) => {
     };
 
     const series = [{
-        name: 'Accuracy',
+        name: dataTitle,
         data: chartData
     }];
 

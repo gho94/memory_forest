@@ -105,6 +105,15 @@ export const usePDFGenerator = () => {
         const element = document.querySelector('.content-area.guardian-con');
         if (!element) return;
 
+        // 원본 요소를 복사해서 작업용 복사본 생성
+        const clonedElement = element.cloneNode(true);
+
+        // 복사본에서 탭 메뉴 제거
+        const tabMenu = clonedElement.querySelector('ul.menu-tab-con.nav.nav-tabs.mb-2');
+        if (tabMenu) {
+            tabMenu.remove();
+        }
+
         const printWindow = window.open('', '_blank');
         const printHTML = `
       <!DOCTYPE html>
@@ -114,7 +123,7 @@ export const usePDFGenerator = () => {
         <style>${PDF_STYLES}</style>
       </head>
       <body>
-        ${element.innerHTML}
+        ${clonedElement.innerHTML}
         <script>
           window.onload = function() {
             setTimeout(() => {
@@ -138,5 +147,5 @@ export const usePDFGenerator = () => {
         printWindow.document.close();
     };
 
-    return { handlePrintToPDF };
+    return {handlePrintToPDF};
 };

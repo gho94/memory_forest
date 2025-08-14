@@ -90,19 +90,15 @@ public class GameQueryServiceImpl implements GameQueryService {
     private BigDecimal calculateWeeklyAccuracyDiff(String userId, LocalDate endDate) {
         // 이번주 정답률 (endDate 기준으로 7일간)
         LocalDate thisWeekStart = endDate.minusDays(6);
-        BigDecimal thisWeekAccuracy = gamePlayerService.getWeeklyAverageAccuracy(userId, endDate);
+        BigDecimal thisWeekAccuracy = Optional.ofNullable(gamePlayerService.getWeeklyAverageAccuracy(userId, endDate)).orElse(BigDecimal.ZERO);
 
         // 저번주 정답률 (그 이전 7일간)
         LocalDate lastWeekEnd = thisWeekStart.minusDays(1);
         LocalDate lastWeekStart = lastWeekEnd.minusDays(6);
-        BigDecimal lastWeekAccuracy = gamePlayerService.getWeeklyAverageAccuracyBetween(userId, lastWeekStart, lastWeekEnd);
+        BigDecimal lastWeekAccuracy = Optional.ofNullable(gamePlayerService.getWeeklyAverageAccuracyBetween(userId, lastWeekStart, lastWeekEnd)).orElse(BigDecimal.ZERO);
 
         // 차이 계산 (이번주 - 저번주)
-        if (thisWeekAccuracy != null && lastWeekAccuracy != null) {
-            return thisWeekAccuracy.subtract(lastWeekAccuracy);
-        }
-
-        return BigDecimal.ZERO;
+        return thisWeekAccuracy.subtract(lastWeekAccuracy);
     }
 
 

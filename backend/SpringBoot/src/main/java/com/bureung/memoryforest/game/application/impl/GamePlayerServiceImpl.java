@@ -1,5 +1,6 @@
 package com.bureung.memoryforest.game.application.impl;
 
+import com.bureung.memoryforest.common.application.AlarmService;
 import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
 import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.domain.GamePlayer;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class GamePlayerServiceImpl implements GamePlayerService {
     private final GamePlayerRepository gamePlayerRepository;
     private final GamePlayerAnswerService gamePlayerAnswerService;
+    private final AlarmService alarmService;
 
     @Override
     public Optional<GamePlayer> getGamesByGameIdAndPlayerId(String gameId, String playerId) {
@@ -106,6 +108,12 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     public GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId){
         GamePlayResultResponseDto response = gamePlayerAnswerService.getGamePlayAnswerResultSummary(gameId, playerId).orElseThrow(() -> new RuntimeException("게임을 찾을 수 없습니다: " + gameId));
         GamePlayer gamePlayer = getGamesByGameIdAndPlayerId(gameId, playerId).orElseThrow();
+
+        if (gamePlayer.getEndTime() == null) {
+            gamePlayer.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            alarmService.sendGameCompletionAlarm(gamePlayer);
+        }
+
         gamePlayer.setTotalScore(response.getTotalScore());
         gamePlayer.setAccuracyRate(response.getAccuracyRate());
         gamePlayer.setDurationSeconds(response.getDurationSeconds());
