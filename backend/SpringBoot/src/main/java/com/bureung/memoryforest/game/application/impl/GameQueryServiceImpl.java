@@ -2,7 +2,6 @@ package com.bureung.memoryforest.game.application.impl;
 
 import com.bureung.memoryforest.game.application.*;
 import com.bureung.memoryforest.game.domain.GameDetail;
-import com.bureung.memoryforest.game.domain.GameMaster;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.response.*;
