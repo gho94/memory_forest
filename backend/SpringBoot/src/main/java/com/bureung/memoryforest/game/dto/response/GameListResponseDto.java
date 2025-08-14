@@ -14,6 +14,7 @@ import java.util.List;
 public class GameListResponseDto {    
     private String gameId;
     private String gameName;
+    private Integer fileId;
     private String gameDesc;
     private Integer gameCount;
     private String difficultyLevelCode;
@@ -24,9 +25,10 @@ public class GameListResponseDto {
     
     private List<User> players;
     
-    public GameListResponseDto(GameMaster gameMaster, List<User> players) {
+    public GameListResponseDto(GameMaster gameMaster, List<User> players, Integer fileId) {
         this.gameId = gameMaster.getGameId();
         this.gameName = gameMaster.getGameName();
+        this.fileId = fileId;
         this.gameDesc = gameMaster.getGameDesc();
         this.gameCount = gameMaster.getGameCount();
         this.difficultyLevelCode = gameMaster.getDifficultyLevelCode();

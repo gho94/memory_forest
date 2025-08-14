@@ -1,6 +1,21 @@
+import React, { useState, useEffect } from 'react';
+import useFileUrl from '@/hooks/common/useFileUrl';
+
 const GamePlayProcessItem = ({ gameData, buttonOptions, handleAnswerSelect }) => {
-    const gameImagePath = '/images/game_example.jpg';
     const progressPercentage = (gameData.currentProgress / gameData.totalQuestions) * 100;
+    const { fetchFileUrl, isLoading } = useFileUrl();
+    const [gameImagePath, setGameImagePath] = useState('');
+
+    useEffect(() => {
+        const getFileUrl = async () => {
+            if (gameData?.fileId) {
+                const path = await fetchFileUrl(gameData.fileId);
+                setGameImagePath(path);
+            }
+        };
+        
+        getFileUrl();
+    }, [gameData?.fileId, fetchFileUrl]);
 
     return (
         <>
