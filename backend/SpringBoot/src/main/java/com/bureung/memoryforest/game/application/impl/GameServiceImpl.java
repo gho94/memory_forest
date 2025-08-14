@@ -15,11 +15,8 @@ import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
 import com.bureung.memoryforest.game.dto.request.GameDetailDto;
 import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GamePlayer;
-import com.bureung.memoryforest.game.domain.GamePlayerAnswer;
-import com.bureung.memoryforest.game.domain.GamePlayerAnswerId;
 import com.bureung.memoryforest.game.domain.GamePlayerId;
 import com.bureung.memoryforest.game.repository.GameDetailRepository;
-import com.bureung.memoryforest.game.repository.GamePlayerAnswerRepository;
 import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import com.bureung.memoryforest.game.domain.GameMaster;
@@ -40,7 +37,6 @@ public class GameServiceImpl implements GameService {
     private final GameMasterRepository gameMasterRepository;
     private final GamePlayerRepository gamePlayerRepository;  
     private final GameDetailRepository gameDetailRepository;
-    private final GamePlayerAnswerRepository gamePlayerAnswerRepository;
     private final CommonCodeService commonCodeService;
     private final UserRepository userRepository;
     private final GameMasterService gameMasterService;
@@ -73,13 +69,7 @@ public class GameServiceImpl implements GameService {
         gameMasterRepository.save(gameMaster);
         createGamePlayer(gameId, gameCreateReqDto.getSelectedPatients());
 
-        // 게임 디테일 생성
         createGameDetail(gameId, gameCreateReqDto);
-
-        // TODO: 게임 생성 이후에 AI 분석 요청
-        // AI 관련 컬럼값 변경 
-        // gameDetail 테이블 변경점 wrong_option_1, wrong_option_2, wrong_option_3, wrong_score_1, wrong_score_2, wrong_score_3, ai_status_code, ai_processed_at
-        // gameMaster 테이블 변경점 creation_status_code (완료 or 실패)
 
         try {
             CompletableFuture<Void> aiAnalysisFuture = gameMasterService.processAIAnalysis(gameId);
@@ -153,19 +143,7 @@ public class GameServiceImpl implements GameService {
                 .build();
 
             gameDetailRepository.save(gameDetailEntity);
-            createGamePlayerAnswer(gameId, gameDetailEntity, gameCreateReqDto.getSelectedPatients());
             gameSeq++;
-        }
-    }
-
-    private void createGamePlayerAnswer(String gameId, GameDetail gameDetail, List<String> selectedPatients) {
-        for (String patientId : selectedPatients) {
-            GamePlayerAnswer gamePlayerAnswer = GamePlayerAnswer.builder()
-                .id(new GamePlayerAnswerId(gameId, gameDetail.getGameSeq(), patientId))
-                .selectedOption(0)
-                .isCorrect("N")
-                .build();
-            gamePlayerAnswerRepository.save(gamePlayerAnswer);
         }
     }
 
