@@ -20,7 +20,6 @@ import com.bureung.memoryforest.game.repository.GameDetailRepository;
 import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import com.bureung.memoryforest.game.domain.GameMaster;
-import com.bureung.memoryforest.common.application.CommonCodeService;
 import com.bureung.memoryforest.game.dto.response.GameListResponseDto;
 import com.bureung.memoryforest.user.domain.User;
 import com.bureung.memoryforest.user.repository.UserRepository;
@@ -37,7 +36,6 @@ public class GameServiceImpl implements GameService {
     private final GameMasterRepository gameMasterRepository;
     private final GamePlayerRepository gamePlayerRepository;  
     private final GameDetailRepository gameDetailRepository;
-    private final CommonCodeService commonCodeService;
     private final UserRepository userRepository;
     private final GameMasterService gameMasterService;
 
@@ -109,7 +107,7 @@ public class GameServiceImpl implements GameService {
                     List<User> players = gamePlayerRepository
                             .findByIdGameId(game.getGameId())
                             .stream()
-                            .map(gamePlayer -> userRepository.findById(gamePlayer.getId().getPlayerId()).orElse(null))
+                            .map(gamePlayer -> userRepository.findByUserIdAndNotDeleted(gamePlayer.getId().getPlayerId()).orElse(null))
                             .filter(user -> user != null) // null 제거
                             .collect(Collectors.toList());                    
                     return new GameListResponseDto(game, players);
@@ -183,23 +181,5 @@ public class GameServiceImpl implements GameService {
         // B20005(대기중), B20006(생성중), B20007(완료), B20008(실패)
         // AI 분석 대기 상태로 설정
         return "B20005"; // 대기중으로 고정 (다른 팀원 코드와 통일)
-    }
-
-    /**
-     * @deprecated 공통코드 조회 방식 대신 직접 코드값 사용으로 변경
-     * CommonCode 팀원의 작업과 충돌을 피하기 위해 사용 중지
-     */
-    @Deprecated
-    private String getCommonCode(String parentCodeId) {
-        String codeId = null;
-        try {
-            var commonCodes = commonCodeService.getCommonCodesByParentCodeId(parentCodeId);
-            if (!commonCodes.isEmpty()) {
-                codeId = commonCodes.get(0).getCodeId();
-            }
-        } catch (Exception e) {
-            log.error("공통 코드 조회 실패", e);
-        }
-        return codeId;
     }
 }
