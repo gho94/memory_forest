@@ -34,6 +34,8 @@ function Router() {
           <Route path="/resetPw" element={<ResetPwPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
 
+        {/* 게임 공유 url 링크 */}
+        <Route path="/patient-view/:accessCode" element={<PatientDashboardPage />} />
 
         {/* 동행자 */}
         <Route path="/companion/dashboard" element={<FamilyDashboardPage />} />

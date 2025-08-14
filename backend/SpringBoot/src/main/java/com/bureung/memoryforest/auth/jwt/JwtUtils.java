@@ -73,24 +73,52 @@ public class JwtUtils {
                 .compact();
     }
 
-    // 토큰에서 사용자 ID 추출
-    public Long getUserIdFromToken(String token) {
+    //String 버전 메서드 추가로 U0002 타입 문제 처리
+    public String generateAccessToken(String userId) {
+        Date expiryDate = new Date(System.currentTimeMillis() + accessTokenExpiration);
+
+        return Jwts.builder()
+                .setSubject(userId)
+                .claim("type", "access")
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String userId) {
+        Date expiryDate = new Date(System.currentTimeMillis() + refreshTokenExpiration);
+        String tokenId = UUID.randomUUID().toString();
+
+        return Jwts.builder()
+                .setSubject(userId)
+                .claim("type", "refresh")
+                .claim("tokenId", tokenId)
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+
+    // 토큰에서 사용자 ID 추출 -> string으로 바꿈
+    public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return Long.parseLong(claims.getSubject());
+        return claims.getSubject();
     }
 
     // 토큰에서 환자 ID 추출
-    public Long getPatientIdFromToken(String token) {
+    public String getPatientIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return Long.parseLong(claims.getSubject());
+        return claims.getSubject();
     }
 
     // 토큰 타입 확인
@@ -138,6 +166,17 @@ public class JwtUtils {
             return claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return true;
+        }
+    }
+
+    //혹시라도 Long 타입 관련 에러 발생 방지용...
+    public Long getUserIdFromTokenAsLong(String token) {
+        String userId = getUserIdFromToken(token);
+        try {
+            return Long.parseLong(userId);
+        } catch (NumberFormatException e) {
+            log.error("사용자 ID를 Long으로 변환할 수 없음: {}", userId);
+            throw new IllegalArgumentException("Invalid user ID format: " + userId);
         }
     }
 }

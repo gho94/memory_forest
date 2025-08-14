@@ -61,14 +61,15 @@ public class PatientShareServiceImpl implements PatientShareService {
                 return null;
             }
 
-            Long patientId = convertToLong(patientIdObj);
-            if (patientId == null) {
-                log.error("환자 ID 변환 실패");
+//            Long patientId = convertToLong(patientIdObj);
+            String patientId = patientIdObj.toString();
+            if (patientId == null || patientId.trim().isEmpty()) {
+                log.error("환자 ID 값 없음");
                 return null;
             }
+            log.info("==================>>>>> Redis에서 조회된 환자ID: {}", patientId);
 
-            // 실제로는 DB에서 환자 이름 조회:
-            // String patientName = userService.findById(patientId).getUserName();
+            // DB에서 환자 이름 조회: String patientName = userService.findById(patientId).getUserName();
             String patientName = "환자" + patientId; // 임시
 
             // 토큰 생성 (필요시에만)
@@ -95,18 +96,18 @@ public class PatientShareServiceImpl implements PatientShareService {
         }
     }
 
-    private Long convertToLong(Object obj) {
-        if (obj instanceof Integer) {
-            return ((Integer) obj).longValue();
-        } else if (obj instanceof Long) {
-            return (Long) obj;
-        } else if (obj instanceof String) {
-            try {
-                return Long.parseLong((String) obj);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
-    }
+//    private Long convertToLong(Object obj) {
+//        if (obj instanceof Integer) {
+//            return ((Integer) obj).longValue();
+//        } else if (obj instanceof Long) {
+//            return (Long) obj;
+//        } else if (obj instanceof String) {
+//            try {
+//                return Long.parseLong((String) obj);
+//            } catch (NumberFormatException e) {
+//                return null;
+//            }
+//        }
+//        return null;
+//    }
 }

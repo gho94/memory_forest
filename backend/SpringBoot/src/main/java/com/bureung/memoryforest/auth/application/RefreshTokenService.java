@@ -7,6 +7,11 @@ public interface RefreshTokenService {
     String createRefreshToken(Long userId);
 
     /**
+     * Refresh Token 생성 (String 버전) - 공유 환자용
+     */
+    String createRefreshToken(String userId);
+
+    /**
      * Refresh Token 유효성 검증
      */
     boolean validateRefreshToken(String refreshToken);
@@ -25,4 +30,9 @@ public interface RefreshTokenService {
      * 사용자의 모든 Refresh Token 삭제
      */
     void deleteAllRefreshTokensByUserId(Long userId);
+
+    /**
+     * 사용자의 모든 Refresh Token 삭제 (String 버전)
+     */
+    void deleteAllRefreshTokensByUserId(String userId);
 }

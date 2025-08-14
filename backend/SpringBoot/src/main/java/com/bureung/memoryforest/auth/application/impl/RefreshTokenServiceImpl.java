@@ -72,7 +72,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 throw new RuntimeException("유효하지 않은 Refresh Token입니다.");
             }
 
-            Long userId = jwtUtils.getUserIdFromToken(refreshToken);
+            String userId = jwtUtils.getUserIdFromToken(refreshToken);
             return jwtUtils.generateAccessToken(userId);
 
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void deleteRefreshToken(String refreshToken) {
         try {
             String tokenId = jwtUtils.getTokenId(refreshToken);
-            Long userId = jwtUtils.getUserIdFromToken(refreshToken);
+            String userId = jwtUtils.getUserIdFromToken(refreshToken);
 
             // Redis에서 토큰 삭제
             String redisKey = "refresh_token:" + tokenId;
@@ -122,4 +122,49 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             log.error("사용자의 모든 Refresh Token 삭제 실패 - 사용자ID: {}", userId, e);
         }
     }
+
+    //string 타입 버전도 만들어서 오류 해결 ㄹ처리
+    @Override
+    public String createRefreshToken(String userId) {
+        try {
+            String refreshToken = jwtUtils.generateRefreshToken(userId);
+            String tokenId = jwtUtils.getTokenId(refreshToken);
+
+            // Redis에 Refresh Token 저장 (2주)
+            String redisKey = "refresh_token:" + tokenId;
+            redisTemplate.opsForValue().set(redisKey, userId, Duration.ofDays(14));
+
+            // 사용자별 토큰 목록 관리
+            String userTokensKey = "user_tokens:" + userId;
+            redisTemplate.opsForSet().add(userTokensKey, tokenId);
+            redisTemplate.expire(userTokensKey, Duration.ofDays(14));
+
+            log.info("Refresh Token 생성 완료 - 사용자ID: {}, 토큰ID: {}", userId, tokenId);
+            return refreshToken;
+        } catch (Exception e) {
+            log.error("Refresh Token 생성 실패 - 사용자ID: {}", userId, e);
+            throw new RuntimeException("Refresh Token 생성에 실패했습니다.");
+        }
+    }
+
+    @Override
+    public void deleteAllRefreshTokensByUserId(String userId) {
+        try {
+            String userTokensKey = "user_tokens:" + userId;
+            Set<Object> tokenIds = redisTemplate.opsForSet().members(userTokensKey);
+
+            if (tokenIds != null) {
+                for (Object tokenId : tokenIds) {
+                    String redisKey = "refresh_token:" + tokenId;
+                    redisTemplate.delete(redisKey);
+                }
+            }
+            redisTemplate.delete(userTokensKey);
+            log.info("사용자의 모든 Refresh Token 삭제 완료 - 사용자ID: {}", userId);
+
+        } catch (Exception e) {
+            log.error("사용자의 모든 Refresh Token 삭제 실패 - 사용자ID: {}", userId, e);
+        }
+    }
+
 }
