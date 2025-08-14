@@ -10,3 +10,5 @@ docker/airflow/logs/
 **/logs/
 **/__pycache__/
 *.log
+**/data/
+.env
