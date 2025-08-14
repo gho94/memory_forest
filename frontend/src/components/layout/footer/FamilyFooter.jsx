@@ -23,7 +23,7 @@ function FamilyFooter() {
                 <span className="label">게임</span>
             </a>
             <a
-                href="#"
+                href="/companion/mypage"
                 className="nav-item d-flex flex-column align-items-center text-decoration-none"
             >
                 <span className="icon user"></span>
