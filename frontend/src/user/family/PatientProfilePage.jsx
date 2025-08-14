@@ -23,25 +23,84 @@ function PatientProfilePage() {
   });
 
   // 현재 로그인된 사용자 ID 가져오기
-  useEffect(() => {
-    const getCurrentUserId = () => {
-      // localStorage에서 사용자 정보 가져오기
-      const userInfo = localStorage.getItem('user');
-      if (userInfo) {
-        try {
-          const user = JSON.parse(userInfo);
-          console.log('현재 로그인된 사용자 정보:', user);
-          setCurrentUserId(user.userId);
-        } catch (error) {
-          console.error('사용자 정보 파싱 오류:', error);
-        }
-      } else {
-        console.log('localStorage에 사용자 정보가 없습니다.');
-      }
-    };
+  // useEffect(() => {
+  //   const getCurrentUserId = () => {
+  //     // localStorage에서 사용자 정보 가져오기
+  //     const userInfo = localStorage.getItem('user');
+  //     if (userInfo) {
+  //       try {
+  //         const user = JSON.parse(userInfo);
+  //         console.log('현재 로그인된 사용자 정보:', user);
+  //         setCurrentUserId(user.userId);
+  //       } catch (error) {
+  //         console.error('사용자 정보 파싱 오류:', error);
+  //       }
+  //     } else {
+  //       console.log('localStorage에 사용자 정보가 없습니다.');
+  //     }
+  //   };
+  //
+  //   getCurrentUserId();
+  // }, []);
 
-    getCurrentUserId();
-  }, []);
+
+    useEffect(() => {
+        const getCurrentUserId = async () => {
+            const userInfo = sessionStorage.getItem('user');
+
+            if (userInfo) {
+                try {
+                    const user = JSON.parse(userInfo);
+                    console.log('SessionStorage에서 가져온 사용자 정보:', user);
+                    setCurrentUserId(user.userId);
+                    return; // SessionStorage 있으면 종료
+                } catch (error) {
+                    console.error('SessionStorage 파싱 오류:', error);
+                    sessionStorage.removeItem('user'); // 잘못된 데이터 제거
+                }
+            }
+
+            // 2단계: SessionStorage에 없으면 서버 세션에서 조회
+            console.log('SessionStorage에 사용자 정보가 없음. 서버 세션에서 조회 중...');
+
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/auth/session-info`, {
+                    credentials: 'include' // 쿠키 포함
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('서버 세션에서 가져온 사용자 정보:', data);
+
+                        // SessionStorage에 저장
+                        const userInfo = {
+                            userId: data.userId,
+                            userName: data.userName,
+                            userTypeCode: data.userTypeCode,
+                            email: data.email,
+                            loginType: data.loginType,
+                            loginId: data.loginId
+                        };
+                        sessionStorage.setItem('user', JSON.stringify(userInfo));
+                        setCurrentUserId(data.userId);
+                    } else {
+                        console.error('세션 정보 조회 실패:', data.message);
+                        navigate('/login');
+                    }
+                } else {
+                    console.error('세션 정보 조회 실패:', response.status);
+                    navigate('/login');
+                }
+            } catch (error) {
+                console.error('세션 정보 조회 중 오류:', error);
+                navigate('/login');
+            }
+        };
+
+        getCurrentUserId();
+    }, [navigate]);
+
 
   const fetchCommonCodes = async (parentCodeId) => {
     try {

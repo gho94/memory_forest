@@ -10,6 +10,7 @@ import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -136,10 +137,11 @@ public class GamePlayerServiceImpl implements GamePlayerService {
 
     @Override
     public Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId){
-        return gamePlayerRepository.findByIdPlayerIdAndStartTimeIsNull(playerId);
+        return gamePlayerRepository.findFirstByIdPlayerIdAndStartTimeIsNull(playerId);
     }
 
     @Override
+    @Transactional
     public void updateStartTimeIfNull(String playerId, String gameId) {
         int updatedCount = gamePlayerRepository.updateStartTimeIfNull(playerId, gameId, LocalDateTime.now(ZoneId.of("Asia/Seoul")));
         if (updatedCount > 0) {

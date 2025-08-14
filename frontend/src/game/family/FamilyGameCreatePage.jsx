@@ -176,8 +176,15 @@ function FamilyGameCreatePage() {
 
           <div className="form-control-con">
             <div className="form-control game-file-desc-con">
-              {file && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}              
-              <div className={`game-file-desc mb-3 mt-2 ${file ? 'd-none' : ''}`}>
+              {file && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}   
+              {file && <button onClick={() => {
+                setFile(null);
+                setFileImage(null);
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = '';
+                }
+              }}>×</button>}           
+              <div className={`game-file-desc mb-3 mt-5 ${file ? 'd-none' : ''}`}>
                 게임에 사용할 사진을 업로드하세요.
               </div>
               <input

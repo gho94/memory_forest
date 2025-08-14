@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bureung.memoryforest.user.application.UserService;
 import com.bureung.memoryforest.user.domain.User;
 import com.bureung.memoryforest.user.dto.request.RecorderCreateDto;
+import com.bureung.memoryforest.user.dto.request.RecorderUpdateDto;
 import com.bureung.memoryforest.user.dto.response.RecorderListResponseDto;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,17 @@ public class RecorderUserController {
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             log.error("기록자 생성 실패", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<User> updateRecorderUser(@RequestBody RecorderUpdateDto requestDto) {
+        try {
+            User user = userService.updateRecorderUser(requestDto);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            log.error("기록자 수정 실패", e);
             return ResponseEntity.badRequest().build();
         }
     }

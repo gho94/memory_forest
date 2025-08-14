@@ -1,48 +1,30 @@
 """
 Memory Forest Utils 패키지 초기화
+컴팩트한 버전 - 핵심 기능에 집중
 """
 
-# 버전 정보
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __author__ = "Memory Forest Team"
 
-# 공통 모듈들을 위한 import
-from .database import db_manager
-from .ai_service import ai_client
-from .model_manager import model_manager
+# 핵심 모듈 import
+from .database import DatabaseManager
+from .ai_service import AIServiceClient
+from .text_processor import TextProcessor
+from .naver_api import NaverAPIClient
 
-# 편의 함수들
-from .ai_service import (
-    check_ai_service_health,
-    analyze_game_with_ai,
-    reload_ai_model,
-    get_ai_service_info
-)
-
-from .model_manager import (
-    get_current_model_info,
-    create_model_backup,
-    list_model_backups,
-    restore_model_from_backup,
-    reload_ai_service_model,
-    check_system_health
-)
+# 전역 인스턴스 생성
+db_manager = DatabaseManager()
+ai_client = AIServiceClient()
+text_processor = TextProcessor()
+naver_client = NaverAPIClient()
 
 __all__ = [
-    # 클래스들
+    'DatabaseManager',
+    'AIServiceClient', 
+    'TextProcessor',
+    'NaverAPIClient',
     'db_manager',
     'ai_client',
-    'model_manager',
-    
-    # 편의 함수들
-    'check_ai_service_health',
-    'analyze_game_with_ai', 
-    'reload_ai_model',
-    'get_ai_service_info',
-    'get_current_model_info',
-    'create_model_backup',
-    'list_model_backups',
-    'restore_model_from_backup',
-    'reload_ai_service_model',
-    'check_system_health'
+    'text_processor',
+    'naver_client'
 ]
