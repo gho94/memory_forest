@@ -4,6 +4,7 @@ import com.bureung.memoryforest.user.domain.User;
 import com.bureung.memoryforest.user.domain.UserRel;
 import com.bureung.memoryforest.user.domain.UserRelId;
 import com.bureung.memoryforest.user.dto.request.RecorderCreateDto;
+import com.bureung.memoryforest.user.dto.request.RecorderUpdateDto;
 import com.bureung.memoryforest.user.dto.response.RecorderListResponseDto;
 import com.bureung.memoryforest.user.repository.UserRepository;
 import com.bureung.memoryforest.user.repository.UserRelRepository;
@@ -141,6 +142,50 @@ public class UserService {
         return user;
     }
 
+    public User updateRecorderUser(RecorderUpdateDto requestDto) {
+        String userId = requestDto.getUserId();
+        String userName = requestDto.getUserName();
+        String password = requestDto.getPassword();
+        String email = requestDto.getEmail();
+        String phone = requestDto.getPhone();
+        LocalDate birthDate = "".equals(requestDto.getBirthDate()) ? null : LocalDate.parse(requestDto.getBirthDate());
+        String genderCode = requestDto.getGenderCode();
+        String statusCode = requestDto.getStatusCode();
+
+        Optional<User> userOptional = userRepository.findByUserId(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setUserName(userName);
+            user.setPassword(password);
+            user.setEmail(email);
+            user.setPhone(phone);
+            user.setBirthDate(birthDate);
+            user.setGenderCode(genderCode);
+            user.setStatusCode(statusCode);
+            user.setUpdatedAt(LocalDateTime.now());
+            user.setUpdatedBy(userId);
+
+            if (user.getStatusCode().equals("A20008")) {
+                deleteUserByFamilyId(userId);
+            }
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    public void deleteUserByFamilyId(String userId) {
+        List<UserRel> userRelList = userRelRepository.findByIdFamilyId(userId);
+        for (UserRel userRel : userRelList) {
+            String patientId = userRel.getId().getPatientId();
+            Optional<User> patientOptional = userRepository.findByUserId(patientId);
+            if (patientOptional.isPresent()) {
+                User patient = patientOptional.get();
+                patient.setStatusCode("A20008");
+                userRepository.save(patient);
+            }
+        }
+    }
+
     public User updateLoginTime(String userId) {
         Optional<User> userOptional = userRepository.findByUserId(userId);
 
@@ -211,7 +256,7 @@ public class UserService {
         List<UserRel> userRelList = userRelRepository.findByIdFamilyId(userId);
         List<RecorderListResponseDto> recorderList = new ArrayList<>();
         for (UserRel userRel : userRelList) {
-            Optional<User> userOpt = userRepository.findByUserId(userRel.getId().getPatientId());
+            Optional<User> userOpt = userRepository.findByUserIdAndNotDeleted(userRel.getId().getPatientId());
             if (userOpt.isPresent()) {
                 RecorderListResponseDto dto = RecorderListResponseDto.from(
                     userOpt.get(),

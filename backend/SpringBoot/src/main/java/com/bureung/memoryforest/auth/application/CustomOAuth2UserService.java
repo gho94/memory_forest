@@ -45,7 +45,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private User processOAuth2User(String registrationId, Map<String, Object> attributes) {
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
-
+        //TODO 탈퇴한 사용자 관리 필요
         if (userInfo.getEmail() == null || userInfo.getEmail().isEmpty()) {
             throw new OAuth2AuthenticationException("이메일 정보를 찾을 수 없습니다.");
         }
