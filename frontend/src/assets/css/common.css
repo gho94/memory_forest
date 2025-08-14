@@ -125,6 +125,11 @@ html {
   -webkit-mask-image: url("/images/menu_patient_icon.svg");
 }
 
+.app-footer .nav-item .icon.record {
+  mask-image: url("/images/menu_record_icon.svg");
+  -webkit-mask-image: url("/images/menu_record_icon.svg");
+}
+
 .dark-green-color {
   color: #054e26;
 }
