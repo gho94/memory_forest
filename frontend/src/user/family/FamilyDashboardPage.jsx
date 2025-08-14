@@ -148,10 +148,6 @@ function FamilyDashboardPage() {
 
 
 
-
-
-
-
     // 공유 버튼 클릭 처리
     const handleShareClick = async (patientId, patientName) => {
         if (isSharing) return; // 중복 클릭 방지
@@ -243,17 +239,6 @@ function FamilyDashboardPage() {
                 alert('링크가 복사되었습니다!');
             });
     };
-
-
-
-
-
-
-
-
-
-
-
 
   const handleNextStep = () => {
     if (selectedPatients.length === 0) {
@@ -408,7 +393,7 @@ function FamilyDashboardPage() {
                 <button className="btn-detail me-1">
                   <div className="btn more-btn"></div>
                 </button>
-                <button className="btn-detail">
+                <button className="btn-detail" onClick={() => handleShareClick(recorder.userId, recorder.userName)}>
                   <label htmlFor="toggle-account-modal" className="btn share-btn"></label>
                 </button>
               </div>
@@ -493,6 +478,17 @@ function FamilyDashboardPage() {
               <div className="col-6 me-4 kakaotalk-icon" onClick={shareKakao}></div>
               <div className="col-6 link-icon" onClick={copyLink}></div>
             </div>
+              {shareUrl && (
+                  <div className="share-url-display mt-2">
+                      <input
+                          type="text"
+                          value={shareUrl}
+                          readOnly
+                          className="form-control"
+                          style={{ fontSize: '12px' }}
+                      />
+                  </div>
+              )}
           </div>
         </div>
       </div>

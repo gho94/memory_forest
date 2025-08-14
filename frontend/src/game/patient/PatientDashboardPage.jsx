@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom'; // 추가
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
@@ -59,6 +60,42 @@ const GAME_CONFIG = {
     getUrl: (gameId) => `/recorder/chart?gameId=${gameId}`
   }
 };
+
+
+// 공유 접근 처리 (추가된 부분 - 기존 코드에 영향 없음)
+const useSharedAccess = () => {
+    const { accessCode } = useParams();
+    const location = useLocation();
+    const [isSharedAccess, setIsSharedAccess] = useState(false);
+
+    useEffect(() => {
+        if (location.pathname.startsWith('/patient-view/') && accessCode) {
+            setIsSharedAccess(true);
+
+            // 공유 링크 로그인 처리
+            const loginWithAccessCode = async () => {
+                try {
+                    const response = await fetch(`${window.API_BASE_URL}/api/recorder/login/${accessCode}`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log('공유 링크 로그인 성공');
+                    }
+                } catch (error) {
+                    console.error('로그인 요청 실패:', error);
+                }
+            };
+
+            loginWithAccessCode();
+        }
+    }, [accessCode, location.pathname]);
+
+    return isSharedAccess;
+};
+
 
 // 커스텀 훅으로 데이터 fetching 로직 분리
 const useDashboardData = () => {
@@ -153,6 +190,7 @@ const ErrorMessage = ({ error }) => (
 
 // 메인 컴포넌트
 function PatientDashboardPage() {
+    const isSharedAccess = useSharedAccess(); // 추가
   const { dashboardData, loading, error } = useDashboardData();
   const {
     progressPercentage,
@@ -167,6 +205,16 @@ function PatientDashboardPage() {
   return (
       <div className="app-container d-flex flex-column">
         <PatientHeader />
+
+          {/* 공유 접근 배너 (추가된 부분) */}
+          {isSharedAccess && (
+              <div className="alert alert-info d-flex align-items-center mb-3" style={{margin: '0 1rem'}}>
+                  <i className="bi bi-share me-2"></i>
+                  <span><strong>{dashboardData.userName}님</strong>을 위한 맞춤 게임입니다.</span>
+              </div>
+          )}
+
+
         <main className="content-area patient-con">
           <div className="greeting">
             안녕하세요, <br />
