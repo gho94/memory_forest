@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -131,7 +132,7 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     public Map<String, Object> getPlayerStats(String playerId){
         return Map.of(
                 "totalGames", getCountByPlayerId(playerId),
-                "averageAccuracy", getOverallAccuracyRate(playerId)
+                "averageAccuracy", getOverallAccuracyRate(playerId).setScale(0, RoundingMode.HALF_UP).intValue()
         );
     }
 
