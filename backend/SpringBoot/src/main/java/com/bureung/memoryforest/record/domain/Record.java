@@ -1,5 +1,6 @@
 package com.bureung.memoryforest.record.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -34,5 +35,6 @@ public class Record {
     private Integer duration;
 
     @Column(name = "created_at", insertable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 }

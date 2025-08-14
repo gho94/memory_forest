@@ -14,6 +14,9 @@ const GamePlayerChartAndGameItem = ({ chartData, loading, searchDate, gameList }
                     <WeeklyAccuracyChart
                         chartData={chartData.data}
                         categories={chartData.categories}
+                        chartTitle={'게임 일주일 정답률'}
+                        format={'%'}
+                        dataTitle={'정답률'}
                     />
                 )}
             </div>

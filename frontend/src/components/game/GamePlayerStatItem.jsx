@@ -20,7 +20,7 @@ const GamePlayerStatItem = ({ stats, loading }) => {
                 일주일 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracy}</span>%</>}
             </div>
             <div className="col-6">
-                주간 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracyDiff > 0 ? '+' : ''}{stats?.weeklyAccuracyDiff}</span>%</>}
+                주간 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracyDiff > 0 ? '+' : ( stats?.weeklyAccuracyDiff === 0 ? '' : '-')}{stats?.weeklyAccuracyDiff}</span>%</>}
             </div>
         </div>
     );
