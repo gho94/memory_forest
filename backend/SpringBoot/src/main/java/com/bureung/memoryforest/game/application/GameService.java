@@ -11,5 +11,6 @@ public interface GameService {
     List<GameMaster> getAllGame();
     List<GameDetail> getGameDetail(String gameId);
     GameMaster createGame(GameCreateReqDto gameCreateReqDto);    
+    GameMaster updateGame(GameDetail gameDetail);
     List<GameListResponseDto> getGameListInfo();
 }

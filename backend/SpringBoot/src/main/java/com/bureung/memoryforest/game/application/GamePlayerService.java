@@ -67,4 +67,8 @@ public interface GamePlayerService {
     GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId);
     int getCountByPlayerId(String playerId);
     Map<String, Object> getPlayerStats(String playerId);
+
+    Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId);
+
+    void updateStartTimeIfNull(String playerId, String gameId);
 }

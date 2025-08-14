@@ -34,17 +34,4 @@ public interface GameMasterRepository extends JpaRepository<GameMaster, String> 
 
     @Query("SELECT gm.gameCount FROM GameMaster gm WHERE gm.gameId = :gameId")
     Optional<Integer> findGameCountByGameId(String gameId);
-
-    
-
-    // 플레이어가 한 번도 안 푼 가장 오래된 게임 찾기
-    @Query("""
-        SELECT gm FROM GameMaster gm 
-        WHERE NOT EXISTS (
-            SELECT 1 FROM GamePlayer gp 
-            WHERE gp.id.gameId = gm.gameId AND gp.id.playerId = :playerId
-        )
-        ORDER BY gm.createdAt ASC
-        """)
-    Optional<GameMaster> findOldestUnplayedGameByPlayerId(@Param("playerId") String playerId);
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 import LoginHeader from '@/components/layout/header/LoginHeader';
 import '@/assets/css/common.css';
 import '@/assets/css/login.css';

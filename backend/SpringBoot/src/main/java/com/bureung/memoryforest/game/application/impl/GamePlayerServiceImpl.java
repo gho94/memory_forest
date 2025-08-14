@@ -12,10 +12,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -123,5 +124,18 @@ public class GamePlayerServiceImpl implements GamePlayerService {
                 "totalGames", getCountByPlayerId(playerId),
                 "averageAccuracy", getOverallAccuracyRate(playerId)
         );
+    }
+
+    @Override
+    public Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId){
+        return gamePlayerRepository.findByIdPlayerIdAndStartTimeIsNull(playerId);
+    }
+
+    @Override
+    public void updateStartTimeIfNull(String playerId, String gameId) {
+        int updatedCount = gamePlayerRepository.updateStartTimeIfNull(playerId, gameId, LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+        if (updatedCount > 0) {
+            log.info("Updated start_date for playerId: {}, gameId: {}", playerId, gameId);
+        }
     }
 }

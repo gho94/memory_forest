@@ -5,7 +5,7 @@ import '@/assets/css/login.css';
 import '@/assets/css/family.css';
 import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
-import AlarmModal from '@/components/modal/AlarmModal';
+import useFileUrl from '@/hooks/common/useFileUrl';
 
 function FamilyGameListPage() {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ function FamilyGameListPage() {
   const [error, setError] = useState(null);
   const [gameDetails, setGameDetails] = useState([]);
   const [fileUrls, setFileUrls] = useState({});
+  const { fetchFileUrl, isLoading } = useFileUrl();
 
   useEffect(() => {
     if (location.state && location.state.gameId) {
@@ -26,28 +27,17 @@ function FamilyGameListPage() {
     }
   }, [location.state]);
 
+  const handleEditGame = (gameDetail) => {
+    console.log('gameDetail:', gameDetail);
+    navigate('/companion/games/update', { 
+      state: {gameDetail: gameDetail, fileUrl: fileUrls[gameDetail.gameSeq]} 
+    });
+  };
+
   const handleGoToList = () => {
     navigate('/companion/dashboard', { 
       state: { isGame: true } 
     });
-  };
-
-  // 파일 ID로 이미지 URL 조회
-  const fetchFileUrl = async (fileId) => {
-    if (!fileId) return null;
-    
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/files/${fileId}`);
-      if (!response.ok) {
-        console.error('파일 조회 실패:', fileId);
-        return null;
-      }
-      const fileData = await response.json();
-      return fileData.s3Url;
-    } catch (error) {
-      console.error('파일 URL 조회 오류:', error);
-      return null;
-    }
   };
 
   // 게임 상세 정보와 함께 이미지 URL도 조회
@@ -117,7 +107,7 @@ function FamilyGameListPage() {
                     <div className="game-title">{gameDetail.gameDesc}</div>
                     <div className="game-answer">정답 : {gameDetail.answerText}</div>
                   </div>
-                  <button className="game-edit-btn">수정</button>
+                  <button className="game-edit-btn" onClick={() => handleEditGame(gameDetail)}>수정</button>
                 </div>
               </div>
             ))}
