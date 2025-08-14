@@ -52,7 +52,7 @@ export const useGamePlayLogic = () => {
         let isMounted = true; // cleanup flag 추가v
 
         const loadGameData = async () => {
-            if (!isMounted) return; // 이미 cleanup됐으면 실행 안함
+            if (!isMounted) return;
 
             try {
                 setLoading(true);
@@ -63,7 +63,7 @@ export const useGamePlayLogic = () => {
                     credentials: 'include',
                 });
 
-                if (!isMounted) return; // fetch 완료 후에도 확인
+                if (!isMounted) return;
 
                 if (!response.ok) {
                     try {
@@ -74,13 +74,15 @@ export const useGamePlayLogic = () => {
                             setError('게임 데이터를 불러올 수 없습니다.');
                         }
                     }
-                    return; // 여기서 함수 종료
+                    return;
                 }
 
                 const data = await response.json();
-                setGameData(data);
-                setButtonOptions(createButtonOptions(data));
-                apiFetchTimeRef.current = Date.now();
+                if (isMounted) {
+                    setGameData(data);
+                    setButtonOptions(createButtonOptions(data));
+                    apiFetchTimeRef.current = Date.now();
+                }
 
             } catch (err) {
                 if (!isMounted) return;
@@ -95,7 +97,7 @@ export const useGamePlayLogic = () => {
         loadGameData();
 
         return () => {
-            isMounted = false; // cleanup
+            isMounted = false;
         };
     }, []);
 
