@@ -136,6 +136,18 @@ function PatientProfilePage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'birthDate' && value) {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      
+      if (selectedDate > today) {
+        alert('미래의 날짜를 선택할 수 없습니다.');
+        return;
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -226,6 +238,7 @@ function PatientProfilePage() {
               name="birthDate"
               value={formData.birthDate}
               onChange={handleInputChange}
+              max={new Date().toISOString().split('T')[0]}
               required
             />
             <i className="bi bi-calendar calendar-icon"></i>

@@ -195,4 +195,6 @@ public interface GameDetailRepository extends JpaRepository<GameDetail, GameDeta
     Optional<String> findWrongOptionByColumn(@Param("gameId") String gameId, 
                                            @Param("gameSeq") int gameSeq, 
                                            @Param("columnName") String columnName);
+
+    Optional<GameDetail> findByGameIdAndGameSeq(String gameId, int gameSeq);
 }

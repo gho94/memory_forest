@@ -94,6 +94,19 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameMaster updateGame(GameDetail gameDetail) {
+        GameDetail oldGameDetail = gameDetailRepository.findByGameIdAndGameSeq(gameDetail.getGameId(), gameDetail.getGameSeq()).orElse(null);
+        if (oldGameDetail.getAnswerText() != gameDetail.getAnswerText()) {
+            gameDetail.setWrongScore1(null);
+            gameDetail.setWrongScore2(null);
+            gameDetail.setWrongScore3(null);
+            gameDetail.setWrongOption1(null);
+            gameDetail.setWrongOption2(null);
+            gameDetail.setWrongOption3(null);
+            gameDetail.setAiStatusCode("B20005");
+            gameDetail.setAiProcessedAt(null);
+            gameDetail.setDescription(null);
+        }
+
         GameDetail updatedGameDetail = gameDetailRepository.save(gameDetail);
         return gameMasterRepository.findById(updatedGameDetail.getGameId()).orElse(null);
     }
@@ -168,7 +181,7 @@ public class GameServiceImpl implements GameService {
     private String getDifficultyLevelCode() {
         // 난이도 코드: B20001(초급), B20002(중급), B20003(고급), B20004(전문가)
         // 기본값으로 초급 사용
-        return "B20001"; // 초급으로 고정 (CommonCode 조회 대신 직접 설정)
+        return "B20004"; // 초급으로 고정 (CommonCode 조회 대신 직접 설정)
     }
 
     private String getCreationStatusCode() {
