@@ -315,8 +315,6 @@ function FamilyMyPage() {
               className="form-control" 
               placeholder="비밀번호" 
               name="password"
-              value={currentUser.password}
-              onChange={handleInputChange}
               required
               disabled
             />
