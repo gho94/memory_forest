@@ -572,11 +572,6 @@
   background-position: center;
 }
 
-.guardian-con .icon-btn.trash-btn {
-  display: none;
-  background-image: url(../../../public/images/trash_icon.svg);
-}
-
 .guardian-con .icon-btn.print-btn {
   background-image: url(../../../public/images/print_icon.svg);
 }
@@ -841,6 +836,15 @@ textarea::placeholder {
 
 .game-signup-form .game-file-desc-con {
   height: 210px;
+  position:relative;
+}
+
+.guardian-con .icon-btn.trash-btn {
+  background-image: url("/images/trash_icon.svg");
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 10;
 }
 
 .game-signup-form .form-control {

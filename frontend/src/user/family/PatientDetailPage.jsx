@@ -66,7 +66,6 @@ function PatientDetailPage() {
             <div><span>환자 01</span> 최근 활동</div>
             <div>
               <div className="icon-btn print-btn" onClick={handlePrintToPDF}></div>
-              <div className="icon-btn trash-btn"></div>
             </div>
           </div>
 
