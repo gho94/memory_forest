@@ -7,6 +7,8 @@ import AlarmModal from '@/components/modal/AlarmModal';
 
 import '@/assets/css/common.css';
 import '@/assets/css/family.css';
+import QRCode from 'qrcode';
+import useFileUrl from '@/hooks/common/useFileUrl';
 
 function FamilyDashboardPage() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ function FamilyDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [gameList, setGameList] = useState([]);
+  const [fileUrls, setFileUrls] = useState({});
   const [recorderList, setRecorderList] = useState([]);
   const [userId, setUserId] = useState('');
   const [relationshipCodes, setRelationshipCodes] = useState({});
@@ -25,7 +28,8 @@ function FamilyDashboardPage() {
   const [shareUrl, setShareUrl] = useState('');
   const [currentPatientName, setCurrentPatientName] = useState('');
   const [isSharing, setIsSharing] = useState(false);
-
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const { fetchFileUrl, isLoading } = useFileUrl();
 
 
   const fetchCommonCodes = async (parentCodeId) => {
@@ -176,6 +180,7 @@ function FamilyDashboardPage() {
                 document.getElementById('toggle-account-modal').checked = true;
 
                 console.log('공유 링크 생성 성공:', data.shareUrl);
+                generateQRCode(data.shareUrl);
             } else {
                 alert(data.message || '공유 링크 생성에 실패했습니다.');
             }
@@ -216,7 +221,20 @@ function FamilyDashboardPage() {
             alert('카카오톡 공유에 실패했습니다.');
         }
     };
-
+    
+    const generateQRCode = async (shareUrl) => {
+      try {
+        const currentUrl = shareUrl;
+        console.log('currentUrl', currentUrl);
+        const qrCodeDataUrl = await QRCode.toDataURL(currentUrl);
+        console.log('QR코드 생성 완료');
+        console.log('qrCodeDataUrl', qrCodeDataUrl);
+        setQrCodeDataUrl(qrCodeDataUrl);
+      } catch (err) {
+        console.error('QR코드 생성 오류:', err);
+      }
+    };
+  
     // 링크 복사 함수
     const copyLink = () => {
         if (!shareUrl) {
@@ -288,6 +306,25 @@ function FamilyDashboardPage() {
       const data = await response.json();
       console.log('받아온 게임 데이터:', data);
       setGameList(data);
+
+      const urlPromises = data.map(async (game) => {
+        if (game.fileId) {
+          const fileUrl = await fetchFileUrl(game.fileId);
+          return { gameId: game.gameId, fileUrl };
+        }
+        return { gameId: game.gameId, fileUrl: null };
+      });
+      
+      const urlResults = await Promise.all(urlPromises);
+      const urlMap = {};
+      urlResults.forEach(result => {
+        if (result.fileUrl) {
+          urlMap[result.gameId] = result.fileUrl;
+        }
+      });
+      
+      setFileUrls(urlMap);
+
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -437,7 +474,9 @@ function FamilyDashboardPage() {
             {gameList.map((game) => (              
             <div className="card-box" key={game.gameId}>
               <div className="d-flex align-items-center">
-                <div className="game-img"></div>
+                <div className="game-img">
+                  <img src={fileUrls[game.gameId]} alt="문제 이미지" height="100%" width="100%" />
+                </div>
                 <div className="flex-grow-1 text-start">
                   <div className="main-desc">
                     <span className="patient-name">{game.gameName}</span>
@@ -472,7 +511,7 @@ function FamilyDashboardPage() {
           </div>
           <div className="modal-body-scroll d-flex flex-column gap-3">
             <div className="qr-code-con">
-              <div className="qr-code">qr</div>
+              <div className="qr-code" style={{ backgroundImage: `url(${qrCodeDataUrl})` }}></div>
             </div>
             <div className="row gx-0 share-icon-con">
               <div className="col-6 me-4 kakaotalk-icon" onClick={shareKakao}></div>
