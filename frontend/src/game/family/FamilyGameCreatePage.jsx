@@ -46,7 +46,7 @@ function FamilyGameCreatePage() {
 
   useEffect(() => {
     const getUserInfo = () => {      
-      const userInfo = localStorage.getItem('user');
+      const userInfo = sessionStorage.getItem('user');
       if (userInfo) {
         try {
           const user = JSON.parse(userInfo);
