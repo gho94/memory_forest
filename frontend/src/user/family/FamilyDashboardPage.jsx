@@ -420,6 +420,10 @@ function FamilyDashboardPage() {
     return today.getFullYear() - birthDateObj.getFullYear();
   };
 
+  const handlePatientDetail = (userId) => {
+    navigate('/companion/detail', { state: { userId } });
+  };
+
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
@@ -466,7 +470,7 @@ function FamilyDashboardPage() {
                   <div className="extra-desc">최근 활동 : 2025-06-20</div>
                 </div>
                 <button className="btn-detail me-1">
-                  <div className="btn more-btn"></div>
+                  <div className="btn more-btn" onClick={() => handlePatientDetail(recorder.userId)}></div>
                 </button>
                 <button className="btn-detail" onClick={() => handleShareClick(recorder.userId, recorder.userName)}>
                   <label htmlFor="toggle-account-modal" className="btn share-btn"></label>
