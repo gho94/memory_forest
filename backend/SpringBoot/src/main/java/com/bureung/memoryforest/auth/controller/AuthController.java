@@ -8,7 +8,6 @@
  import com.bureung.memoryforest.auth.dto.request.FindIdWithVerificationRequestDto;
  import com.bureung.memoryforest.auth.dto.request.PasswordResetVerifyRequestDto;
  import com.bureung.memoryforest.user.domain.User;
- import com.bureung.memoryforest.user.application.UserService;
  import lombok.RequiredArgsConstructor;
  import lombok.extern.slf4j.Slf4j;
  import org.springframework.http.ResponseEntity;
@@ -33,7 +32,6 @@
 
      private final AuthService authService;
      private final EmailService emailService;
-     private final UserService userService;
 
      //api 테스트용 --- 추후 지워야함!!!!!!!!!!!!!!!!
      @GetMapping("/test")

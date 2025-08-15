@@ -22,10 +22,25 @@ const GamePage = () => {
         error,
         GAME_STATE
     } = useGamePlayLogic();
+
+    if (error) {
+        return (
+            <div className="app-container d-flex flex-column">
+                <PatientHeader/>
+                <main className="content-area patient-con">
+                    <div className="alert alert-danger" role="alert">
+                        {error}
+                    </div>
+                </main>
+                <PatientFooter/>
+            </div>
+        );
+    }
+
     if (loading || !gameData) {
         return (
             <div className="app-container d-flex flex-column">
-                <PatientHeader />
+                <PatientHeader/>
                 <main className="content-area patient-con">
                     <div className="spin-con">
                         <div className="spin"></div>
@@ -34,13 +49,16 @@ const GamePage = () => {
                         </div>
                     </div>
                 </main>
-                <PatientFooter />
+                <PatientFooter/>
             </div>
         );
     }
 
     // 현재 게임 상태에 따른 화면 렌더링
     const renderCurrentScreen = () => {
+        if (error) {
+            return <ErrorMessage error={error}/>;
+        }
         switch (gameState) {
             case GAME_STATE.PLAYING:
                 return (

@@ -135,8 +135,9 @@ class AIServiceClient:
     def reload_model(self) -> bool:
         """AI 서비스 모델 리로드"""
         try:
+            # 올바른 엔드포인트 사용
             response = requests.post(
-                f"{self.base_url}/model/reload",
+                f"{self.base_url}/reload-model",  # /model/reload → /reload-model 수정
                 timeout=60  # 모델 로드는 시간이 걸림
             )
             

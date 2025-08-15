@@ -1,5 +1,6 @@
 package com.bureung.memoryforest.game.application.impl;
 
+import com.bureung.memoryforest.common.application.AlarmService;
 import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
 import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.domain.GamePlayer;
@@ -9,8 +10,10 @@ import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class GamePlayerServiceImpl implements GamePlayerService {
     private final GamePlayerRepository gamePlayerRepository;
     private final GamePlayerAnswerService gamePlayerAnswerService;
+    private final AlarmService alarmService;
 
     @Override
     public Optional<GamePlayer> getGamesByGameIdAndPlayerId(String gameId, String playerId) {
@@ -105,6 +109,12 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     public GamePlayResultResponseDto getGamePlayResult(String gameId, String playerId){
         GamePlayResultResponseDto response = gamePlayerAnswerService.getGamePlayAnswerResultSummary(gameId, playerId).orElseThrow(() -> new RuntimeException("게임을 찾을 수 없습니다: " + gameId));
         GamePlayer gamePlayer = getGamesByGameIdAndPlayerId(gameId, playerId).orElseThrow();
+
+        if (gamePlayer.getEndTime() == null) {
+            gamePlayer.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            alarmService.sendGameCompletionAlarm(gamePlayer);
+        }
+
         gamePlayer.setTotalScore(response.getTotalScore());
         gamePlayer.setAccuracyRate(response.getAccuracyRate());
         gamePlayer.setDurationSeconds(response.getDurationSeconds());
@@ -122,16 +132,17 @@ public class GamePlayerServiceImpl implements GamePlayerService {
     public Map<String, Object> getPlayerStats(String playerId){
         return Map.of(
                 "totalGames", getCountByPlayerId(playerId),
-                "averageAccuracy", getOverallAccuracyRate(playerId)
+                "averageAccuracy", getOverallAccuracyRate(playerId).setScale(0, RoundingMode.HALF_UP).intValue()
         );
     }
 
     @Override
     public Optional<GamePlayer> getOldestUnplayedGameByPlayerId(String playerId){
-        return gamePlayerRepository.findByIdPlayerIdAndStartTimeIsNull(playerId);
+        return gamePlayerRepository.findFirstByIdPlayerIdAndStartTimeIsNull(playerId);
     }
 
     @Override
+    @Transactional
     public void updateStartTimeIfNull(String playerId, String gameId) {
         int updatedCount = gamePlayerRepository.updateStartTimeIfNull(playerId, gameId, LocalDateTime.now(ZoneId.of("Asia/Seoul")));
         if (updatedCount > 0) {

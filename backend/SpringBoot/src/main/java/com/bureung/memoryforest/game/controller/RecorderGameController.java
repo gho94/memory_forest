@@ -4,7 +4,6 @@ import com.bureung.memoryforest.game.application.GamePlayerAnswerService;
 import com.bureung.memoryforest.game.application.GamePlayerService;
 import com.bureung.memoryforest.game.application.GameQueryService;
 import com.bureung.memoryforest.game.dto.request.CreateGamePlayerAnswerRequestDto;
-import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

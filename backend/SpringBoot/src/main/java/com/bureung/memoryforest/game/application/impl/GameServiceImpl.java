@@ -1,9 +1,9 @@
 package com.bureung.memoryforest.game.application.impl;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -16,15 +16,11 @@ import com.bureung.memoryforest.game.dto.request.GameCreateReqDto;
 import com.bureung.memoryforest.game.dto.request.GameDetailDto;
 import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GamePlayer;
-import com.bureung.memoryforest.game.domain.GamePlayerAnswer;
-import com.bureung.memoryforest.game.domain.GamePlayerAnswerId;
 import com.bureung.memoryforest.game.domain.GamePlayerId;
 import com.bureung.memoryforest.game.repository.GameDetailRepository;
-import com.bureung.memoryforest.game.repository.GamePlayerAnswerRepository;
 import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import com.bureung.memoryforest.game.repository.GameMasterRepository;
 import com.bureung.memoryforest.game.domain.GameMaster;
-import com.bureung.memoryforest.common.application.CommonCodeService;
 import com.bureung.memoryforest.game.dto.response.GameListResponseDto;
 import com.bureung.memoryforest.user.domain.User;
 import com.bureung.memoryforest.user.repository.UserRepository;
@@ -41,8 +37,6 @@ public class GameServiceImpl implements GameService {
     private final GameMasterRepository gameMasterRepository;
     private final GamePlayerRepository gamePlayerRepository;  
     private final GameDetailRepository gameDetailRepository;
-    private final GamePlayerAnswerRepository gamePlayerAnswerRepository;
-    private final CommonCodeService commonCodeService;
     private final UserRepository userRepository;
     private final GameMasterService gameMasterService;
 
@@ -74,13 +68,7 @@ public class GameServiceImpl implements GameService {
         gameMasterRepository.save(gameMaster);
         createGamePlayer(gameId, gameCreateReqDto.getSelectedPatients());
 
-        // 게임 디테일 생성
         createGameDetail(gameId, gameCreateReqDto);
-
-        // TODO: 게임 생성 이후에 AI 분석 요청
-        // AI 관련 컬럼값 변경 
-        // gameDetail 테이블 변경점 wrong_option_1, wrong_option_2, wrong_option_3, wrong_score_1, wrong_score_2, wrong_score_3, ai_status_code, ai_processed_at
-        // gameMaster 테이블 변경점 creation_status_code (완료 or 실패)
 
         try {
             CompletableFuture<Void> aiAnalysisFuture = gameMasterService.processAIAnalysis(gameId);
@@ -105,6 +93,12 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    public GameMaster updateGame(GameDetail gameDetail) {
+        GameDetail updatedGameDetail = gameDetailRepository.save(gameDetail);
+        return gameMasterRepository.findById(updatedGameDetail.getGameId()).orElse(null);
+    }
+
+    @Override
     public List<GameListResponseDto> getGameListInfo() {
         List<GameMaster> games = gameMasterRepository.findAll();
         
@@ -114,10 +108,16 @@ public class GameServiceImpl implements GameService {
                     List<User> players = gamePlayerRepository
                             .findByIdGameId(game.getGameId())
                             .stream()
-                            .map(gamePlayer -> userRepository.findById(gamePlayer.getId().getPlayerId()).orElse(null))
+                            .map(gamePlayer -> userRepository.findByUserIdAndNotDeleted(gamePlayer.getId().getPlayerId()).orElse(null))
                             .filter(user -> user != null) // null 제거
-                            .collect(Collectors.toList());                    
-                    return new GameListResponseDto(game, players);
+                            .collect(Collectors.toList());                             
+                            
+                    List<Integer> fileIds = gameDetailRepository.findByGameId(game.getGameId()).stream()
+                            .map(GameDetail::getFileId)
+                            .collect(Collectors.toList());
+                    Integer fileId = fileIds.get(new Random().nextInt(fileIds.size()));
+
+                    return new GameListResponseDto(game, players, fileId);
                 })
                 .collect(Collectors.toList());
     }
@@ -148,19 +148,7 @@ public class GameServiceImpl implements GameService {
                 .build();
 
             gameDetailRepository.save(gameDetailEntity);
-            createGamePlayerAnswer(gameId, gameDetailEntity, gameCreateReqDto.getSelectedPatients());
             gameSeq++;
-        }
-    }
-
-    private void createGamePlayerAnswer(String gameId, GameDetail gameDetail, List<String> selectedPatients) {
-        for (String patientId : selectedPatients) {
-            GamePlayerAnswer gamePlayerAnswer = GamePlayerAnswer.builder()
-                .id(new GamePlayerAnswerId(gameId, gameDetail.getGameSeq(), patientId))
-                .selectedOption(0)
-                .isCorrect("N")
-                .build();
-            gamePlayerAnswerRepository.save(gamePlayerAnswer);
         }
     }
 
@@ -200,23 +188,5 @@ public class GameServiceImpl implements GameService {
         // B20005(대기중), B20006(생성중), B20007(완료), B20008(실패)
         // AI 분석 대기 상태로 설정
         return "B20005"; // 대기중으로 고정 (다른 팀원 코드와 통일)
-    }
-
-    /**
-     * @deprecated 공통코드 조회 방식 대신 직접 코드값 사용으로 변경
-     * CommonCode 팀원의 작업과 충돌을 피하기 위해 사용 중지
-     */
-    @Deprecated
-    private String getCommonCode(String parentCodeId) {
-        String codeId = null;
-        try {
-            var commonCodes = commonCodeService.getCommonCodesByParentCodeId(parentCodeId);
-            if (!commonCodes.isEmpty()) {
-                codeId = commonCodes.get(0).getCodeId();
-            }
-        } catch (Exception e) {
-            log.error("공통 코드 조회 실패", e);
-        }
-        return codeId;
     }
 }
