@@ -5,11 +5,14 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
 @Getter
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User , Serializable{
+    private static final long serialVersionUID = 1L;
+
     private User user;
     private Map<String, Object> attributes;
     private String nameAttributeKey;

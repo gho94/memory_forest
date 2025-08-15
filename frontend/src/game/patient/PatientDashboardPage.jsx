@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom'; // 추가
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
@@ -60,46 +61,152 @@ const GAME_CONFIG = {
   }
 };
 
-// 커스텀 훅으로 데이터 fetching 로직 분리
-const useDashboardData = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${window.API_BASE_URL}/recorder/game/dashboard`, {
-          method: 'GET',
-          credentials: 'include',
-        });
+const useSharedAccess = () => {
+    const { accessCode } = useParams();
+    const location = useLocation();
+    const [isSharedAccess, setIsSharedAccess] = useState(false);
+    const [sharedLoginComplete, setSharedLoginComplete] = useState(false)
 
-        // 응답이 JSON인지 먼저 확인
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error('서버에서 JSON이 아닌 응답을 받았습니다.');
+    useEffect(() => {
+        if (location.pathname.startsWith('/patient-view/') && accessCode) {
+            setIsSharedAccess(true);
+
+            // 공유 링크 로그인 처리
+            const loginWithAccessCode = async () => {
+                try {
+                    console.log('공유 링크 접근 코드:', accessCode);
+                    const response = await fetch(`${window.API_BASE_URL}/api/recorder/login/${accessCode}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ accessCode: accessCode })
+                    });
+
+                    const data = await response.json();
+                    console.log('공유 링크 로그인 응답:', data);
+
+                    if (data.success) {
+                        console.log('공유 링크 로그인 성공 - 환자ID:', data.patientId);
+                        if (data.patientId && data.patientName) {
+                            const userInfo = {
+                                userId: data.patientId,
+                                userName: data.patientName,
+                                isSharedAccess: true
+                            };
+                            sessionStorage.setItem('user', JSON.stringify(userInfo));
+                        }
+
+                        setSharedLoginComplete(true);
+                    } else {
+                        console.error('공유 링크 로그인 실패:', data.message);
+                        alert(data.message || '유효하지 않은 접근 링크입니다.');
+                        // 실패시 메인 페이지로 리다이렉트
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    console.error('로그인 요청 실패:', error);
+                    alert('로그인 처리 중 오류가 발생했습니다.');
+                }
+            };
+
+            loginWithAccessCode();
+        } else {
+            setSharedLoginComplete(true);
         }
+    }, [accessCode, location.pathname]);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: 대시보드 데이터를 불러오지 못했습니다.`);
-        }
-
-        const data = await response.json();
-        setDashboardData(data);
-      } catch (err) {
-        console.error('API 에러:', err); // 디버깅용
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
-
-  return { dashboardData, loading, error };
+    return { isSharedAccess, sharedLoginComplete };
 };
+
+// 커스텀 훅으로 데이터 fetching 로직 분리 수정
+const useDashboardData = (sharedLoginComplete) => {
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        // 공유 접근의 경우 로그인 완료를 기다림
+        if (!sharedLoginComplete) {
+            return;
+        }
+
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${window.API_BASE_URL}/recorder/game/dashboard`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                // 응답이 JSON인지 먼저 확인
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('서버에서 JSON이 아닌 응답을 받았습니다.');
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: 대시보드 데이터를 불러오지 못했습니다.`);
+                }
+
+                const data = await response.json();
+                setDashboardData(data);
+            } catch (err) {
+                console.error('API 에러:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [sharedLoginComplete]);
+
+    return { dashboardData, loading, error };
+};
+
+// 커스텀 훅으로 데이터 fetching 로직 분리
+// const useDashboardData = () => {
+//   const [dashboardData, setDashboardData] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//
+//   useEffect(() => {
+//     const fetchDashboardData = async () => {
+//       try {
+//         setLoading(true);
+//         const response = await fetch(`${window.API_BASE_URL}/recorder/game/dashboard`, {
+//           method: 'GET',
+//           credentials: 'include',
+//         });
+//
+//         // 응답이 JSON인지 먼저 확인
+//         const contentType = response.headers.get('content-type');
+//         if (!contentType || !contentType.includes('application/json')) {
+//           throw new Error('서버에서 JSON이 아닌 응답을 받았습니다.');
+//         }
+//
+//         if (!response.ok) {
+//           throw new Error(`HTTP ${response.status}: 대시보드 데이터를 불러오지 못했습니다.`);
+//         }
+//
+//         const data = await response.json();
+//         setDashboardData(data);
+//       } catch (err) {
+//         console.error('API 에러:', err); // 디버깅용
+//         setError(err.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//
+//     fetchDashboardData();
+//   }, []);
+//
+//   return { dashboardData, loading, error };
+// };
 
 // 게임 정보 계산 로직을 커스텀 훅으로 분리
 const useGameInfo = (dashboardData) => {
@@ -153,7 +260,8 @@ const ErrorMessage = ({ error }) => (
 
 // 메인 컴포넌트
 function PatientDashboardPage() {
-  const { dashboardData, loading, error } = useDashboardData();
+  const { isSharedAccess, sharedLoginComplete } = useSharedAccess(); // 추가
+  const { dashboardData, loading, error } = useDashboardData(sharedLoginComplete);
   const {
     progressPercentage,
     titleText,
@@ -161,12 +269,28 @@ function PatientDashboardPage() {
     handleButtonClick,
   } = useGameInfo(dashboardData);
 
+  //로딩 표시 넣기
+    if (isSharedAccess && !sharedLoginComplete) {
+        return <SkeletonUI />;
+    }
+
+
   if (loading) return <SkeletonUI />;
   if (error) return <ErrorMessage error={error} />;
   if (!dashboardData) return <ErrorMessage error="대시보드 데이터를 불러올 수 없습니다." />;
   return (
       <div className="app-container d-flex flex-column">
         <PatientHeader />
+
+          {/* 공유 접근 배너 (추가된 부분) */}
+          {isSharedAccess && (
+              <div className="alert alert-info d-flex align-items-center mb-3" style={{margin: '0 1rem'}}>
+                  <i className="bi bi-share me-2"></i>
+                  <span><strong>{dashboardData.userName}님</strong>을 위한 맞춤 게임입니다.</span>
+              </div>
+          )}
+
+
         <main className="content-area patient-con">
           <div className="greeting">
             안녕하세요, <br />
