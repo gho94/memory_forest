@@ -2,6 +2,8 @@ package com.bureung.memoryforest.auth.controller;
 
 import com.bureung.memoryforest.auth.application.PatientShareService;
 import com.bureung.memoryforest.auth.application.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +56,7 @@ public class PatientShareController {
     @PostMapping("/login/{accessCode}")
     public ResponseEntity<Map<String, Object>> loginWithShareLink(
             @PathVariable String accessCode,
+            HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
         try {
@@ -61,6 +64,10 @@ public class PatientShareController {
 
             if (loginResult != null && (Boolean) loginResult.get("success")) {
                 // Refresh Token을 HttpOnly 쿠키에 저장 (보안강화)
+                HttpSession session = httpRequest.getSession();
+                session.setAttribute("userId", loginResult.get("patientId"));
+                session.setAttribute("userName", loginResult.get("patientName"));
+
                 String refreshToken = (String) loginResult.get("refreshToken");
                 Cookie refreshCookie = new Cookie("REFRESH_TOKEN", refreshToken);
                 refreshCookie.setHttpOnly(true);

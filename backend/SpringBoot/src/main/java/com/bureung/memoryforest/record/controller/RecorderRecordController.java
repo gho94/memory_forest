@@ -31,8 +31,7 @@ public class RecorderRecordController {
 
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
-            userId= "U0002";  // TODO : leb. I'll change user id of session
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
         try {
@@ -53,8 +52,7 @@ public class RecorderRecordController {
 
         try {
             HttpSession session = httpRequest.getSession();
-            String userId = (String) session.getAttribute("user_id");
-            userId = "U0002";  // TODO : leb. I'll change user id of session
+            String userId = (String) session.getAttribute("userId");
             log.info("기록 리스트 조회 요청 - 사용자: {}, 년도: {}, 월: {}", userId, year, month);
 
             List<RecordListResponseDto> records = recordService.getRecordsByYearMonth(userId, year, month);
@@ -71,9 +69,7 @@ public class RecorderRecordController {
     public ResponseEntity<Map<String, Boolean>> checkTodayRecord(HttpServletRequest httpRequest) {
         try {
             HttpSession session = httpRequest.getSession();
-            String userId = (String) session.getAttribute("user_id");
-            userId = "U0002";  // TODO : leb. I'll change user id of session
-
+            String userId = (String) session.getAttribute("userId");
             boolean exists = recordService.hasRecordToday(userId);
 
             Map<String, Boolean> response = Map.of("exists", exists);

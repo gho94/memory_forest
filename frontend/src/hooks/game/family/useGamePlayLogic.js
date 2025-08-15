@@ -108,6 +108,7 @@ export const useGamePlayLogic = () => {
 
         const response = await fetch(`${window.API_BASE_URL}/recorder/game/play`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },

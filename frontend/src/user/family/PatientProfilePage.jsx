@@ -162,6 +162,7 @@ function PatientProfilePage() {
 
       const response = await fetch(`${window.API_BASE_URL}/api/recorder/create`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

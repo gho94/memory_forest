@@ -24,6 +24,7 @@ export const useRecordsLogic = (selectedYear, selectedMonth) => {
 
             const response = await fetch(`${window.API_BASE_URL}/recorder/record/list?${params.toString()}`, {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 }

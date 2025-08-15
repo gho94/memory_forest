@@ -30,7 +30,9 @@ export const usePatientOverviewLogic = () => {
     const fetchStatsData = async () => {
         try {
             setLoading(prev => ({ ...prev, stats: true }));
-            const statsResponse = await fetch(`${window.API_BASE_URL}/recorder/game/chart/stats`);
+            const statsResponse = await fetch(`${window.API_BASE_URL}/recorder/game/chart/stats`, {
+                credentials: 'include'
+            });
             const statsData = await statsResponse.json();
             setTimeout(() => setLoading(prev => ({ ...prev, stats: false })), 200);
             return statsData;
