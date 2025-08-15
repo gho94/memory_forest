@@ -7,7 +7,9 @@ const useTodayRecordCheck = () => {
     const checkTodayRecord = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${window.API_BASE_URL}/recorder/record/today-exists`);
+            const response = await fetch(`${window.API_BASE_URL}/recorder/record/today-exists`,{
+                credentials: 'include'
+            });
             const data = await response.json();
             setTodayRecordExists(data.exists);
             setIsLoading(false);

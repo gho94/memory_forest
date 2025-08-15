@@ -19,7 +19,7 @@ function FamilyFooter() {
             path: ['/companion/profileadd', '/companion/detail'] // 여러 경로 지원
         },
         {
-            href: '/companion/games/list',
+            href: '/companion/games/create',
             icon: 'game',
             label: '게임',
             path: ['/companion/games'],

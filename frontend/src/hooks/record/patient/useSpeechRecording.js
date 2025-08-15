@@ -71,8 +71,7 @@ const useSpeechRecording = () => {
                     console.warn('음성 인식 오류:', event.error);
 
                     if (event.error === 'no-speech') {
-                        console.log('음성이 감지되지 않았습니다.');
-                        // 조용한 경우는 오류로 처리하지 않음
+                        alert('음성이 감지되지 않았습니다.');
                     } else if (event.error === 'audio-capture') {
                         alert('마이크에 문제가 있습니다. 재녹음해주세요.');
                     } else if (event.error === 'not-allowed') {
@@ -82,6 +81,8 @@ const useSpeechRecording = () => {
                     } else {
                         alert('음성 인식에 문제가 발생했습니다. 재녹음을 권장합니다.');
                     }
+                    setAudioBlob(null);
+                    stopRecording();
                 };
 
                 recognitionRef.current = recognition;

@@ -29,10 +29,8 @@ public class RecorderGameController {
     public ResponseEntity<GameRecorderDashboardResponseDto> getDashboard(HttpServletRequest request) {
         // 세션에서 user_id 가져오기
         HttpSession session = request.getSession();
-        String recorderId = (String) session.getAttribute("user_id");
-        String userName = (String) session.getAttribute("user_name");
-
-        recorderId = "U0002"; //TODO : leb. I'll change user id of session
+        String recorderId = (String) session.getAttribute("userId");
+        String userName = (String) session.getAttribute("userName");
 
         if (recorderId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -51,8 +49,7 @@ public class RecorderGameController {
         try {
             log.info("게임 플레이 요청 - gameId: {}", gameId);
             HttpSession session = request.getSession();
-            String playerId = (String) session.getAttribute("user_id");
-            playerId = "U0002"; //TODO : leb. I'll change user id of session
+            String playerId = (String) session.getAttribute("userId");
             GameStageResponseDto stageData = gameQueryService.getGameStageData(playerId, gameId);
             return ResponseEntity.ok(stageData);
         } catch (Exception e) {
@@ -65,8 +62,7 @@ public class RecorderGameController {
     public ResponseEntity<Integer> createGamePlayerAnswer(@RequestBody CreateGamePlayerAnswerRequestDto request, HttpServletRequest httpRequest) {
         try {
             HttpSession session = httpRequest.getSession();
-            String playerId = (String) session.getAttribute("user_id");
-            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            String playerId = (String) session.getAttribute("userId");
             Integer score = gamePlayerAnswerService.createGamePlayerAnswer(request, playerId);
             return ResponseEntity.ok(score);
         } catch (Exception e) {
@@ -79,8 +75,7 @@ public class RecorderGameController {
     public ResponseEntity<GamePlayResultResponseDto> getGamePlayResult(@PathVariable String gameId, HttpServletRequest httpRequest) {
         try {
             HttpSession session = httpRequest.getSession();
-            String playerId = (String) session.getAttribute("user_id");
-            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            String playerId = (String) session.getAttribute("userId");
             GamePlayResultResponseDto gamePlayResult = gamePlayerService.getGamePlayResult(gameId, playerId);
             return ResponseEntity.ok(gamePlayResult);
         } catch (Exception e) {
@@ -93,8 +88,7 @@ public class RecorderGameController {
     public ResponseEntity<Map<String, Object>> getPlayerStats(HttpServletRequest httpRequest) {
         try {
             HttpSession session = httpRequest.getSession();
-            String playerId = (String) session.getAttribute("user_id");
-            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            String playerId = (String) session.getAttribute("userId");
             Map<String, Object> response = gamePlayerService.getPlayerStats(playerId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -107,8 +101,7 @@ public class RecorderGameController {
     public ResponseEntity<GameDashboardResponseDto> getWeeklyChart(@RequestParam(required = false) String gameId, HttpServletRequest httpRequest) {
         try {
             HttpSession session = httpRequest.getSession();
-            String playerId = (String) session.getAttribute("user_id");
-            playerId = "U0002";  // TODO : leb. I'll change user id of session
+            String playerId = (String) session.getAttribute("userId");
             GameDashboardResponseDto response = gameQueryService.getWeeklyAccuracyChartForRecorder(gameId, playerId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
