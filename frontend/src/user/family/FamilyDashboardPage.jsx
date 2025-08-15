@@ -29,7 +29,45 @@ function FamilyDashboardPage() {
   const [currentPatientName, setCurrentPatientName] = useState('');
   const [isSharing, setIsSharing] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  
+  // 검색 관련 상태 추가
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [filteredGameList, setFilteredGameList] = useState([]);
+  
+  // 드롭다운 관련 상태 추가
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('전체');
+  
   const { fetchFileUrl, isLoading } = useFileUrl();
+
+  // 드롭다운 토글 함수
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // 드롭다운 옵션 선택 함수
+  const selectFilter = (filter) => {
+    setSelectedFilter(filter);
+    setIsDropdownOpen(false);
+  };
+
+  // 검색 필터링 함수
+  const filterGames = (games, keyword) => {
+    if (!keyword.trim()) return games;
+    
+    return games.filter(game => 
+      game.gameName.toLowerCase().includes(keyword.toLowerCase()) ||
+      game.players.some(player => 
+        player.userName.toLowerCase().includes(keyword.toLowerCase())
+      )
+    );
+  };
+
+  // 검색어가 변경될 때마다 필터링 실행
+  useEffect(() => {
+    const filtered = filterGames(gameList, searchKeyword);
+    setFilteredGameList(filtered);
+  }, [gameList, searchKeyword]);
 
 
   const fetchCommonCodes = async (parentCodeId) => {
@@ -449,29 +487,40 @@ function FamilyDashboardPage() {
 
         <div style={{ display: isGame ? 'block' : 'none' }} className="game-con mx-3">
           <div className="search-filter-box d-flex align-items-center gap-2 mb-3">
-            <input type="checkbox" id="search-dropdown-toggle" />
+            <input 
+              type="checkbox" 
+              id="search-dropdown-toggle" 
+              checked={isDropdownOpen}
+              onChange={toggleDropdown}
+            />
             <div className="search-dropdown-wrapper">
-              <label htmlFor="search-dropdown-toggle" className="search-dropdown-display">전체</label>
+              <label htmlFor="search-dropdown-toggle" className="search-dropdown-display">
+                {selectedFilter}
+              </label>
               <ul className="search-dropdown-options">
-                <li>전체</li>
-                <li>제목</li>
-                <li>설명</li>
-                <li>정답</li>
+                <li onClick={() => selectFilter('전체')}>전체</li>
+                <li onClick={() => selectFilter('제목')}>제목</li>
               </ul>
             </div>
             <div className="search-input-box position-relative flex-grow-1">
-              <input type="text" className="search-input" placeholder="검색할 내용을 입력하세요." />
+              <input 
+                type="text" 
+                className="search-input" 
+                placeholder="검색할 내용을 입력하세요." 
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+              />
               <div className="search-icon"></div>
             </div>
           </div>
 
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <div className="fw-bold fs-5">총 게임 : <span>{gameList.length}</span>개</div>
+            <div className="fw-bold fs-5">총 게임 : <span>{filteredGameList.length}</span>개</div>
             <label htmlFor="toggle-game-modal" className="btn btn-add">게임 추가</label>
           </div>
 
           <div className="d-flex flex-column gap-3 card-box2-con">
-            {gameList.map((game) => (              
+            {filteredGameList.map((game) => (              
             <div className="card-box" key={game.gameId}>
               <div className="d-flex align-items-center">
                 <div className="game-img">
