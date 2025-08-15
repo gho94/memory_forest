@@ -55,11 +55,13 @@ public class GameServiceImpl implements GameService {
     public GameMaster createGame(GameCreateReqDto gameCreateReqDto) {
         String gameId = generateGameId();
         
+        String difficultyLevel = "NORMAL";
+
         GameMaster gameMaster = GameMaster.builder()
                 .gameId(gameId)
                 .gameName(gameCreateReqDto.getGameName())
                 .gameCount(gameCreateReqDto.getTotalProblems())
-                .difficultyLevelCode(getDifficultyLevelCode())
+                .difficultyLevelCode(mapDifficultyLevelToCode(difficultyLevel))
                 .creationStatusCode(getCreationStatusCode())
                 .createdBy(gameCreateReqDto.getCreatedBy())
                 .updatedAt(null)
@@ -165,12 +167,6 @@ public class GameServiceImpl implements GameService {
         return String.format("G%s%03d", dateStr, nextSeq);
     }
 
-    private String getDifficultyLevelCode() {
-        // 난이도 코드: B20001(초급), B20002(중급), B20003(고급), B20004(전문가)
-        // 기본값으로 초급 사용
-        return "B20001"; // 초급으로 고정 (CommonCode 조회 대신 직접 설정)
-    }
-
     private String getCreationStatusCode() {
         // 게임 생성 상태 코드: B20005(대기중), B20006(생성중), B20007(완료), B20008(실패)
         // 게임 생성 시 대기중 상태로 설정
@@ -188,5 +184,15 @@ public class GameServiceImpl implements GameService {
         // B20005(대기중), B20006(생성중), B20007(완료), B20008(실패)
         // AI 분석 대기 상태로 설정
         return "B20005"; // 대기중으로 고정 (다른 팀원 코드와 통일)
+    }
+    
+    private String mapDifficultyLevelToCode(String difficultyLevel) {
+        switch (difficultyLevel.toUpperCase()) {
+            case "EASY": return "B20001";    // 초급
+            case "NORMAL": return "B20002";  // 중급
+            case "HARD": return "B20003";    // 고급
+            case "EXPERT": return "B20004";  // 전문가
+            default: return "B20002"; // 기본값: NORMAL (중급)
+        }
     }
 }

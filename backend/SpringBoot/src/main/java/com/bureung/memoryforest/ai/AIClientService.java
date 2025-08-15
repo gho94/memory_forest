@@ -7,6 +7,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.bureung.memoryforest.game.domain.GameMaster;
+import com.bureung.memoryforest.game.repository.GameMasterRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +23,7 @@ public class AIClientService {
     private String aiServiceUrl;
 
     private final RestTemplate restTemplate;
-
+    private final GameMasterRepository gameMasterRepository;
     /**
      * 난이도별 AI 분석 (새로운 메서드)
      * FastAPI는 내부적으로 ai_status를 ai_status_code로 변환하여 저장
@@ -78,7 +82,9 @@ public class AIClientService {
      * 기존 메서드 (호환성 유지)
      */
     public AIAnalysisResponse analyzeAnswer(String gameId, int gameSeq, String answerText) {
-        return analyzeAnswerWithDifficulty(gameId, gameSeq, answerText, "NORMAL");
+        // ✅ 게임마스터 테이블에서 난이도 조회
+        String difficultyLevel = getDifficultyFromGameMaster(gameId);
+        return analyzeAnswerWithDifficulty(gameId, gameSeq, answerText, difficultyLevel);
     }
 
     /**
@@ -294,4 +300,46 @@ public class AIClientService {
             return "{\"error\":\"모델 리로드 실패: " + e.getMessage() + "\"}";
         }
     }
+
+    private String getDifficultyFromGameMaster(String gameId) {
+        try {
+            GameMaster gameMaster = gameMasterRepository.findById(gameId).orElse(null);
+            
+            if (gameMaster == null) {
+                log.warn("게임마스터를 찾을 수 없음: gameId={}, 기본값(NORMAL) 사용", gameId);
+                return "NORMAL";
+            }
+            
+            String difficultyCode = gameMaster.getDifficultyLevelCode();
+            if (difficultyCode == null || difficultyCode.trim().isEmpty()) {
+                log.warn("난이도 코드가 null: gameId={}, 기본값(NORMAL) 사용", gameId);
+                return "NORMAL";
+            }
+            
+            String difficultyLevel = mapDifficultyCodeToLevel(difficultyCode);
+            log.info("게임마스터에서 난이도 조회 성공: gameId={}, code={}, level={}", 
+                    gameId, difficultyCode, difficultyLevel);
+            
+            return difficultyLevel;
+            
+        } catch (Exception e) {
+            log.error("게임마스터 난이도 조회 실패: gameId={}, 기본값(NORMAL) 사용, error={}", 
+                     gameId, e.getMessage());
+            return "NORMAL";
+        }
+    }
+
+
+    private String mapDifficultyCodeToLevel(String difficultyCode) {
+        switch (difficultyCode) {
+            case "B20001": return "EASY";    // 초급
+            case "B20002": return "NORMAL";  // 중급
+            case "B20003": return "HARD";    // 고급
+            case "B20004": return "EXPERT";  // 전문가
+            default: 
+                log.warn("알 수 없는 난이도 코드: {}, 기본값(NORMAL) 사용", difficultyCode);
+                return "NORMAL";
+        }
+    }
+
 }

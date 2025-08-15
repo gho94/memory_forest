@@ -47,7 +47,7 @@ class AIServiceClient:
                     "answerText": answer_text,
                     "difficultyLevel": difficulty
                 }
-                
+                logger.info(f"FastAPI AI 분석 요청: {answer_text} (난이도: {difficulty})")
                 response = requests.post(
                     f"{self.base_url}/analyze",
                     json=request_data,
@@ -57,18 +57,10 @@ class AIServiceClient:
                 
                 if response.status_code == 200:
                     result = response.json()
-                    logger.info(f"AI 분석 성공: {answer_text[:20]}...")
+                    logger.info(f"AI 분석 완료: {game_id}/{game_seq} (요청난이도: {difficulty})")
                     
                     # camelCase 응답을 snake_case로 변환
-                    return {
-                        'wrong_option_1': result.get('wrongOption1', ''),
-                        'wrong_option_2': result.get('wrongOption2', ''),
-                        'wrong_option_3': result.get('wrongOption3', ''),
-                        'wrong_score_1': result.get('wrongScore1', 0),
-                        'wrong_score_2': result.get('wrongScore2', 0),
-                        'wrong_score_3': result.get('wrongScore3', 0),
-                        'description': result.get('description', 'AI 분석 완료')
-                    }
+                    return result
                 elif response.status_code == 422:
                     # 검증 오류 - 상세 분석
                     try:
@@ -206,11 +198,11 @@ class AIServiceClient:
                 game_id = game['game_id']
                 game_seq = game['game_seq']
                 answer_text = game['answer_text']
-                
+                difficulty = game.get('difficulty_level', 'NORMAL')
                 logger.info(f"AI 분석 시작: {game_id}/{game_seq} - {answer_text}")
                 
                 # 개별 게임 분석 (실제 game_id, game_seq 전달)
-                ai_result = self.analyze_game(answer_text, "NORMAL", game_id, game_seq)
+                ai_result = self.analyze_game(answer_text, difficulty, game_id, game_seq)
                 
                 if ai_result:
                     if ai_result.get('status') == 'missing_word':
@@ -222,6 +214,7 @@ class AIServiceClient:
                             'description': ai_result['message'],
                             'needs_training': True,
                             'answer_text': answer_text,
+                            'difficulty_used': difficulty,
                             'original_error': ai_result.get('original_error', '')
                         })
                     elif ai_result.get('status') == 'validation_error':
@@ -231,7 +224,8 @@ class AIServiceClient:
                             'game_seq': game_seq,
                             'status': 'error',
                             'error': ai_result.get('error', '검증 실패'),
-                            'answer_text': answer_text
+                            'answer_text': answer_text,
+                            'difficulty_used': difficulty
                         })
                     elif 'wrong_option_1' in ai_result:
                         # 정상 분석 완료
@@ -239,7 +233,8 @@ class AIServiceClient:
                             'game_id': game_id,
                             'game_seq': game_seq,
                             'status': 'success',
-                            'ai_result': ai_result
+                            'ai_result': ai_result,
+                            'difficulty_used': difficulty
                         })
                     else:
                         # 예상치 못한 응답 형식
@@ -249,7 +244,8 @@ class AIServiceClient:
                             'status': 'error',
                             'error': '예상치 못한 응답 형식',
                             'ai_result': ai_result,
-                            'answer_text': answer_text
+                            'answer_text': answer_text,
+                            'difficulty_used': difficulty
                         })
                 else:
                     # 분석 실패
@@ -257,7 +253,8 @@ class AIServiceClient:
                         'game_id': game_id,
                         'game_seq': game_seq,
                         'status': 'error',
-                        'error': 'AI 분석 실패'
+                        'error': 'AI 분석 실패',
+                        'difficulty_used': difficulty
                     })
                     
             except Exception as e:
@@ -266,7 +263,8 @@ class AIServiceClient:
                     'game_id': game.get('game_id'),
                     'game_seq': game.get('game_seq'),
                     'status': 'error',
-                    'error': str(e)
+                    'error': str(e),
+                    'difficulty_used': game.get('difficulty_level', 'NORMAL')
                 })
         
         return results
