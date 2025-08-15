@@ -11,4 +11,6 @@ import com.bureung.memoryforest.user.domain.UserRelId;
 @Repository
 public interface UserRelRepository extends JpaRepository<UserRel, UserRelId> {
     List<UserRel> findByIdFamilyId(String familyId);
+
+    List<UserRel> findByIdFamilyIdOrderByCreatedAtDesc(String familyId);
 }
