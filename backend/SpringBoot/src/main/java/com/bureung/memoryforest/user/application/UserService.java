@@ -253,7 +253,7 @@ public class UserService {
     }
 
     public List<RecorderListResponseDto> getRecorderList(String userId) {
-        List<UserRel> userRelList = userRelRepository.findByIdFamilyId(userId);
+        List<UserRel> userRelList = userRelRepository.findByIdFamilyIdOrderByCreatedAtDesc(userId);
         List<RecorderListResponseDto> recorderList = new ArrayList<>();
         for (UserRel userRel : userRelList) {
             Optional<User> userOpt = userRepository.findByUserIdAndNotDeleted(userRel.getId().getPatientId());

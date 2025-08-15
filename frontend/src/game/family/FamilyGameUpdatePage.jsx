@@ -142,9 +142,9 @@ function FamilyGameUpdatePage() {
                 }
               }}></button>}
               {!file && fileImage && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}
-              {!file && fileImage && <button onClick={() => {
+              {!file && fileImage && <button className={`trash-btn icon-btn`} onClick={() => {
                 setFileImage(null);
-              }}>×</button>}
+              }}></button>}
               <div className={`game-file-desc mb-3 mt-5 ${file || fileImage ? 'd-none' : ''}`}>
                 게임에 사용할 사진을 업로드하세요.
               </div>

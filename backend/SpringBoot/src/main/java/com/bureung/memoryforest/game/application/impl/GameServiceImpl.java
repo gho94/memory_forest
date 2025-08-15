@@ -96,6 +96,19 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameMaster updateGame(GameDetail gameDetail) {
+        GameDetail oldGameDetail = gameDetailRepository.findByGameIdAndGameSeq(gameDetail.getGameId(), gameDetail.getGameSeq()).orElse(null);
+        if (oldGameDetail.getAnswerText() != gameDetail.getAnswerText()) {
+            gameDetail.setWrongScore1(null);
+            gameDetail.setWrongScore2(null);
+            gameDetail.setWrongScore3(null);
+            gameDetail.setWrongOption1(null);
+            gameDetail.setWrongOption2(null);
+            gameDetail.setWrongOption3(null);
+            gameDetail.setAiStatusCode("B20005");
+            gameDetail.setAiProcessedAt(null);
+            gameDetail.setDescription(null);
+        }
+
         GameDetail updatedGameDetail = gameDetailRepository.save(gameDetail);
         return gameMasterRepository.findById(updatedGameDetail.getGameId()).orElse(null);
     }
