@@ -134,13 +134,13 @@ function FamilyGameUpdatePage() {
           <div className="form-control-con">
             <div className="form-control game-file-desc-con">
               {file && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}   
-              {file && <button onClick={() => {
+              {file && <button className={`trash-btn icon-btn`} onClick={() => {
                 setFile(null);
                 setFileImage(null);
                 if (fileInputRef.current) {
                   fileInputRef.current.value = '';
                 }
-              }}>×</button>}
+              }}></button>}
               {!file && fileImage && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}
               {!file && fileImage && <button onClick={() => {
                 setFileImage(null);
