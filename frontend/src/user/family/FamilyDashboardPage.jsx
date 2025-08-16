@@ -21,7 +21,7 @@ function FamilyDashboardPage() {
   const [recorderList, setRecorderList] = useState([]);
   const [userId, setUserId] = useState('');
   const [relationshipCodes, setRelationshipCodes] = useState({});
-  
+  const [userName, setUserName] = useState('');
   const [selectedPatients, setSelectedPatients] = useState([]);
   const [gameName, setGameName] = useState('');
 
@@ -132,6 +132,7 @@ function FamilyDashboardPage() {
                     const user = JSON.parse(userInfo);
                     console.log('SessionStorage에서 가져온 사용자 정보:', user);
                     setUserId(user.userId);
+                    setUserName(user.userName);
                     return; // sessionStorage에 있으면 여기서 끝
                 } catch (error) {
                     console.error('사용자 정보 파싱 오류:', error);
@@ -432,7 +433,7 @@ function FamilyDashboardPage() {
         <div className="greeting-con">
           <div className="greeting">
             <div className="fw-bold mb-2 fs-5">
-              <span>아이디</span> 님, 안녕하세요!
+              <span>{userName}</span> 님, 안녕하세요!
             </div>
             <div>
               <span className="sub-text">모두 함께 하는</span> <br />
