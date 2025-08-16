@@ -175,8 +175,14 @@ function FamilyGameCreatePage() {
           </div>
 
           <div className="form-control-con">
-            <div className="form-control game-file-desc-con">
-              {file && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}   
+            <div className="form-control game-file-desc-con">              
+              {file && <img src={fileImage} style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                width: 'auto', 
+                height: 'auto',
+                objectFit: 'contain'
+              }} />}
               {file && <button className={`trash-btn icon-btn`} onClick={() => {
                 setFile(null);
                 setFileImage(null);
