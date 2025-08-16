@@ -130,8 +130,9 @@ public class UserService {
         String relationshipCode = requestDto.getRelationshipCode();
         String genderCode = requestDto.getGenderCode();
         String userTypeCode = requestDto.getUserTypeCode();
+        Integer fileId = requestDto.getFileId();
 
-        User user = createUser(loginId, userName, password, email, phone, userTypeCode, birthDate, genderCode);
+        User user = createUser(loginId, userName, password, email, phone, userTypeCode, birthDate, genderCode, fileId);
         UserRel userRel = UserRel.builder()
                 .id(new UserRelId(user.getUserId(), requestDto.getLoginId()))    // userId 대신 loginId 사용
                 .relationshipCode(relationshipCode)
@@ -140,6 +141,48 @@ public class UserService {
                 .build();
         userRelRepository.save(userRel);
         return user;
+    }
+
+    //신규 user 생성
+    public User createUser(String loginId, String userName, String encodedPassword,
+                           String email, String phone, String userTypeCode, LocalDate birthDate, String genderCode, Integer fileId) {
+
+        // 전화번호 입력 안받아서..없앨까 ?
+        if (phone == null || phone.trim().isEmpty()) {
+            phone = "";
+        }
+
+        // userTypeCode 기본값 A20002
+        if (userTypeCode == null || userTypeCode.trim().isEmpty()) {
+            userTypeCode = "A20002";
+        }
+
+        // userId 자동 생성
+        String userId = generateNextUserId();
+
+        if (email == null || email.trim().isEmpty()) {
+            //recorder 이메일이 없음
+            email = userId + "@memoryforest.com";
+        }
+
+        User newUser = User.builder()
+                .userId(userId)
+                .loginId(loginId)
+                .userName(userName)
+                .password(encodedPassword) // 이미 암호화된 상태로 받음
+                .email(email)
+                .phone(phone)
+                .birthDate(birthDate)
+                .genderCode(genderCode)
+                .userTypeCode(userTypeCode)
+                .loginType ("DEFAULT")
+                .statusCode("A20005") // 활성 상태
+                .createdBy(userId)
+                .createdAt(LocalDateTime.now())
+                .profileImageFileId(fileId)
+                .build();
+
+        return userRepository.save(newUser);
     }
 
     public User updateRecorderUser(RecorderUpdateDto requestDto) {

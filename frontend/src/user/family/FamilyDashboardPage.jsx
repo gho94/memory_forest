@@ -20,8 +20,9 @@ function FamilyDashboardPage() {
   const [fileUrls, setFileUrls] = useState({});
   const [recorderList, setRecorderList] = useState([]);
   const [userId, setUserId] = useState('');
+  const [recorderFileUrls, setRecorderFileUrls] = useState({});
   const [relationshipCodes, setRelationshipCodes] = useState({});
-  
+  const [userName, setUserName] = useState('');
   const [selectedPatients, setSelectedPatients] = useState([]);
   const [gameName, setGameName] = useState('');
 
@@ -132,6 +133,7 @@ function FamilyDashboardPage() {
                     const user = JSON.parse(userInfo);
                     console.log('SessionStorage에서 가져온 사용자 정보:', user);
                     setUserId(user.userId);
+                    setUserName(user.userName);
                     return; // sessionStorage에 있으면 여기서 끝
                 } catch (error) {
                     console.error('사용자 정보 파싱 오류:', error);
@@ -381,6 +383,23 @@ function FamilyDashboardPage() {
       const data = await response.json();
       console.log('받아온 기록자 데이터:', data);
       setRecorderList(data);
+
+      const urlPromises = data.map(async (recorder) => {
+        if (recorder.fileId) {
+          const fileUrl = await fetchFileUrl(recorder.fileId);
+          return { userId: recorder.userId, fileUrl };
+        }
+        return { userId: recorder.userId, fileUrl: null };
+      });
+
+      const urlResults = await Promise.all(urlPromises);
+      const urlMap = {};
+      urlResults.forEach(result => {
+        if (result.fileUrl) {
+          urlMap[result.userId] = result.fileUrl;
+        }
+      });      
+      setRecorderFileUrls(urlMap);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -432,7 +451,7 @@ function FamilyDashboardPage() {
         <div className="greeting-con">
           <div className="greeting">
             <div className="fw-bold mb-2 fs-5">
-              <span>아이디</span> 님, 안녕하세요!
+              <span>{userName}</span> 님, 안녕하세요!
             </div>
             <div>
               <span className="sub-text">모두 함께 하는</span> <br />
@@ -461,7 +480,12 @@ function FamilyDashboardPage() {
             {recorderList.map((recorder) => ( 
             <div className="card-box" key={recorder.userId}>
               <div className="d-flex align-items-center">
-                <div className="profile-img"></div>
+                
+                <div className="profile-img">
+                  {recorderFileUrls[recorder.userId] && (
+                    <img src={recorderFileUrls[recorder.userId]} alt="프로필 이미지" height="100%" width="100%" style={{ borderRadius: '50%' }} />
+                  )}
+                </div>
                 <div className="flex-grow-1 text-start">
                   <div className="main-desc">
                     <span className="patient-name">{recorder.userName}</span>

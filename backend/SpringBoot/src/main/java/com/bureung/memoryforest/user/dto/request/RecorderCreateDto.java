@@ -11,4 +11,5 @@ public class RecorderCreateDto {
     private String relationshipCode;
     private String genderCode;
     private String userTypeCode;
+    private Integer fileId;
 }
