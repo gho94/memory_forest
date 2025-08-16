@@ -20,6 +20,7 @@ function FamilyDashboardPage() {
   const [fileUrls, setFileUrls] = useState({});
   const [recorderList, setRecorderList] = useState([]);
   const [userId, setUserId] = useState('');
+  const [recorderFileUrls, setRecorderFileUrls] = useState({});
   const [relationshipCodes, setRelationshipCodes] = useState({});
   const [userName, setUserName] = useState('');
   const [selectedPatients, setSelectedPatients] = useState([]);
@@ -382,6 +383,23 @@ function FamilyDashboardPage() {
       const data = await response.json();
       console.log('받아온 기록자 데이터:', data);
       setRecorderList(data);
+
+      const urlPromises = data.map(async (recorder) => {
+        if (recorder.fileId) {
+          const fileUrl = await fetchFileUrl(recorder.fileId);
+          return { userId: recorder.userId, fileUrl };
+        }
+        return { userId: recorder.userId, fileUrl: null };
+      });
+
+      const urlResults = await Promise.all(urlPromises);
+      const urlMap = {};
+      urlResults.forEach(result => {
+        if (result.fileUrl) {
+          urlMap[result.userId] = result.fileUrl;
+        }
+      });      
+      setRecorderFileUrls(urlMap);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -462,7 +480,12 @@ function FamilyDashboardPage() {
             {recorderList.map((recorder) => ( 
             <div className="card-box" key={recorder.userId}>
               <div className="d-flex align-items-center">
-                <div className="profile-img"></div>
+                
+                <div className="profile-img">
+                  {recorderFileUrls[recorder.userId] && (
+                    <img src={recorderFileUrls[recorder.userId]} alt="프로필 이미지" height="100%" width="100%" style={{ borderRadius: '50%' }} />
+                  )}
+                </div>
                 <div className="flex-grow-1 text-start">
                   <div className="main-desc">
                     <span className="patient-name">{recorder.userName}</span>

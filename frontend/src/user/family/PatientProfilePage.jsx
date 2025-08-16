@@ -7,6 +7,7 @@ import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 import AlarmModal from '@/components/modal/AlarmModal';
 import { useNavigate } from 'react-router-dom';
+import useFileUpload from '@/hooks/common/useFileUpload';
 
 function PatientProfilePage() {
   const [showAlarmModal, setShowAlarmModal] = useState(false);
@@ -15,7 +16,9 @@ function PatientProfilePage() {
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState('');
   const navigate = useNavigate();
-  
+  const [file, setFile] = useState(null);
+  const [fileImage, setFileImage] = useState(null);
+  const { uploadFile } = useFileUpload();
   // 드롭다운 관련 상태 추가
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
   const [isRelationshipDropdownOpen, setIsRelationshipDropdownOpen] = useState(false);
@@ -28,6 +31,7 @@ function PatientProfilePage() {
     genderCode: '',
     relationshipCode: '',
     userTypeCode: 'A20001', // 기록자 타입 코드 (고정값)
+    fileId: null,
   });
 
   // 드롭다운 토글 함수들
@@ -195,9 +199,20 @@ function PatientProfilePage() {
     }
 
     try {
+      let updatedFormData = { ...formData };
+      
+      if (file) {
+        const uploadedFileId = await uploadFile(file);
+        // 파일 업로드 성공 시 폼 데이터에 파일 ID 저장
+        updatedFormData = { ...updatedFormData, fileId: uploadedFileId };
+        console.log('uploadedFileId:', uploadedFileId);
+        console.log('업데이트된 formData:', updatedFormData);
+        setFormData(updatedFormData);
+      }
+
       // 전송할 데이터 구성
       const requestData = {
-        ...formData,
+        ...updatedFormData,
         loginId: currentUserId, // 현재 로그인된 사용자 ID
       };
 
@@ -229,6 +244,17 @@ function PatientProfilePage() {
     }
   };
 
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFileImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
@@ -242,9 +268,10 @@ function PatientProfilePage() {
         <form className="signup-form patient-signup-form" onSubmit={handleSubmit}>
           <div className="profile-upload-con">
             <div className="profile-upload">
-              <input type="file" id="fileInput" accept="image/*" />
+              <input type="file" id="fileInput" accept="image/*" onChange={handleFileSelect} />
               <label htmlFor="fileInput" className="upload-label" id="previewBox">
-                <i className="bi bi-person"></i>
+                {file && <img src={fileImage} style={{ width: '100%', height: '100%' }} />}
+                {!file && <i className="bi bi-person"></i>}
               </label>
             </div>
           </div>
