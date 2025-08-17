@@ -41,6 +41,13 @@ function FamilyDashboardPage() {
   
   const { fetchFileUrl, isLoading } = useFileUrl();
 
+    // 카카오 SDK 초기화
+    useEffect(() => {
+        if (window.Kakao && !window.Kakao.isInitialized()) {
+            window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY);
+        }
+    }, []);
+
   // 드롭다운 토글 함수
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -104,34 +111,12 @@ function FamilyDashboardPage() {
   }, []);
 
 
-  // useEffect(() => {
-  //   const getUserInfo = () => {
-  //     const userInfo = localStorage.getItem('user');
-  //     if (userInfo) {
-  //       try {
-  //         const user = JSON.parse(userInfo);
-  //         console.log('사용자 정보:', user);
-  //         setUserId(user.userId);
-  //       } catch (error) {
-  //         console.error('사용자 정보 파싱 오류:', error);
-  //       }
-  //     } else {
-  //       console.log('localStorage에 사용자 정보가 없습니다.');
-  //     }
-  //   };
-  //
-  //   getUserInfo();
-  // }, []);
-
-
-
     useEffect(() => {
         const getUserInfo = async () => {
             const userInfo = sessionStorage.getItem('user');
             if (userInfo) {
                 try {
                     const user = JSON.parse(userInfo);
-                    console.log('SessionStorage에서 가져온 사용자 정보:', user);
                     setUserId(user.userId);
                     setUserName(user.userName);
                     return; // sessionStorage에 있으면 여기서 끝
@@ -141,8 +126,6 @@ function FamilyDashboardPage() {
                 }
             }
 
-            console.log('SessionStorage에 사용자 정보가 없음. 서버 세션에서 조회 중...');
-
             try {
                 const response = await fetch(`${window.API_BASE_URL}/api/auth/session-info`, {
                     credentials: 'include' // 쿠키 포함
@@ -151,9 +134,6 @@ function FamilyDashboardPage() {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        console.log('서버 세션에서 가져온 사용자 정보:', data);
-
-                        // sessionStorage 저장
                         const userInfo = {
                             userId: data.userId,
                             userName: data.userName,
@@ -199,18 +179,14 @@ function FamilyDashboardPage() {
         setIsSharing(true);
 
         try {
-            console.log('공유 링크 생성 시작 - 환자ID:', patientId, '이름:', patientName);
-
             const response = await fetch(`${window.API_BASE_URL}/api/recorder/${patientId}/share`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include' // 세션 쿠키 포함
+                credentials: 'include'
             });
-
             const data = await response.json();
-            console.log('서버 응답:', data);
 
             if (data.success) {
                 setShareUrl(data.shareUrl);
@@ -218,8 +194,6 @@ function FamilyDashboardPage() {
 
                 // 모달 열기
                 document.getElementById('toggle-account-modal').checked = true;
-
-                console.log('공유 링크 생성 성공:', data.shareUrl);
                 generateQRCode(data.shareUrl);
             } else {
                 alert(data.message || '공유 링크 생성에 실패했습니다.');
@@ -248,20 +222,23 @@ function FamilyDashboardPage() {
             window.Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
-                    title: '환자 프로필 공유',
-                    description: `${currentPatientName}님의 의료 정보를 확인해보세요`,
+                    title: '오늘의 문제를 풀어보세요.',
+                    description: `${gameTitle}" 게임이 준비되었습니다.\n총 ${totalProblems}개의 문제를 풀어보세요.`,
                     link: {
                         mobileWebUrl: shareUrl,
                         webUrl: shareUrl
                     }
-                }
+                },
+                installTalk: true,
+                throughTalk: false
             });
         } catch (error) {
             console.error('카카오톡 공유 실패:', error);
             alert('카카오톡 공유에 실패했습니다.');
         }
     };
-    
+
+
     const generateQRCode = async (shareUrl) => {
       try {
         const currentUrl = shareUrl;
