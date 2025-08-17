@@ -339,7 +339,8 @@ function FamilyDashboardPage() {
   const fetchGameList = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${window.API_BASE_URL}/companion/dashboard`);
+      const response = await fetch(`${window.API_BASE_URL}/companion/dashboard`, {
+          credentials: 'include'});
       if (!response.ok) {
         throw new Error('데이터를 가져오는데 실패했습니다.');
       }
@@ -411,12 +412,9 @@ function FamilyDashboardPage() {
     console.log('userId 변경됨:', userId);
     if (userId) {
       fetchRecorderList(userId);
+      fetchGameList();
     }
   }, [userId]);
-
-  useEffect(() => {
-    fetchGameList();
-  }, []);
 
   const handlePatientSelection = (patientId) => {
     setSelectedPatients(prev => {

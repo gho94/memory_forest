@@ -36,14 +36,22 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             // 로그인 시간 업데이트
             userService.updateLoginTime(user.getUserId());
 
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                log.info("기존 세션 무효화: {}", oldSession.getId());
+                oldSession.invalidate();
+            }
+
+            HttpSession session = request.getSession(true);
+            log.info("새 세션 생성: {}", session.getId());
+
             // 세션에 사용자 정보 저장
-            HttpSession session = request.getSession();
             session.setAttribute("userId", user.getUserId());
+            session.setAttribute("loginId", user.getLoginId());
             session.setAttribute("userName", user.getUserName());
             session.setAttribute("userTypeCode", user.getUserTypeCode());
             session.setAttribute("loginType", user.getLoginType());
 
-//        String redirectUrl = determineRedirectUrl(user.getUserTypeCode());
             String redirectUrl = "http://localhost:3000/companion/dashboard";
 
             log.info("OAuth 로그인 완료, 리다이렉트: {}", redirectUrl);
