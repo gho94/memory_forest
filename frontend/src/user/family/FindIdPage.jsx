@@ -213,7 +213,6 @@ function FindIdPage() {
                 </div>
             )}
 
-            {/* 시간 만료 메시지 */}
             {timeLeft === 0 && isEmailSent && !isEmailVerified && (
                 <div className="form-text-invalid fw-semibold">
                     * 인증번호가 만료되었습니다.
@@ -234,26 +233,15 @@ function FindIdPage() {
                 </div>
             )}
 
-
-
-
-            {/* 아이디 찾기 결과 */}
             {foundLoginId  && (
                 <div className="find-id-result-con2">가입하신 아이디는<br/><span>{foundLoginId }</span>입니다.</div>
             )}
 
-            {/* 에러 메시지 */}
             {error && (
                 <div className="alert alert-danger mb-3" role="alert">
                     {error}
                 </div>
             )}
-
-
-          {/*<button type="submit" className="btn btn-login" onClick={handleFindId}>
-            아이디 찾기
-          </button>*/}
-
 
             {!isEmailVerified ? (
                 <button type="submit" className="btn btn-login" onClick={handleFindId}>
@@ -269,7 +257,7 @@ function FindIdPage() {
                             navigate('/');
                         }}
                     >
-                        로그인하러 가기
+                        로그인
                     </button>
                     <button
                         type="button"

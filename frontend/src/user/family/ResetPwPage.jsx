@@ -201,7 +201,6 @@ function ResetPasswordPage() {
 
                     {!isPasswordReset ? (
                         <>
-                            {/* 새 비밀번호 입력 */}
                             <div className="form-control-con">
                                 <input
                                     type="password"
@@ -218,12 +217,10 @@ function ResetPasswordPage() {
                                 )}
                                 {!validation.newPassword.message && formData.newPassword === '' && (
                                     <div className="form-text-info fw-semibold">
-                                        * 8~16자의 영문/대소문자, 숫자, 특수문자를 사용해 주세요.
                                     </div>
                                 )}
                             </div>
 
-                            {/* 새 비밀번호 확인 */}
                             <div className="form-control-con">
                                 <input
                                     type="password"
@@ -246,8 +243,6 @@ function ResetPasswordPage() {
                                     {error}
                                 </div>
                             )}
-
-                            {/* 비밀번호 변경 버튼 */}
                             <button
                                 type="submit"
                                 className="btn btn-login"
@@ -258,15 +253,11 @@ function ResetPasswordPage() {
                         </>
                     ) : (
                         <>
-                            {/* 비밀번호 변경 완료 메시지 */}
                             <div className="password-reset-result" >
-                                <div className="text1">🎉</div>
-                                <div className="text2">비밀번호 변경 완료!</div>
+                                <div className="text2">비밀번호 변경이 완료되었습니다.</div>
                                 <div className="text3">새로운 비밀번호로 로그인해주세요.</div>
                             </div>
-
-                            {/* 로그인 페이지로 이동 버튼 */}
-                            <button type="button" className="btn btn-login" onClick={goToLogin}>로그인 페이지로 이동</button>
+                            <button type="button" className="btn btn-login" onClick={goToLogin}>로그인</button>
                         </>
                     )}
 
