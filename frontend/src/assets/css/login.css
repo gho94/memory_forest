@@ -154,9 +154,7 @@
 .password-reset-result{
     display: block;
     padding: 30px;
-    background-color: #d4edda;
     border: 1px solid #c3e6cb;
-    border-radius: 12px;
     text-align: center;
     margin: 20px 0;
     color: #155724
@@ -196,11 +194,7 @@
 
 .welcome-page .welcome-container {
     text-align: center;
-}
-
-.welcome-page .welcome-emoji {
-    font-size: 50px;
-    margin-bottom: 10px;
+    margin-top: 120px;
 }
 
 .welcome-page .welcome-title {
@@ -217,13 +211,4 @@
 .welcome-page .welcome-username {
     color: #6c9a8b;
     font-weight: bold;
-}
-
-.welcome-page .welcome-branding {
-    background-color: #f8f9fa;
-    border: 1px solid #6c9a8b;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    font-size: 17px;
 }

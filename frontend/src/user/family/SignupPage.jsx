@@ -288,7 +288,6 @@ function SignupPage() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                // navigate('/'); //추후 시간이 가능하다면 신규 회원 가입 welcome페이지 만들어도 좋을듯 ?
                 navigate('/welcome', {
                     state: {
                         userName: formData.userName,
@@ -328,11 +327,12 @@ function SignupPage() {
             {/*비밀번호 입력*/}
           <div className="form-control-con">
             <input type="password" name="password" className="form-control" placeholder="비밀번호" value={formData.password} onChange={handleChange}/>
-              <div className={`form-text-${validation.password.isValid ? 'valid' : 'info'} fw-semibold`}>
-                  * {validation.password.message || '8~16자의 영문/대소문자, 숫자, 특수문자를 사용해 주세요.'}
-              </div>
+              {validation.password.message && (
+                  <div className={`form-text-${validation.password.isValid ? 'valid' : 'invalid'} fw-semibold`}>
+                      * {validation.password.message}
+                  </div>
+              )}
           </div>
-
 
             {/*비밀번호 확인하기*/}
           <div className="form-control-con">
@@ -347,7 +347,6 @@ function SignupPage() {
           <div className="form-control-con">
             <input type="text" name="userName" className="form-control" placeholder="이름" value={formData.userName} onChange={handleChange}/>
           </div>
-
 
             {/*// 1단계: 이메일 + 인증번호 받기 버튼*/}
           <div className="form-control-con ">
