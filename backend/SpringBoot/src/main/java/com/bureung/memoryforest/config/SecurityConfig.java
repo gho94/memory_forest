@@ -33,7 +33,6 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-////                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 일단 1차로 기본 세션 관리만 설정 (JWT는 나중에 추가)
 //                .sessionManagement(session -> session
 //                        .maximumSessions(1)
 //                        .maxSessionsPreventsLogin(false)
@@ -66,13 +65,11 @@ public class SecurityConfig {
 //                                // 기록자(RECORDER) 전용 경로
 //                                .requestMatchers("/recorder", "/recorder/**");
 ////                        .hasRole("RECORDER")
-//                               // .hasAuthority("ROLE_A20001")
 //
 ////                         /* // 동행자(COMPANION) 전용 경로
 ////                         .requestMatchers("/companion", "/companion/**")
-//// //                        .hasRole("COMPANION")
-////                         .hasAuthority("ROLE_A20002") */
-//
+//// //                        .hasRole("COMPANION")*/
+
 ////                        .anyRequest().permitAll()  // 모든 요청 허용
 ////                        .anyRequest().authenticated()
                 )
