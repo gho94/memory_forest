@@ -106,10 +106,10 @@ function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <input type="text" name="loginId" className="form-control" placeholder="아이디" value={formData.loginId} onChange={handleChange} disabled={loading}/>
+            <input type="text" name="loginId" className="form-control" placeholder="아이디" value={formData.loginId} onChange={handleChange}/>
           </div>
           <div className="mb-4">
-            <input type="password" name="password" className="form-control" placeholder="비밀번호" value={formData.password} onChange={handleChange} disabled={loading}/>
+            <input type="password" name="password" className="form-control" placeholder="비밀번호" value={formData.password} onChange={handleChange}/>
           </div>
 
             {error && (
@@ -118,7 +118,7 @@ function LoginPage() {
                 </div>
             )}
 
-          <button type="submit" className="btn btn-login" disabled={loading} onClick={handleSubmit}>{loading ? '로그인 중...' : '로그인'}</button>
+          <button type="submit" className="btn btn-login" onClick={handleSubmit}>로그인</button>
         </form>
 
         <div className="login-links">
@@ -133,9 +133,7 @@ function LoginPage() {
               <button
                   type="button"
                   className="btn btn-naver mb-2"
-                  onClick={() => handleSocialLogin('naver')}
-                  disabled={loading}
-              >
+                  onClick={() => handleSocialLogin('naver')}>
                   <span className="naver-icon">N</span>
                   네이버로 로그인
               </button>
@@ -143,9 +141,7 @@ function LoginPage() {
               <button
                   type="button"
                   className="btn btn-kakao mb-2"
-                  onClick={() => handleSocialLogin('kakao')}
-                  disabled={loading}
-              >
+                  onClick={() => handleSocialLogin('kakao')}>
                   <span className="kakao-icon">K</span>
                   카카오로 로그인
               </button>
