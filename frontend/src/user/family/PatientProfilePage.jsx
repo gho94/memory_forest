@@ -7,6 +7,7 @@ import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
 import AlarmModal from '@/components/modal/AlarmModal';
 import { useNavigate } from 'react-router-dom';
+import useFileUpload from '@/hooks/common/useFileUpload';
 
 function PatientProfilePage() {
   const [showAlarmModal, setShowAlarmModal] = useState(false);
@@ -15,13 +16,47 @@ function PatientProfilePage() {
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState('');
   const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [fileImage, setFileImage] = useState(null);
+  const { uploadFile } = useFileUpload();
+  // 드롭다운 관련 상태 추가
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const [isRelationshipDropdownOpen, setIsRelationshipDropdownOpen] = useState(false);
+  const [selectedGender, setSelectedGender] = useState('성별');
+  const [selectedRelationship, setSelectedRelationship] = useState('관계');
+  
   const [formData, setFormData] = useState({
     userName: '',
     birthDate: '',
     genderCode: '',
     relationshipCode: '',
     userTypeCode: 'A20001', // 기록자 타입 코드 (고정값)
+    fileId: null,
   });
+
+  // 드롭다운 토글 함수들
+  const toggleGenderDropdown = () => {
+    setIsGenderDropdownOpen(!isGenderDropdownOpen);
+    setIsRelationshipDropdownOpen(false); // 다른 드롭다운 닫기
+  };
+
+  const toggleRelationshipDropdown = () => {
+    setIsRelationshipDropdownOpen(!isRelationshipDropdownOpen);
+    setIsGenderDropdownOpen(false); // 다른 드롭다운 닫기
+  };
+
+  // 드롭다운 옵션 선택 함수들
+  const selectGender = (genderCode, genderName) => {
+    setSelectedGender(genderName);
+    setFormData(prev => ({ ...prev, genderCode }));
+    setIsGenderDropdownOpen(false);
+  };
+
+  const selectRelationship = (relationshipCode, relationshipName) => {
+    setSelectedRelationship(relationshipName);
+    setFormData(prev => ({ ...prev, relationshipCode }));
+    setIsRelationshipDropdownOpen(false);
+  };
 
   // 현재 로그인된 사용자 ID 가져오기
   // useEffect(() => {
@@ -164,9 +199,20 @@ function PatientProfilePage() {
     }
 
     try {
+      let updatedFormData = { ...formData };
+      
+      if (file) {
+        const uploadedFileId = await uploadFile(file);
+        // 파일 업로드 성공 시 폼 데이터에 파일 ID 저장
+        updatedFormData = { ...updatedFormData, fileId: uploadedFileId };
+        console.log('uploadedFileId:', uploadedFileId);
+        console.log('업데이트된 formData:', updatedFormData);
+        setFormData(updatedFormData);
+      }
+
       // 전송할 데이터 구성
       const requestData = {
-        ...formData,
+        ...updatedFormData,
         loginId: currentUserId, // 현재 로그인된 사용자 ID
       };
 
@@ -198,6 +244,17 @@ function PatientProfilePage() {
     }
   };
 
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFileImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="app-container d-flex flex-column">
       <FamilyHeader />
@@ -211,9 +268,10 @@ function PatientProfilePage() {
         <form className="signup-form patient-signup-form" onSubmit={handleSubmit}>
           <div className="profile-upload-con">
             <div className="profile-upload">
-              <input type="file" id="fileInput" accept="image/*" />
+              <input type="file" id="fileInput" accept="image/*" onChange={handleFileSelect} />
               <label htmlFor="fileInput" className="upload-label" id="previewBox">
-                <i className="bi bi-person"></i>
+                {file && <img src={fileImage} style={{ width: '100%', height: '100%' }} />}
+                {!file && <i className="bi bi-person"></i>}
               </label>
             </div>
           </div>
@@ -245,43 +303,45 @@ function PatientProfilePage() {
           </div>
 
           <div className="form-control-con">
-            <select 
-              className="form-control" 
-              placeholder="성별" 
-              name="genderCode"
-              value={formData.genderCode}
-              onChange={handleInputChange}
-              required
-            >
-              <option disabled hidden value="">
-                성별
-              </option>
-              {genderCodes.map((code) => (
-                <option key={code.codeId} value={code.codeId}>
-                  {code.codeName}
-                </option>
-              ))}
-            </select>
+            <input 
+              type="checkbox" 
+              id="gender-dropdown-toggle" 
+              checked={isGenderDropdownOpen}
+              onChange={toggleGenderDropdown}
+            />
+            <div className="search-dropdown-wrapper">
+              <label htmlFor="gender-dropdown-toggle" className="search-dropdown-display">
+                {selectedGender}
+              </label>
+              <ul className="search-dropdown-options">
+                {genderCodes.map((code) => (
+                  <li key={code.codeId} onClick={() => selectGender(code.codeId, code.codeName)}>
+                    {code.codeName}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="form-control-con">
-            <select 
-              className="form-control" 
-              placeholder="관계" 
-              name="relationshipCode"
-              value={formData.relationshipCode}
-              onChange={handleInputChange}
-              required
-            >
-              <option disabled hidden value="">
-                관계
-              </option>
-              {relationshipCodes.map((code) => (
-                <option key={code.codeId} value={code.codeId}>
-                  {code.codeName}                  
-                </option>
-              ))}
-            </select>
+            <input 
+              type="checkbox" 
+              id="relationship-dropdown-toggle" 
+              checked={isRelationshipDropdownOpen}
+              onChange={toggleRelationshipDropdown}
+            />
+            <div className="search-dropdown-wrapper">
+              <label htmlFor="relationship-dropdown-toggle" className="search-dropdown-display">
+                {selectedRelationship}
+              </label>
+              <ul className="search-dropdown-options">
+                {relationshipCodes.map((code) => (
+                  <li key={code.codeId} onClick={() => selectRelationship(code.codeId, code.codeName)}>
+                    {code.codeName}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-login">

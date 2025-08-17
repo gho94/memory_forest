@@ -21,7 +21,8 @@ public class RecorderListResponseDto {
     private String userTypeCode;
     private String statusCode;
     private String relationshipCode;
-    
+    private Integer fileId;
+
     public static RecorderListResponseDto from(User user, String relationshipCode) {
         return RecorderListResponseDto.builder()
                 .userId(user.getUserId())
@@ -34,6 +35,7 @@ public class RecorderListResponseDto {
                 .userTypeCode(user.getUserTypeCode())
                 .statusCode(user.getStatusCode())
                 .relationshipCode(relationshipCode)
+                .fileId(user.getProfileImageFileId())
                 .build();
     }
 }

@@ -75,6 +75,11 @@ function FamilyGameCreatePage() {
   };
 
   const handleAddProblem = async () => {
+    if (problems.length >= 10) {
+      alert('최대 10개의 문제를 추가할 수 있습니다.');
+      return;
+    }
+
     if (!file || !currentProblem.answerText.trim() || !currentProblem.gameTitle.trim()) {
       alert('게임 제목, 파일과 정답 단어를 모두 입력해주세요.');
       return;
@@ -175,8 +180,14 @@ function FamilyGameCreatePage() {
           </div>
 
           <div className="form-control-con">
-            <div className="form-control game-file-desc-con">
-              {file && <img src={fileImage} style={{ width: 'auto', height: '100%' }} />}   
+            <div className="form-control game-file-desc-con">              
+              {file && <img src={fileImage} style={{ 
+                maxWidth: '100%', 
+                maxHeight: '100%', 
+                width: 'auto', 
+                height: 'auto',
+                objectFit: 'contain'
+              }} />}
               {file && <button className={`trash-btn icon-btn`} onClick={() => {
                 setFile(null);
                 setFileImage(null);
