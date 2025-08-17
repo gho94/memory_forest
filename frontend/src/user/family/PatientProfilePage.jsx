@@ -218,7 +218,7 @@ function PatientProfilePage() {
 
       console.log('전송할 데이터:', requestData);
 
-      const response = await fetch(`${window.API_BASE_URL}/api/recorder/create`, {
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/create`, {
         method: 'POST',
         credentials: 'include',
         headers: {

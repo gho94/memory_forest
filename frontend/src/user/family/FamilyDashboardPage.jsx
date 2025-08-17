@@ -98,7 +98,9 @@ function FamilyDashboardPage() {
   };
 
   const getRelationshipName = (code) => {
-    return relationshipCodes.find(item => item.codeId === code)?.codeName || code;
+      if (Array.isArray(relationshipCodes)) {
+          return relationshipCodes.find(item => item.codeId === code)?.codeName || code;
+      }
   };
 
   useEffect(() => {
@@ -354,7 +356,7 @@ function FamilyDashboardPage() {
   const fetchRecorderList = async (userId) => {
     try {
       setLoading(true);
-      const response = await fetch(`${window.API_BASE_URL}/api/recorder/list?userId=${userId}`);
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/list?userId=${userId}`);
       if (!response.ok) {
         throw new Error('데이터를 가져오는데 실패했습니다.');
       }
