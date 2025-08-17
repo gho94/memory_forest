@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom'; // 추가
+import { useParams, useLocation, useNavigate } from 'react-router-dom'; // 추가
 import '@/assets/css/common.css';
 import '@/assets/css/patient.css';
 import PatientHeader from '@/components/layout/header/PatientHeader';
@@ -65,6 +65,7 @@ const GAME_CONFIG = {
 const useSharedAccess = () => {
     const { accessCode } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isSharedAccess, setIsSharedAccess] = useState(false);
     const [sharedLoginComplete, setSharedLoginComplete] = useState(false)
 
@@ -100,6 +101,10 @@ const useSharedAccess = () => {
                         }
 
                         setSharedLoginComplete(true);
+
+                        //redirect처리 추가하기
+                        navigate('/recorder/dashboard', { replace: true });
+
                     } else {
                         console.error('공유 링크 로그인 실패:', data.message);
                         alert(data.message || '유효하지 않은 접근 링크입니다.');
@@ -116,7 +121,7 @@ const useSharedAccess = () => {
         } else {
             setSharedLoginComplete(true);
         }
-    }, [accessCode, location.pathname]);
+    }, [accessCode, location.pathname, navigate]);
 
     return { isSharedAccess, sharedLoginComplete };
 };
