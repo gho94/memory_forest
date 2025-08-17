@@ -41,8 +41,8 @@
 
      //로그인
      @PostMapping("/login")
-     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest, HttpSession session) {
-
+//     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest, HttpSession session) {
+     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
          LoginResponseDto result = authService.login(loginRequest.getLoginId(), loginRequest.getPassword());
 
          Map<String, Object> response = new HashMap<>();
@@ -54,7 +54,13 @@
          }
 
          User user = result.getUser();
+         HttpSession oldSession = request.getSession(false);
+         if (oldSession != null) {
+             oldSession.invalidate();
+         }
 
+        // 새로운 세션 생성
+         HttpSession session = request.getSession(true);
 
          // Security Context에 인증 정보 설정
          UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

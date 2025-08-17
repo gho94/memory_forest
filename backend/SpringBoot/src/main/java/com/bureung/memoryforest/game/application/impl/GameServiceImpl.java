@@ -114,8 +114,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<GameListResponseDto> getGameListInfo() {
-        List<GameMaster> games = gameMasterRepository.findAll();
+    public List<GameListResponseDto> getGameListInfo(String userId) {
+//        List<GameMaster> games = gameMasterRepository.findAll();
+        List<GameMaster> games = gameMasterRepository.findByCreatedByOrderByCreatedAtDesc(userId);
         
         return games.stream()
                 .map(game -> {

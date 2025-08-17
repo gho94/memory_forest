@@ -3,6 +3,7 @@ package com.bureung.memoryforest.game.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bureung.memoryforest.game.application.GameService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,13 +26,19 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class GameController {
     
-    private final GameService gameService;    
+    private final GameService gameService;
 
     @GetMapping("/companion/dashboard")
-    public ResponseEntity<List<GameListResponseDto>> getAllGame() {
-        List<GameListResponseDto> games = gameService.getGameListInfo();
+    public ResponseEntity<List<GameListResponseDto>> getAllGame(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            log.warn("세션에 사용자 정보가 없음");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<GameListResponseDto> games = gameService.getGameListInfo(userId);
         return ResponseEntity.ok(games);
     }
+
 
     @GetMapping("/companion/games/list")
     public ResponseEntity<List<GameDetail>> getGameDetail(@RequestParam String gameId) {
