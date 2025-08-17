@@ -282,15 +282,6 @@ function PatientDashboardPage() {
       <div className="app-container d-flex flex-column">
         <PatientHeader />
 
-          {/* 공유 접근 배너 (추가된 부분) */}
-          {isSharedAccess && (
-              <div className="alert alert-info d-flex align-items-center mb-3" style={{margin: '0 1rem'}}>
-                  <i className="bi bi-share me-2"></i>
-                  <span><strong>{dashboardData.userName}님</strong>을 위한 맞춤 게임입니다.</span>
-              </div>
-          )}
-
-
         <main className="content-area patient-con">
           <div className="greeting">
             안녕하세요, <br />
