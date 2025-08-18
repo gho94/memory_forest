@@ -197,31 +197,45 @@ function FamilyDashboardPage() {
     };
 
     // 카카오톡 공유 함수
-    const shareKakao = () => {
+    const shareKakao = async () => {
         if (!window.Kakao) {
             alert('카카오 SDK가 로드되지 않았습니다.');
             return;
         }
 
-        if (!shareUrl) {
-            alert('공유할 링크가 없습니다.');
+        const currentRecorder = recorderList.find(recorder => recorder.userName === currentPatientName);
+        if (!currentRecorder) {
+            alert('환자 정보를 찾을 수 없습니다.');
             return;
         }
 
         try {
-            window.Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: '오늘의 문제를 풀어보세요.',
-                    description: `${currentPatientName}님이 만든 기억숲 게임에 참여해보세요`,
-                    link: {
-                        mobileWebUrl: shareUrl,
-                        webUrl: shareUrl
-                    }
+            const response = await fetch(`${window.API_BASE_URL}/api/recorder/${currentRecorder.userId}/share`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                installTalk: true,
-                throughTalk: false
+                credentials: 'include'
             });
+            const data = await response.json();
+
+            if (data.success) {
+                window.Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '오늘의 문제를 풀어보세요.',
+                        description: `기억숲 게임에 참여해보세요`,
+                        link: {
+                            mobileWebUrl: data.shareUrl,
+                            webUrl: data.shareUrl
+                        }
+                    },
+                    installTalk: true,
+                    throughTalk: false
+                });
+            } else {
+                alert(data.message || '공유 링크 생성에 실패했습니다.');
+            }
         } catch (error) {
             console.error('카카오톡 공유 실패:', error);
             alert('카카오톡 공유에 실패했습니다.');

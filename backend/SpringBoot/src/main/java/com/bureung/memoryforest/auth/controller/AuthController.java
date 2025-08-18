@@ -53,7 +53,6 @@
              oldSession.invalidate();
          }
 
-         //새로운 새션 생성하기 전에 security context에 담아둔것도 깔끔하게 지우는게 이슈가 될 수 있다고함.... todo 시도
          SecurityContextHolder.clearContext();
 
         // 새로운 세션 생성
@@ -427,7 +426,6 @@
      }
 
 
-    //localStorage 대신에 SessionStorage 으로 수정
      @GetMapping("/session-info")
      public ResponseEntity<Map<String, Object>> getSessionInfo(HttpServletRequest request) {
          try {
