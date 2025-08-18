@@ -24,7 +24,7 @@ function ResetPasswordPage() {
 
     // 이전 페이지에서 전달받은 인증 정보
     const authInfo = location.state;
-    
+
     //삭제
     useEffect(() => {
         console.log("=== ResetPasswordPage authInfo 확인 ===");
@@ -35,7 +35,7 @@ function ResetPasswordPage() {
         console.log("authInfo?.verificationCode:", authInfo?.verificationCode);
     }, [authInfo, location.state]);
 
-    //에러 메세지...아아ㅏㅏㅏㅏㅏㅏ
+    //에러 메세지
     const showError = (message) => {
         setError(message);
         if (message) {
@@ -48,7 +48,7 @@ function ResetPasswordPage() {
     // 인증되지 않은 접근 차단
     useEffect(() => {
         if (!authInfo || !authInfo.verified) {
-          navigate('/findPw',{ replace: true });
+            navigate('/findPw',{ replace: true });
         }
     }, [authInfo, navigate]);
 
@@ -68,10 +68,16 @@ function ResetPasswordPage() {
         }
     }, [isPasswordReset, navigate]);
 
+    // 비밀번호 간단 유효성 검사 (수정됨)
+    const validatePassword = (password) => {
+        if (password.length === 0) return '';
+        if (password.length < 8 || password.length > 16) {
+            return '8~16자의 영문/대소문자, 숫자, 특수문자를 사용해 주세요.';
+        }
+        return '';
+    };
 
-    // if (!authInfo?.verified) navigate('/findPw');
-
-    // 입력값 변경 핸들러
+    // 입력값 변경 핸들러 (수정됨)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -81,31 +87,19 @@ function ResetPasswordPage() {
 
         // 비밀번호 실시간 검증
         if (name === 'newPassword') {
-            validatePassword(value);
+            const message = validatePassword(value);
+            setValidation(prev => ({
+                ...prev,
+                newPassword: {
+                    isValid: value.length >= 8 && value.length <= 16,
+                    message
+                }
+            }));
         } else if (name === 'confirmPassword') {
             validateConfirmPassword(value);
         }
-    };
 
-    // 비밀번호 간단 유효성 검사
-    const validatePassword = (password) => {
-        if (password.length === 0) {
-            setValidation(prev => ({
-                ...prev,
-                newPassword: { isValid: false, message: '' }
-            }));
-            return;
-        }
-
-        const isValid = password.length >= 8 && password.length <= 16;
-        const message = isValid
-            ? '올바른 비밀번호입니다.'
-            : '8~16자의 영문/대소문자, 숫자, 특수문자를 사용해 주세요.';
-
-        setValidation(prev => ({
-            ...prev,
-            newPassword: { isValid, message }
-        }));
+        if (error) setError('');
     };
 
     // 비밀번호 확인 검사
@@ -160,7 +154,6 @@ function ResetPasswordPage() {
 
             if (response.ok && data.success) {
                 setIsPasswordReset(true);
-                // alert('비밀번호가 성공적으로 변경되었습니다!');
 
                 // 성공 후 폼 데이터 클리어 -> 추가하면 좋을거 같아서 찾아서 넣음
                 setFormData({ newPassword: '', confirmPassword: '' });
@@ -180,7 +173,6 @@ function ResetPasswordPage() {
 
     // 로그인 페이지로 이동
     const goToLogin = () => {
-        // alert('로그인 페이지로 이동합니다.');
         navigate('/', { replace: true }); // 새로고침 시 안전하게 리다이렉트
     };
 
@@ -193,9 +185,9 @@ function ResetPasswordPage() {
 
                     {/* 비밀번호 재설정할 사람에 대해서 ... 내용 띄우는거  */}
                     {!isPasswordReset && (
-                    <div className="user-information">
-                        <div className="text3"><strong>{authInfo?.loginId || 'USER'}</strong> 계정의 비밀번호를 재설정합니다.</div>
-                    </div>
+                        <div className="user-information">
+                            <div className="text3"><strong>{authInfo?.loginId || 'USER'}</strong> 계정의 비밀번호를 재설정합니다.</div>
+                        </div>
                     )}
 
 
@@ -211,12 +203,8 @@ function ResetPasswordPage() {
                                     onChange={handleChange}
                                 />
                                 {validation.newPassword.message && (
-                                    <div className={`form-text-${validation.newPassword.isValid ? 'valid' : 'info'} fw-semibold`}>
+                                    <div className={`form-text-${validation.newPassword.isValid ? 'valid' : 'invalid'} fw-semibold`}>
                                         * {validation.newPassword.message}
-                                    </div>
-                                )}
-                                {!validation.newPassword.message && formData.newPassword === '' && (
-                                    <div className="form-text-info fw-semibold">
                                     </div>
                                 )}
                             </div>

@@ -15,7 +15,10 @@ function FamilyMyPage() {
   const [statusCodes, setStatusCodes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState('');
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
+  // 드롭다운 관련 상태 추가
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const [selectedGender, setSelectedGender] = useState('성별');
 
   const [currentUser, setCurrentUser] = useState({
     userId: '',
@@ -30,6 +33,18 @@ function FamilyMyPage() {
     loginType: '',
     statusCode: ''
   });
+
+  // 드롭다운 토글 함수들
+  const toggleGenderDropdown = () => {
+    setIsGenderDropdownOpen(!isGenderDropdownOpen);
+  };
+
+  // 드롭다운 옵션 선택 함수들
+  const selectGender = (genderCode, genderName) => {
+    setSelectedGender(genderName);
+    setCurrentUser(prev => ({ ...prev, genderCode }));
+    setIsGenderDropdownOpen(false);
+  };
 
     useEffect(() => {
         const getCurrentUserId = async () => {
@@ -89,29 +104,48 @@ function FamilyMyPage() {
     }, [navigate]);
 
   useEffect(() => {
-    const getCurrentUser = async () => {
-      if (!currentUserId) {
-        return;
-      }
-      
-      const response = await fetch(`${window.API_BASE_URL}/companion/user/mypage?userId=${currentUserId}`);
-      console.log('사용자 정보 조회 요청:', currentUserId);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('사용자 정보:', data);
+    const initializeData = async () => {
+      try {
+        // 1. 공통코드 먼저 로드
+        const genderData = await fetchCommonCodes('A10005');
+        setGenderCodes(genderData);
         
-        const sanitizedData = Object.keys(data).reduce((acc, key) => {
-          acc[key] = data[key] === null ? '' : data[key];
-          return acc;
-        }, {});
-        setCurrentUser(sanitizedData);
-      } else {
-        console.error('사용자 정보 조회 실패:', response.status);
+        // 2. currentUserId가 있으면 사용자 정보 로드
+        if (currentUserId) {
+          const response = await fetch(`${window.API_BASE_URL}/companion/user/mypage?userId=${currentUserId}`);
+          console.log('사용자 정보 조회 요청:', currentUserId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('사용자 정보:', data);
+            
+            const sanitizedData = Object.keys(data).reduce((acc, key) => {
+              acc[key] = data[key] === null ? '' : data[key];
+              return acc;
+            }, {});
+            console.log('sanitizedData', sanitizedData);
+            
+            setCurrentUser(sanitizedData);
+            
+            // 3. genderCodes가 로드된 후에 selectedGender 설정
+            if (genderData && genderData.length > 0) {
+              genderData.forEach(code => {
+                if (code.codeId === sanitizedData.genderCode) {
+                  setSelectedGender(code.codeName);
+                }
+              });
+            }
+          } else {
+            console.error('사용자 정보 조회 실패:', response.status);
+          }
+        }
+      } catch (error) {
+        console.error('데이터 초기화 중 오류:', error);
       }
     };
-    getCurrentUser();
-  }, [currentUserId]);
+    
+    initializeData();
+  }, [currentUserId]); // currentUserId 변경 시마다 실행
 
   const fetchCommonCodes = async (parentCodeId) => {
     try {
@@ -131,15 +165,6 @@ function FamilyMyPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const loadCommonCodes = async () => {
-      const genderData = await fetchCommonCodes('A10005');
-      setGenderCodes(genderData);
-    };
-
-    loadCommonCodes();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -336,22 +361,24 @@ function FamilyMyPage() {
           </div>
 
           <div className="form-control-con">
-            <select 
-              className="form-control" 
-              placeholder="성별" 
-              name="genderCode"
-              value={currentUser.genderCode}
-              onChange={handleInputChange}
-            >
-              <option disabled hidden value="">
-                성별
-              </option>
-              {genderCodes.map((code) => (
-                <option key={code.codeId} value={code.codeId}>
-                  {code.codeName}
-                </option>
-              ))}
-            </select>
+            <input 
+              type="checkbox" 
+              id="gender-dropdown-toggle" 
+              checked={isGenderDropdownOpen}
+              onChange={toggleGenderDropdown}
+            />
+            <div className="text-start form-control search-dropdown-wrapper gender">
+              <label htmlFor="gender-dropdown-toggle" className="search-dropdown-display">
+                {selectedGender}
+              </label>
+              <ul className="search-dropdown-options">
+                {genderCodes.map((code) => (
+                  <li key={code.codeId} onClick={() => selectGender(code.codeId, code.codeName)}>
+                    {code.codeName}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-login">
