@@ -422,9 +422,166 @@ sequenceDiagram
 
 ---
 
-## 📊 4. 상태 다이어그램
+## 📊 4. 유스케이스 다이어그램
 
-### **4.1 게임 세션 상태 다이어그램**
+### **4.1 전체 시스템 유스케이스 다이어그램**
+
+```mermaid
+graph TB
+    %% Actors
+    Patient[환자]
+    Family[가족 구성원]
+    Admin[관리자]
+    
+    %% Use Cases
+    UC1[회원가입/로그인]
+    UC2[게임 플레이]
+    UC3[진행도 확인]
+    UC4[콘텐츠 업로드]
+    UC5[AI 분석 요청]
+    UC6[게임 생성/관리]
+    UC7[사용자 관리]
+    UC8[시스템 모니터링]
+    UC9[데이터 백업]
+    UC10[보고서 생성]
+    
+    %% Relationships
+    Patient --> UC1
+    Patient --> UC2
+    Patient --> UC3
+    
+    Family --> UC1
+    Family --> UC4
+    Family --> UC5
+    Family --> UC3
+    
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
+    Admin --> UC10
+```
+
+### **4.2 환자 유스케이스 상세**
+
+```mermaid
+graph TB
+    %% Patient Actor
+    Patient[환자]
+    
+    %% Patient Use Cases
+    PUC1[계정 생성]
+    PUC2[로그인]
+    PUC3[게임 선택]
+    PUC4[게임 플레이]
+    PUC5[답변 제출]
+    PUC6[결과 확인]
+    PUC7[진행도 조회]
+    PUC8[프로필 수정]
+    PUC9[로그아웃]
+    
+    %% Relationships
+    Patient --> PUC1
+    Patient --> PUC2
+    Patient --> PUC3
+    Patient --> PUC4
+    Patient --> PUC5
+    Patient --> PUC6
+    Patient --> PUC7
+    Patient --> PUC8
+    Patient --> PUC9
+    
+    %% Flow
+    PUC1 --> PUC2
+    PUC2 --> PUC3
+    PUC3 --> PUC4
+    PUC4 --> PUC5
+    PUC5 --> PUC6
+    PUC6 --> PUC7
+```
+
+### **4.3 가족 구성원 유스케이스 상세**
+
+```mermaid
+graph TB
+    %% Family Actor
+    Family[가족 구성원]
+    
+    %% Family Use Cases
+    FUC1[계정 생성]
+    FUC2[환자 연결]
+    FUC3[콘텐츠 업로드]
+    FUC4[AI 분석 요청]
+    FUC5[진행도 모니터링]
+    FUC6[게임 생성]
+    FUC7[보고서 조회]
+    FUC8[알림 설정]
+    
+    %% Relationships
+    Family --> FUC1
+    Family --> FUC2
+    Family --> FUC3
+    Family --> FUC4
+    Family --> FUC5
+    Family --> FUC6
+    Family --> FUC7
+    Family --> FUC8
+    
+    %% Flow
+    FUC1 --> FUC2
+    FUC2 --> FUC3
+    FUC3 --> FUC4
+    FUC4 --> FUC5
+    FUC5 --> FUC6
+    FUC6 --> FUC7
+    FUC7 --> FUC8
+```
+
+### **4.4 관리자 유스케이스 상세**
+
+```mermaid
+graph TB
+    %% Admin Actor
+    Admin[관리자]
+    
+    %% Admin Use Cases
+    AUC1[시스템 접근]
+    AUC2[사용자 관리]
+    AUC3[게임 콘텐츠 관리]
+    AUC4[AI 모델 관리]
+    AUC5[시스템 모니터링]
+    AUC6[데이터 백업]
+    AUC7[보고서 생성]
+    AUC8[권한 관리]
+    AUC9[시스템 설정]
+    
+    %% Relationships
+    Admin --> AUC1
+    Admin --> AUC2
+    Admin --> AUC3
+    Admin --> AUC4
+    Admin --> AUC5
+    Admin --> AUC6
+    Admin --> AUC7
+    Admin --> AUC8
+    Admin --> AUC9
+    
+    %% Flow
+    AUC1 --> AUC2
+    AUC2 --> AUC3
+    AUC3 --> AUC4
+    AUC4 --> AUC5
+    AUC5 --> AUC6
+    AUC6 --> AUC7
+    AUC7 --> AUC8
+    AUC8 --> AUC9
+```
+
+---
+
+## 📊 5. 상태 다이어그램
+
+### **5.1 게임 세션 상태 다이어그램**
 
 ```mermaid
 stateDiagram-v2
@@ -446,7 +603,7 @@ stateDiagram-v2
     Paused --> GameComplete : 강제 종료
 ```
 
-### **4.2 사용자 계정 상태 다이어그램**
+### **5.2 사용자 계정 상태 다이어그램**
 
 ```mermaid
 stateDiagram-v2
@@ -461,7 +618,7 @@ stateDiagram-v2
     Deleted --> [*] : 계정 삭제
 ```
 
-### **4.3 AI 분석 상태 다이어그램**
+### **5.3 AI 분석 상태 다이어그램**
 
 ```mermaid
 stateDiagram-v2
@@ -475,9 +632,9 @@ stateDiagram-v2
 
 ---
 
-## 🔗 5. 컴포넌트 다이어그램
+## 🔗 6. 컴포넌트 다이어그램
 
-### **5.1 시스템 컴포넌트 구조**
+### **6.1 시스템 컴포넌트 구조**
 
 ```mermaid
 graph TB
@@ -520,9 +677,9 @@ graph TB
 
 ---
 
-## 📋 6. 배치 다이어그램
+## 📋 7. 배치 다이어그램
 
-### **6.1 시스템 배치 구조**
+### **7.1 시스템 배치 구조**
 
 ```mermaid
 graph TB
@@ -576,9 +733,9 @@ graph TB
 
 ---
 
-## 📊 7. 활동 다이어그램
+## 📊 8. 활동 다이어그램
 
-### **7.1 게임 플레이 활동 흐름**
+### **8.1 게임 플레이 활동 흐름**
 
 ```mermaid
 flowchart TD
@@ -602,7 +759,7 @@ flowchart TD
     Q --> R[게임 종료]
 ```
 
-### **7.2 AI 분석 활동 흐름**
+### **8.2 AI 분석 활동 흐름**
 
 ```mermaid
 flowchart TD
@@ -622,9 +779,9 @@ flowchart TD
 
 ---
 
-## 📋 8. UML 모델 검증
+## 📋 9. UML 모델 검증
 
-### **8.1 모델 검증 체크리스트**
+### **9.1 모델 검증 체크리스트**
 
 - [ ] **구조적 일관성**: 클래스 간 관계가 논리적으로 일치하는가?
 - [ ] **명명 규칙**: 모든 요소가 명명 규칙을 따르는가?
@@ -632,7 +789,7 @@ flowchart TD
 - [ ] **명확성**: 다이어그램이 이해하기 쉬운가?
 - [ ] **확장성**: 향후 기능 추가를 고려한 설계인가?
 
-### **8.2 모델 개선 방안**
+### **9.2 모델 개선 방안**
 
 1. **성능 최적화**: 데이터베이스 쿼리 최적화를 위한 인덱스 설계
 2. **보안 강화**: 인증/인가 로직의 세분화
