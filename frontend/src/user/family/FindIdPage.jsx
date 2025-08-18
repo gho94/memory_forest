@@ -70,7 +70,7 @@ function FindIdPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/findId/email/send`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/findId/email/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ function FindIdPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/findId`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/findId`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

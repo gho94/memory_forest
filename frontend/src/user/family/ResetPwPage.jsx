@@ -142,7 +142,7 @@ function ResetPasswordPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/password/reset/complete`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/password/reset/complete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
