@@ -154,15 +154,15 @@ classDiagram
         +String relatedUserId
     }
 
-    User ||--o{ GameMaster : creates
-    User ||--o{ GamePlayer : plays
-    GameMaster ||--o{ GameDetail : contains
-    GameMaster ||--o{ GamePlayer : has_players
-    User ||--o{ FileInfo : uploads
-    User ||--o{ Record : creates
-    User ||--o{ Alarm : receives
-    User ||--o{ UserRel : relates_to
-    GameDetail ||--o{ FileInfo : references
+    User ||--o{ GameMaster : "creates"
+    User ||--o{ GamePlayer : "plays"
+    GameMaster ||--o{ GameDetail : "contains"
+    GameMaster ||--o{ GamePlayer : "has_players"
+    User ||--o{ FileInfo : "uploads"
+    User ||--o{ Record : "creates"
+    User ||--o{ Alarm : "receives"
+    User ||--o{ UserRel : "relates_to"
+    GameDetail ||--o{ FileInfo : "references"
 ```
 
 ### **2.2 서비스 레이어 클래스 다이어그램**
@@ -480,46 +480,46 @@ stateDiagram-v2
 ### **5.1 시스템 컴포넌트 구조**
 
 ```mermaid
-component
-    component "Frontend (React 19)" {
-        component "Game Components" as GC
-        component "User Components" as UC
-        component "Admin Components" as AC
-        component "Common Components" as CC
-        component "Chart Components" as CH
-    }
+graph TB
+    subgraph "Frontend (React 19)"
+        GC[Game Components]
+        UC[User Components]
+        AC[Admin Components]
+        CC[Common Components]
+        CH[Chart Components]
+    end
     
-    component "Backend (Spring Boot 3.5.4)" {
-        component "User Controller" as UController
-        component "Game Controller" as GController
-        component "Content Controller" as CController
-        component "Admin Controller" as AController
-        component "Auth Controller" as AuthController
-    }
+    subgraph "Backend (Spring Boot 3.5.4)"
+        UController[User Controller]
+        GController[Game Controller]
+        CController[Content Controller]
+        AController[Admin Controller]
+        AuthController[Auth Controller]
+    end
     
-    component "AI Service (FastAPI 0.111.0)" {
-        component "Image Analysis" as IA
-        component "Text Analysis" as TA
-        component "Word2Vec Model" as WV
-        component "KoNLPy" as KN
-    }
+    subgraph "AI Service (FastAPI 0.111.0)"
+        IA[Image Analysis]
+        TA[Text Analysis]
+        WV[Word2Vec Model]
+        KN[KoNLPy]
+    end
     
-    component "Database" {
-        component "MySQL 8.0" as DB
-        component "Redis 7.0" as Cache
-    }
+    subgraph "Database"
+        DB[(MySQL 8.0)]
+        Cache[(Redis 7.0)]
+    end
     
-    component "External Services" {
-        component "File Storage (S3)" as S3
-        component "Email Service (Gmail)" as Email
-        component "OAuth2 (Naver)" as OAuth
-    }
+    subgraph "External Services"
+        S3[File Storage (S3)]
+        Email[Email Service (Gmail)]
+        OAuth[OAuth2 (Naver)]
+    end
     
     Frontend --> Backend : HTTP/REST
-    Backend --> AI Service : HTTP/REST
+    Backend --> AI_Service : HTTP/REST
     Backend --> Database : JDBC/JPA
-    Backend --> External Services : HTTP/API
-    AI Service --> Database : Database Connection
+    Backend --> External_Services : HTTP/API
+    AI_Service --> Database : Database Connection
 ```
 
 ---
@@ -529,39 +529,39 @@ component
 ### **6.1 시스템 배치 구조**
 
 ```mermaid
-deployment
-    node "Client Browser" {
-        component "React 19 SPA" as React
-    }
+graph TB
+    subgraph "Client Browser"
+        React[React 19 SPA]
+    end
     
-    node "Load Balancer" {
-        component "Nginx" as LB
-    }
+    subgraph "Load Balancer"
+        LB[Nginx]
+    end
     
-    node "Web Server 1" {
-        component "Spring Boot App" as App1
-        component "JVM 21" as JVM1
-    }
+    subgraph "Web Server 1"
+        App1[Spring Boot App]
+        JVM1[JVM 21]
+    end
     
-    node "Web Server 2" {
-        component "Spring Boot App" as App2
-        component "JVM 21" as JVM2
-    }
+    subgraph "Web Server 2"
+        App2[Spring Boot App]
+        JVM2[JVM 21]
+    end
     
-    node "AI Server" {
-        component "FastAPI App" as AI
-        component "Python 3.10" as Python
-        component "Word2Vec Model" as Model
-    }
+    subgraph "AI Server"
+        AI[FastAPI App]
+        Python[Python 3.10]
+        Model[Word2Vec Model]
+    end
     
-    node "Database Server" {
-        component "MySQL 8.0" as MySQL
-        component "Redis 7.0" as Redis
-    }
+    subgraph "Database Server"
+        MySQL[(MySQL 8.0)]
+        Redis[(Redis 7.0)]
+    end
     
-    node "Storage Server" {
-        component "AWS S3" as S3
-    }
+    subgraph "Storage Server"
+        S3[AWS S3]
+    end
     
     React --> LB : HTTPS
     LB --> App1 : HTTP
