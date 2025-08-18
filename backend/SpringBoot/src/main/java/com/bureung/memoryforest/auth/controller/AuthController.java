@@ -33,12 +33,6 @@
      private final AuthService authService;
      private final EmailService emailService;
 
-     //api 테스트용 --- 추후 지워야함!!!!!!!!!!!!!!!!
-     @GetMapping("/test")
-     public ResponseEntity<String> test() {
-         return ResponseEntity.ok("API 작동 중!");
-     }
-
      //로그인
      @PostMapping("/login")
 //     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto loginRequest, HttpSession session) {
@@ -58,6 +52,9 @@
          if (oldSession != null) {
              oldSession.invalidate();
          }
+
+         //새로운 새션 생성하기 전에 security context에 담아둔것도 깔끔하게 지우는게 이슈가 될 수 있다고함.... todo 시도
+         SecurityContextHolder.clearContext();
 
         // 새로운 세션 생성
          HttpSession session = request.getSession(true);
