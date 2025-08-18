@@ -154,15 +154,15 @@ classDiagram
         +String relatedUserId
     }
 
-    User ||--o{ GameMaster : "creates"
-    User ||--o{ GamePlayer : "plays"
-    GameMaster ||--o{ GameDetail : "contains"
-    GameMaster ||--o{ GamePlayer : "has_players"
-    User ||--o{ FileInfo : "uploads"
-    User ||--o{ Record : "creates"
-    User ||--o{ Alarm : "receives"
-    User ||--o{ UserRel : "relates_to"
-    GameDetail ||--o{ FileInfo : "references"
+    User --> GameMaster
+    User --> GamePlayer
+    GameMaster --> GameDetail
+    GameMaster --> GamePlayer
+    User --> FileInfo
+    User --> Record
+    User --> Alarm
+    User --> UserRel
+    GameDetail --> FileInfo
 ```
 
 ### **2.2 서비스 레이어 클래스 다이어그램**
@@ -481,45 +481,41 @@ stateDiagram-v2
 
 ```mermaid
 graph TB
-    subgraph "Frontend (React 19)"
-        GC[Game Components]
-        UC[User Components]
-        AC[Admin Components]
-        CC[Common Components]
-        CH[Chart Components]
-    end
+    %% Frontend Components
+    GC[Game Components]
+    UC[User Components]
+    AC[Admin Components]
+    CC[Common Components]
+    CH[Chart Components]
     
-    subgraph "Backend (Spring Boot 3.5.4)"
-        UController[User Controller]
-        GController[Game Controller]
-        CController[Content Controller]
-        AController[Admin Controller]
-        AuthController[Auth Controller]
-    end
+    %% Backend Components
+    UController[User Controller]
+    GController[Game Controller]
+    CController[Content Controller]
+    AController[Admin Controller]
+    AuthController[Auth Controller]
     
-    subgraph "AI Service (FastAPI 0.111.0)"
-        IA[Image Analysis]
-        TA[Text Analysis]
-        WV[Word2Vec Model]
-        KN[KoNLPy]
-    end
+    %% AI Service Components
+    IA[Image Analysis]
+    TA[Text Analysis]
+    WV[Word2Vec Model]
+    KN[KoNLPy]
     
-    subgraph "Database"
-        DB[(MySQL 8.0)]
-        Cache[(Redis 7.0)]
-    end
+    %% Database Components
+    DB[(MySQL 8.0)]
+    Cache[(Redis 7.0)]
     
-    subgraph "External Services"
-        S3[File Storage (S3)]
-        Email[Email Service (Gmail)]
-        OAuth[OAuth2 (Naver)]
-    end
+    %% External Services
+    S3[File Storage S3]
+    Email[Email Service]
+    OAuth[OAuth2 Naver]
     
-    Frontend --> Backend : HTTP/REST
-    Backend --> AI_Service : HTTP/REST
-    Backend --> Database : JDBC/JPA
-    Backend --> External_Services : HTTP/API
-    AI_Service --> Database : Database Connection
+    %% Relationships
+    GC --> UController
+    UController --> IA
+    UController --> DB
+    UController --> S3
+    IA --> DB
 ```
 
 ---
@@ -563,19 +559,19 @@ graph TB
         S3[AWS S3]
     end
     
-    React --> LB : HTTPS
-    LB --> App1 : HTTP
-    LB --> App2 : HTTP
-    App1 --> AI : HTTP
-    App2 --> AI : HTTP
-    App1 --> MySQL : JDBC
-    App2 --> MySQL : JDBC
-    App1 --> Redis : Jedis
-    App2 --> Redis : Jedis
-    App1 --> S3 : AWS SDK
-    App2 --> S3 : AWS SDK
-    AI --> MySQL : SQLAlchemy
-    AI --> Model : Local File
+    React --> LB
+    LB --> App1
+    LB --> App2
+    App1 --> AI
+    App2 --> AI
+    App1 --> MySQL
+    App2 --> MySQL
+    App1 --> Redis
+    App2 --> Redis
+    App1 --> S3
+    App2 --> S3
+    AI --> MySQL
+    AI --> Model
 ```
 
 ---
