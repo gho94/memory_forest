@@ -17,9 +17,9 @@ public interface AlarmRepository extends JpaRepository<Alarm, Integer> {
      * game_player와도 조인해서 total_score까지 가져옴
      */
     @Query("SELECT new com.bureung.memoryforest.common.dto.response.AlarmResponseDto(" +
-            "a.alarmId, a.game.id.gameId, a.isRead, a.createdAt, a.game.totalScore, u.userId, u.userName ) " +
+            "a.alarmId, a.game.id.gameId, a.isRead, a.createdAt, a.game.totalScore, " +
+            "a.game.id.playerId, u.userName) " +
             "FROM Alarm a " +
-            "JOIN a.game gp " +
             "JOIN User u ON a.game.id.playerId = u.userId " +
             "JOIN GameMaster gm ON a.game.id.gameId = gm.gameId " +
             "WHERE gm.createdBy = :userId " +
