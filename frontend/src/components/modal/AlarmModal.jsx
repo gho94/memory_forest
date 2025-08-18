@@ -14,7 +14,7 @@ function AlarmModal() {
         const fetchAlarms = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${window.API_BASE_URL}/api/alarms`);
+                const response = await fetch(`${window.API_BASE_URL}/api/alarms`, {credentials: 'include'});
 
                 if (!response.ok) {
                     throw new Error('알림 데이터를 가져오는데 실패했습니다.');
