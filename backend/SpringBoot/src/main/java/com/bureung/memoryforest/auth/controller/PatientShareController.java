@@ -63,10 +63,25 @@ public class PatientShareController {
             Map<String, Object> loginResult = patientShareService.loginWithAccessCode(accessCode);
 
             if (loginResult != null && (Boolean) loginResult.get("success")) {
+
+                HttpSession oldSession = httpRequest.getSession(false);
+                if (oldSession != null) {
+                    log.info("기존 세션 무효화: {}", oldSession.getId());
+                    oldSession.invalidate(); // 기존 세션 파괴
+                }
+
+                // 완전히 새로운 세션 생성
+                HttpSession newSession = httpRequest.getSession(true);
+
                 // Refresh Token을 HttpOnly 쿠키에 저장 (보안강화)
-                HttpSession session = httpRequest.getSession();
-                session.setAttribute("userId", loginResult.get("patientId"));
-                session.setAttribute("userName", loginResult.get("patientName"));
+                newSession.setAttribute("sessionType", "PATIENT_SHARE"); // 구분자 추가
+                newSession.setAttribute("userId", loginResult.get("patientId"));
+                newSession.setAttribute("userName", loginResult.get("patientName"));
+
+                // Refresh Token을 HttpOnly 쿠키에 저장 (보안강화)
+//                HttpSession session = httpRequest.getSession();
+//                session.setAttribute("userId", loginResult.get("patientId"));
+//                session.setAttribute("userName", loginResult.get("patientName"));
 
                 String refreshToken = (String) loginResult.get("refreshToken");
                 Cookie refreshCookie = new Cookie("REFRESH_TOKEN", refreshToken);

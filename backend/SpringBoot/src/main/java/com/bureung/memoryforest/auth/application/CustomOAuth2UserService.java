@@ -64,11 +64,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     userInfo.getPhone()
             );
         } else {
+
             // 이메일로 기존 사용자 확인 (일반 로그인 사용자가 OAuth로 로그인하는 경우)
             Optional<User> userByEmail = userService.findByEmail(userInfo.getEmail());
             if (userByEmail.isPresent()) {
-                throw new OAuth2AuthenticationException("이미 해당 이메일로 가입된 계정이 있습니다.");
+//                throw new OAuth2AuthenticationException("이미 해당 이메일로 가입된 계정이 있습니다.");
+                return userService.updateOAuthUser(
+                        userByEmail.get(),
+                        userInfo.getName(),
+                        userInfo.getEmail(),
+                        userInfo.getPhone()
+                );
             }
+
             // 새 사용자 등록
             return userService.createOAuthUser(
                     userInfo.getName(),
