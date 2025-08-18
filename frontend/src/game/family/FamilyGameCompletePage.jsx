@@ -5,7 +5,7 @@ import '@/assets/css/login.css';
 import '@/assets/css/family.css';
 import FamilyHeader from '@/components/layout/header/FamilyHeader';
 import FamilyFooter from '@/components/layout/footer/FamilyFooter';
-// import AlarmModal from '@/components/modal/AlarmModal';
+import AlarmModal from '@/components/modal/AlarmModal';
 
 function FamilyGameCompletePage() {
   const navigate = useNavigate();
