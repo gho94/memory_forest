@@ -11,6 +11,7 @@ export const usePatientDashboardLogic = () => {
     });
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [playerName, setPlayerName] = useState('');
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -45,6 +46,8 @@ export const usePatientDashboardLogic = () => {
                     setStartDate(dateUtils.getWeekStartDate(endDateStr));
                 }
             }
+
+            if (data.playerName) setPlayerName(data.playerName);
         } catch (error) {
             console.error('Dashboard API 호출 실패:', error);
             // 에러가 나도 로딩 상태는 해제
@@ -76,6 +79,7 @@ export const usePatientDashboardLogic = () => {
         loading,
         startDate,
         endDate,
+        playerName,
         setStartDate,
         setEndDate,
         handleSearch,

@@ -25,6 +25,7 @@ function PatientDetailPage() {
     loading: gameLoading,
     startDate: gameStartDate,
     endDate: gameEndDate,
+    playerName : playerName,
     setStartDate: setGameStartDate,
     setEndDate: setGameEndDate,
     handleSearch: handleGameSearch
@@ -36,7 +37,6 @@ function PatientDetailPage() {
     loading: recordLoading,
     startDate: recordStartDate,
     endDate: recordEndDate,
-    playerName : playerName,
     setStartDate: setRecordStartDate,
     setEndDate: setRecordEndDate,
     handleSearch: handleRecordSearch
