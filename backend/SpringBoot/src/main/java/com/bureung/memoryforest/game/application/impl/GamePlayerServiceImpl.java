@@ -14,12 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -111,7 +110,9 @@ public class GamePlayerServiceImpl implements GamePlayerService {
         GamePlayer gamePlayer = getGamesByGameIdAndPlayerId(gameId, playerId).orElseThrow();
 
         if (gamePlayer.getEndTime() == null) {
-            gamePlayer.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+            ZonedDateTime koreaTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+            LocalDateTime localTime = koreaTime.toLocalDateTime();
+            gamePlayer.setEndTime(localTime);
             alarmService.sendGameCompletionAlarm(gamePlayer);
         }
 

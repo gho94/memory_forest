@@ -25,6 +25,7 @@ function PatientDetailPage() {
     loading: gameLoading,
     startDate: gameStartDate,
     endDate: gameEndDate,
+    playerName : playerName,
     setStartDate: setGameStartDate,
     setEndDate: setGameEndDate,
     handleSearch: handleGameSearch
@@ -63,7 +64,7 @@ function PatientDetailPage() {
           </ul>
 
           <div className="detail-title">
-            <div><span>환자 01</span> 최근 활동</div>
+            <div><span>{playerName}</span> 최근 활동</div>
             <div>
               <div className="icon-btn print-btn" onClick={handlePrintToPDF}></div>
             </div>

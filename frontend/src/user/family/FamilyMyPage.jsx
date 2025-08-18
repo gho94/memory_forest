@@ -94,7 +94,7 @@ function FamilyMyPage() {
         return;
       }
       
-      const response = await fetch(`${window.API_BASE_URL}/companion/mypage?userId=${currentUserId}`);
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/mypage?userId=${currentUserId}`);
       console.log('사용자 정보 조회 요청:', currentUserId);
       
       if (response.ok) {
@@ -179,7 +179,7 @@ function FamilyMyPage() {
 
       console.log('전송할 데이터:', requestData);
 
-      const response = await fetch(`${window.API_BASE_URL}/api/recorder/update`, {
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ function FamilyMyPage() {
 
       console.log('회원탈퇴 요청 데이터:', requestData);
 
-      const response = await fetch(`${window.API_BASE_URL}/api/recorder/update`, {
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

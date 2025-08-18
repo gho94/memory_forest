@@ -12,4 +12,5 @@ public class GameDashboardResponseDto {
     private List<GameWeeklyAccuracyChartDto> weeklyChart;
     private List<GamePlayerDetailResponseDto> gameList;
     private String searchDate; // "2025년 08월 07일"
+    private String playerName;
 }
