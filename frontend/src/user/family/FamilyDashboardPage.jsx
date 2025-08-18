@@ -417,7 +417,7 @@ function FamilyDashboardPage() {
   };
 
   const handlePatientDetail = (userId) => {
-    navigate('/companion/detail', { state: { userId } });
+    navigate(`/companion/detail?userId=${userId}`);
   };
 
   return (
