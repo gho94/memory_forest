@@ -5,6 +5,7 @@ import com.bureung.memoryforest.game.domain.GameDetail;
 import com.bureung.memoryforest.game.domain.GamePlayer;
 import com.bureung.memoryforest.game.dto.request.GameDashboardRequestDto;
 import com.bureung.memoryforest.game.dto.response.*;
+import com.bureung.memoryforest.user.application.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class GameQueryServiceImpl implements GameQueryService {
     private final GameMasterService gameMasterService;
     private final GamePlayerAnswerService gamePlayerAnswerService;
     private final GameDetailService gameDetailService;
+    private final UserService userService;
 
     @Override
     public GameDashboardResponseDto getDashboardStats(GameDashboardRequestDto request) {
@@ -40,6 +42,7 @@ public class GameQueryServiceImpl implements GameQueryService {
                 .weeklyChart(gamePlayerService.getWeeklyAccuracyChart(userId, dates.get("startDate"), dates.get("endDate")))
                 .gameList(gamePlayerAnswerService.getTodayGameAnswers(userId, dates.get("endDate")))
                 .searchDate(dates.get("endDate").format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일", Locale.KOREAN)))
+                .playerName(userService.findByUserId(userId).get().getUserName())
                 .build();
     }
 

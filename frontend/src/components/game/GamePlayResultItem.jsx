@@ -17,7 +17,7 @@ const GamePlayResultItem = ({ totalScore, correctCount, accuracyRate, gameId }) 
           </div>
           <div className="col-6">
             <section className="content-con">
-              <div className="result-number">{accuracyRate}%</div>
+              <div className="result-number">{Math.round(accuracyRate)}%</div>
               <div className="result-text">정답률</div>
             </section>
           </div>

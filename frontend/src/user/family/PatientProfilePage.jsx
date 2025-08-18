@@ -218,7 +218,7 @@ function PatientProfilePage() {
 
       console.log('전송할 데이터:', requestData);
 
-      const response = await fetch(`${window.API_BASE_URL}/api/recorder/create`, {
+      const response = await fetch(`${window.API_BASE_URL}/companion/user/create`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -309,7 +309,7 @@ function PatientProfilePage() {
               checked={isGenderDropdownOpen}
               onChange={toggleGenderDropdown}
             />
-            <div className="search-dropdown-wrapper">
+            <div className="text-start form-control search-dropdown-wrapper gender">
               <label htmlFor="gender-dropdown-toggle" className="search-dropdown-display">
                 {selectedGender}
               </label>
@@ -330,7 +330,7 @@ function PatientProfilePage() {
               checked={isRelationshipDropdownOpen}
               onChange={toggleRelationshipDropdown}
             />
-            <div className="search-dropdown-wrapper">
+            <div className="text-start form-control search-dropdown-wrapper relationship">
               <label htmlFor="relationship-dropdown-toggle" className="search-dropdown-display">
                 {selectedRelationship}
               </label>
