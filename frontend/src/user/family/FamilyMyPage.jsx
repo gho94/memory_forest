@@ -31,28 +31,6 @@ function FamilyMyPage() {
     statusCode: ''
   });
 
-  // 현재 로그인된 사용자 ID 가져오기
-  // useEffect(() => {
-  //   const getCurrentUserId = () => {
-  //     // localStorage에서 사용자 정보 가져오기
-  //     const userInfo = localStorage.getItem('user');
-  //     if (userInfo) {
-  //       try {
-  //         const user = JSON.parse(userInfo);
-  //         console.log('현재 로그인된 사용자 정보:', user);
-  //         setCurrentUserId(user.userId);
-  //       } catch (error) {
-  //         console.error('사용자 정보 파싱 오류:', error);
-  //       }
-  //     } else {
-  //       console.log('localStorage에 사용자 정보가 없습니다.');
-  //     }
-  //   };
-  //
-  //   getCurrentUserId();
-  // }, []);
-
-
     useEffect(() => {
         const getCurrentUserId = async () => {
             const userInfo = sessionStorage.getItem('user');

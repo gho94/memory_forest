@@ -172,47 +172,6 @@ const useDashboardData = (sharedLoginComplete) => {
     return { dashboardData, loading, error };
 };
 
-// 커스텀 훅으로 데이터 fetching 로직 분리
-// const useDashboardData = () => {
-//   const [dashboardData, setDashboardData] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//
-//   useEffect(() => {
-//     const fetchDashboardData = async () => {
-//       try {
-//         setLoading(true);
-//         const response = await fetch(`${window.API_BASE_URL}/recorder/game/dashboard`, {
-//           method: 'GET',
-//           credentials: 'include',
-//         });
-//
-//         // 응답이 JSON인지 먼저 확인
-//         const contentType = response.headers.get('content-type');
-//         if (!contentType || !contentType.includes('application/json')) {
-//           throw new Error('서버에서 JSON이 아닌 응답을 받았습니다.');
-//         }
-//
-//         if (!response.ok) {
-//           throw new Error(`HTTP ${response.status}: 대시보드 데이터를 불러오지 못했습니다.`);
-//         }
-//
-//         const data = await response.json();
-//         setDashboardData(data);
-//       } catch (err) {
-//         console.error('API 에러:', err); // 디버깅용
-//         setError(err.message);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//
-//     fetchDashboardData();
-//   }, []);
-//
-//   return { dashboardData, loading, error };
-// };
-
 // 게임 정보 계산 로직을 커스텀 훅으로 분리
 const useGameInfo = (dashboardData) => {
   const getProgressPercentage = () => {

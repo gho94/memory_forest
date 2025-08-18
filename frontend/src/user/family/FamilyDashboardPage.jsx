@@ -225,7 +225,7 @@ function FamilyDashboardPage() {
                 objectType: 'feed',
                 content: {
                     title: '오늘의 문제를 풀어보세요.',
-                    description: `${gameTitle}" 게임이 준비되었습니다.\n총 ${totalProblems}개의 문제를 풀어보세요.`,
+                    description: `${currentPatientName}님이 만든 기억숲 게임에 참여해보세요`,
                     link: {
                         mobileWebUrl: shareUrl,
                         webUrl: shareUrl

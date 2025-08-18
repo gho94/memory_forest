@@ -118,39 +118,6 @@ public class EmailService {
         }
     }
 
-    // 이메일 인증번호 발송 ( 인증번호는 6자리의 랜덤번호로 생성함 )
-//    public boolean sendVerificationCode(String email) {
-//        try {
-//            String code = generateVerificationCode();
-//            log.info("생성된 인증번호: {} (이메일: {})", code, email);
-//
-//            // 이메일 발송 내용
-//            SimpleMailMessage message = new SimpleMailMessage();
-//            message.setTo(email);
-//            message.setSubject("[memory_forest] 이메일 인증번호");
-//            message.setText("안녕하세요. 동행자님 :) \n\n" +
-//                    "기억숲 이메일 인증번호는 다음과 같습니다.\n\n" +
-//
-//                    "인증번호: " + code + "\n\n" +
-//
-//                    "5분 이내에 입력해주세요.\n\n" +
-//                    "감사합니다.");
-//
-//            mailSender.send(message);
-//
-//            // 인증번호 저장 (5분 유효)
-//            LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
-//            verificationCodes.put(email, new VerificationInfo(code, expiration));
-//            log.info("인증번호 저장 완료: 이메일={}, 만료시간={}", email, expiration);
-//
-//            log.info("현재 저장된 인증번호 개수: {}", verificationCodes.size());
-//            return true;
-//        } catch (Exception e) {
-//            log.error("인증번호 발송 실패: {}, 오류: {}", email, e.getMessage(), e);
-//            return false;
-//        }
-//    }
-
     //인증번호 확인
     public boolean verifyCode(String email, String code) {
         return verifyCodeByType(email, code, signupCodes, "회원가입");
@@ -240,16 +207,6 @@ public class EmailService {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
     }
-
-    // 디버깅
-//    public void logStoredVerificationCodes() {
-//        log.info("=== 저장된 인증번호 목록 ===");
-//        verificationCodes.forEach((email, info) -> {
-//            log.info("이메일: {}, 코드: {}, 인증됨: {}, 만료시간: {}",
-//                    email, info.getCode(), info.isVerified(), info.getExpiration());
-//        });
-//        log.info("=== 총 {} 개 ===", verificationCodes.size());
-//    }
 
     // 인증번호 정보 저장 내부 클래스,,,,,,,,,,,,,,,어어어어어 졸려 왜 안돼 ㅠㅏㅏㅏㅏㅏ
     private static class VerificationInfo {
