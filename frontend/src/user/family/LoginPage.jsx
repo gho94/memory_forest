@@ -34,7 +34,7 @@ function LoginPage() {
         setError('');
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/login`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ function LoginPage() {
     // 소셜 로그인
     const handleSocialLogin = (provider) => {
         // Spring Security OAuth2 엔드포인트로 직접 리다이렉트 처리하기
-        window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+        window.location.href = `${window.API_BASE_URL}/oauth2/authorization/${provider}`;
     };
 
 

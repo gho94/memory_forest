@@ -125,7 +125,7 @@ function SignupPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/userid?loginId=${formData.loginId}`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/check/userid?loginId=${formData.loginId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ function SignupPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/email/send`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/email/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ function SignupPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/email/verify`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/email/verify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ function SignupPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/signup`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/auth/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
