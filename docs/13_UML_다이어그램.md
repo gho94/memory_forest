@@ -26,121 +26,143 @@ UML(Unified Modeling Language)은 소프트웨어 시스템을 시각적으로 �
 ```mermaid
 classDiagram
     class User {
-        +Long id
+        +String userId
+        +String loginId
+        +String userName
+        +String password
         +String email
-        +String name
-        +String role
+        +String phone
+        +LocalDate birthDate
+        +String genderCode
+        +String userTypeCode
+        +Integer profileImageFileId
+        +String statusCode
+        +String createdBy
         +LocalDateTime createdAt
+        +String updatedBy
         +LocalDateTime updatedAt
-        +createUser()
-        +updateUser()
-        +deleteUser()
-    }
-
-    class Patient {
-        +Long id
-        +Long userId
-        +String name
-        +int age
-        +String gender
-        +String diagnosis
-        +LocalDateTime diagnosisDate
-        +createPatient()
-        +updatePatient()
-    }
-
-    class FamilyMember {
-        +Long id
-        +Long userId
-        +Long patientId
-        +String relationship
-        +String phoneNumber
-        +createFamilyMember()
-        +updateFamilyMember()
+        +LocalDateTime loginAt
+        +String loginType
+        +getAuthorities()
+        +getUsername()
+        +getPassword()
+        +isAccountNonExpired()
+        +isAccountNonLocked()
+        +isCredentialsNonExpired()
+        +isEnabled()
     }
 
     class GameMaster {
-        +Long id
-        +Long patientId
-        +String gameType
-        +LocalDateTime startTime
-        +LocalDateTime endTime
-        +int totalScore
-        +createGame()
-        +endGame()
-        +calculateScore()
+        +String gameId
+        +String gameName
+        +String gameDesc
+        +Integer gameCount
+        +String difficultyLevelCode
+        +String creationStatusCode
+        +String createdBy
+        +LocalDateTime createdAt
+        +String updatedBy
+        +LocalDateTime updatedAt
     }
 
     class GameDetail {
-        +Long id
-        +Long gameMasterId
-        +Long contentId
-        +String question
-        +String correctAnswer
-        +String userAnswer
-        +boolean isCorrect
-        +int responseTime
-        +int score
-        +processAnswer()
-        +calculateScore()
-    }
-
-    class Content {
-        +Long id
-        +Long userId
-        +String fileName
-        +String originalFileName
-        +String filePath
+        +String gameId
+        +Integer gameSeq
+        +Integer gameOrder
+        +String gameTitle
+        +String gameDesc
+        +Integer fileId
+        +String answerText
+        +String wrongOption1
+        +String wrongOption2
+        +String wrongOption3
+        +Double wrongScore1
+        +Double wrongScore2
+        +Double wrongScore3
+        +String aiStatusCode
+        +LocalDateTime aiProcessedAt
         +String description
-        +String category
+    }
+
+    class GamePlayer {
+        +GamePlayerId id
+        +Integer totalScore
+        +Integer correctCount
+        +BigDecimal accuracyRate
+        +String gameStatusCode
+        +LocalDateTime startTime
+        +LocalDateTime endTime
+        +Integer durationSeconds
+    }
+
+    class GamePlayerId {
+        +String gameId
+        +String playerId
+    }
+
+    class FileInfo {
+        +Integer fileId
+        +String originalName
+        +String s3Key
+        +String s3Url
+        +String bucketName
+        +Long fileSize
+        +String contentType
         +LocalDateTime uploadDate
-        +uploadContent()
-        +updateContent()
-        +deleteContent()
+        +String createdBy
+        +String isPublic
     }
 
-    class AIAnalysis {
-        +Long id
-        +Long contentId
-        +String analysisType
-        +String keywords
-        +String similarWords
-        +double difficultyScore
-        +LocalDateTime analysisDate
-        +analyzeContent()
-        +generateQuestions()
-    }
-
-    class Progress {
-        +Long id
-        +Long patientId
-        +LocalDate date
-        +int gamesPlayed
-        +double averageScore
-        +int totalPlayTime
-        +updateProgress()
-        +calculateTrends()
-    }
-
-    class Notification {
-        +Long id
-        +Long userId
-        +String type
-        +String message
-        +boolean isRead
+    class CommonCode {
+        +String codeID
+        +String codeName
+        +String parentCodeID
+        +String useYn
+        +String createdBy
         +LocalDateTime createdAt
-        +sendNotification()
+        +String updatedBy
+        +LocalDateTime updatedAt
+    }
+
+    class Record {
+        +Integer recordId
+        +Integer score
+        +String userId
+        +Integer fileId
+        +String text
+        +Integer duration
+        +LocalDateTime createdAt
+    }
+
+    class Alarm {
+        +Integer alarmId
+        +GamePlayer game
+        +String isRead
+        +LocalDateTime createdAt
         +markAsRead()
     }
 
-    User ||--o{ Patient : manages
-    User ||--o{ FamilyMember : has
-    Patient ||--o{ GameMaster : plays
+    class UserRel {
+        +UserRelId id
+        +String relationshipCode
+        +String statusCode
+        +LocalDateTime createdAt
+    }
+
+    class UserRelId {
+        +String userId
+        +String relatedUserId
+    }
+
+    User ||--o{ GameMaster : creates
+    User ||--o{ GamePlayer : plays
     GameMaster ||--o{ GameDetail : contains
-    Content ||--o{ AIAnalysis : analyzed_by
-    Patient ||--o{ Progress : tracks
-    User ||--o{ Notification : receives
-    FamilyMember ||--o{ Patient : cares_for
+    GameMaster ||--o{ GamePlayer : has_players
+    User ||--o{ FileInfo : uploads
+    User ||--o{ Record : creates
+    User ||--o{ Alarm : receives
+    User ||--o{ UserRel : relates_to
+    GameDetail ||--o{ FileInfo : references
 ```
 
 ### **2.2 서비스 레이어 클래스 다이어그램**
@@ -153,19 +175,28 @@ classDiagram
         +JwtTokenProvider jwtTokenProvider
         +registerUser(UserDto userDto)
         +authenticateUser(LoginDto loginDto)
-        +updateUserProfile(Long userId, UserUpdateDto updateDto)
-        +deleteUser(Long userId)
+        +updateUserProfile(String userId, UserUpdateDto updateDto)
+        +deleteUser(String userId)
     }
 
     class GameService {
         +GameMasterRepository gameMasterRepository
         +GameDetailRepository gameDetailRepository
+        +GamePlayerRepository gamePlayerRepository
         +ContentService contentService
         +AIService aiService
-        +createGameSession(Long patientId, String gameType)
-        +processGameAnswer(Long gameId, Long contentId, String answer)
-        +endGameSession(Long gameId)
-        +calculateGameScore(Long gameId)
+        +createGameSession(String patientId, String gameType)
+        +processGameAnswer(String gameId, Integer gameSeq, String answer)
+        +endGameSession(String gameId)
+        +calculateGameScore(String gameId)
+    }
+
+    class GameMasterService {
+        +GameMasterRepository gameMasterRepository
+        +GameDetailRepository gameDetailRepository
+        +createGame(GameCreateRequestDto requestDto)
+        +updateGameStatus(String gameId, String statusCode)
+        +getGameDashboard(GameDashboardRequestDto requestDto)
     }
 
     class ContentService {
@@ -186,37 +217,65 @@ classDiagram
         +analyzeText(String text)
         +findSimilarWords(String word)
         +calculateDifficulty(String content)
+        +generateWrongOptions(String answerText, String difficulty)
     }
 
     class ProgressService {
         +ProgressRepository progressRepository
         +GameMasterRepository gameMasterRepository
-        +calculateDailyProgress(Long patientId, LocalDate date)
-        +generateWeeklyReport(Long patientId, LocalDate startDate)
-        +generateMonthlyReport(Long patientId, int year, int month)
-        +analyzeTrends(Long patientId, int days)
+        +GamePlayerRepository gamePlayerRepository
+        +calculateDailyProgress(String patientId, LocalDate date)
+        +generateWeeklyReport(String patientId, LocalDate startDate)
+        +generateMonthlyReport(String patientId, int year, int month)
+        +analyzeTrends(String patientId, int days)
     }
 
     class NotificationService {
         +NotificationRepository notificationRepository
         +EmailService emailService
-        +sendGameReminder(Long patientId)
-        +sendProgressUpdate(Long familyMemberId, Long patientId)
-        +sendAchievementNotification(Long patientId, String achievement)
+        +sendGameReminder(String patientId)
+        +sendProgressUpdate(String familyMemberId, String patientId)
+        +sendAchievementNotification(String patientId, String achievement)
+    }
+
+    class AuthService {
+        +UserRepository userRepository
+        +PasswordEncoder passwordEncoder
+        +JwtTokenProvider jwtTokenProvider
+        +EmailService emailService
+        +login(String loginId, String password)
+        +register(RegisterRequestDto requestDto)
+        +verifyEmail(String email, String verificationCode)
+        +sendVerificationEmail(String email)
+    }
+
+    class CustomOAuth2UserService {
+        +UserRepository userRepository
+        +loadUser(OAuth2UserRequest userRequest)
+        +processOAuth2User(OAuth2User oauth2User, String provider)
     }
 
     UserService --> UserRepository
     GameService --> GameMasterRepository
     GameService --> GameDetailRepository
+    GameService --> GamePlayerRepository
     GameService --> ContentService
     GameService --> AIService
+    GameMasterService --> GameMasterRepository
+    GameMasterService --> GameDetailRepository
     ContentService --> ContentRepository
     ContentService --> FileService
     ContentService --> AIService
     ProgressService --> ProgressRepository
     ProgressService --> GameMasterRepository
+    ProgressService --> GamePlayerRepository
     NotificationService --> NotificationRepository
     NotificationService --> EmailService
+    AuthService --> UserRepository
+    AuthService --> PasswordEncoder
+    AuthService --> JwtTokenProvider
+    AuthService --> EmailService
+    CustomOAuth2UserService --> UserRepository
 ```
 
 ---
@@ -335,6 +394,32 @@ sequenceDiagram
     end
 ```
 
+### **3.4 AI 분석 시퀀스**
+
+```mermaid
+sequenceDiagram
+    participant B as Backend
+    participant AI as AIService
+    participant F as FastAPI
+    participant WV as Word2Vec
+    participant DB as Database
+
+    B->>AI: 분석 요청
+    AI->>F: POST /analyze
+    F->>WV: 모델 로드 확인
+    WV-->>F: 모델 상태
+    F->>F: 텍스트 전처리
+    F->>WV: 키워드 추출
+    WV-->>F: 키워드 목록
+    F->>WV: 유사어 생성
+    WV-->>F: 유사어 목록
+    F->>F: 점수 계산
+    F-->>AI: 분석 결과
+    AI->>DB: 결과 저장
+    DB-->>AI: 저장 완료
+    AI-->>B: 분석 완료 응답
+```
+
 ---
 
 ## 📊 4. 상태 다이어그램
@@ -376,6 +461,18 @@ stateDiagram-v2
     Deleted --> [*] : 계정 삭제
 ```
 
+### **4.3 AI 분석 상태 다이어그램**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending : 분석 대기
+    Pending --> Processing : 분석 중
+    Processing --> Completed : 분석 완료
+    Processing --> Failed : 분석 실패
+    Completed --> [*] : 결과 반환
+    Failed --> [*] : 오류 처리
+```
+
 ---
 
 ## 🔗 5. 컴포넌트 다이어그램
@@ -384,34 +481,38 @@ stateDiagram-v2
 
 ```mermaid
 component
-    component "Frontend (React)" {
+    component "Frontend (React 19)" {
         component "Game Components" as GC
         component "User Components" as UC
         component "Admin Components" as AC
         component "Common Components" as CC
+        component "Chart Components" as CH
     }
     
-    component "Backend (Spring Boot)" {
+    component "Backend (Spring Boot 3.5.4)" {
         component "User Controller" as UController
         component "Game Controller" as GController
         component "Content Controller" as CController
         component "Admin Controller" as AController
+        component "Auth Controller" as AuthController
     }
     
-    component "AI Service (FastAPI)" {
+    component "AI Service (FastAPI 0.111.0)" {
         component "Image Analysis" as IA
         component "Text Analysis" as TA
         component "Word2Vec Model" as WV
+        component "KoNLPy" as KN
     }
     
     component "Database" {
-        component "MySQL" as DB
-        component "Redis Cache" as Cache
+        component "MySQL 8.0" as DB
+        component "Redis 7.0" as Cache
     }
     
     component "External Services" {
         component "File Storage (S3)" as S3
-        component "Email Service" as Email
+        component "Email Service (Gmail)" as Email
+        component "OAuth2 (Naver)" as OAuth
     }
     
     Frontend --> Backend : HTTP/REST
@@ -430,7 +531,7 @@ component
 ```mermaid
 deployment
     node "Client Browser" {
-        component "React SPA" as React
+        component "React 19 SPA" as React
     }
     
     node "Load Balancer" {
@@ -439,22 +540,23 @@ deployment
     
     node "Web Server 1" {
         component "Spring Boot App" as App1
-        component "JVM" as JVM1
+        component "JVM 21" as JVM1
     }
     
     node "Web Server 2" {
         component "Spring Boot App" as App2
-        component "JVM" as JVM2
+        component "JVM 21" as JVM2
     }
     
     node "AI Server" {
         component "FastAPI App" as AI
-        component "Python Runtime" as Python
+        component "Python 3.10" as Python
+        component "Word2Vec Model" as Model
     }
     
     node "Database Server" {
-        component "MySQL" as MySQL
-        component "Redis" as Redis
+        component "MySQL 8.0" as MySQL
+        component "Redis 7.0" as Redis
     }
     
     node "Storage Server" {
@@ -473,6 +575,7 @@ deployment
     App1 --> S3 : AWS SDK
     App2 --> S3 : AWS SDK
     AI --> MySQL : SQLAlchemy
+    AI --> Model : Local File
 ```
 
 ---
@@ -501,6 +604,24 @@ flowchart TD
     O --> P[진행도 업데이트]
     P --> Q[결과 화면 표시]
     Q --> R[게임 종료]
+```
+
+### **7.2 AI 분석 활동 흐름**
+
+```mermaid
+flowchart TD
+    A[분석 요청] --> B[모델 로드 확인]
+    B --> C{모델 상태?}
+    C -->|로드됨| D[텍스트 전처리]
+    C -->|로드 안됨| E[모델 로드]
+    E --> D
+    D --> F[형태소 분석]
+    F --> G[키워드 추출]
+    G --> H[Word2Vec 유사도 계산]
+    H --> I[결과 정규화]
+    I --> J[점수 변환]
+    J --> K[결과 저장]
+    K --> L[응답 반환]
 ```
 
 ---
