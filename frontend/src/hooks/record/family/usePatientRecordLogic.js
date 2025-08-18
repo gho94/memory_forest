@@ -12,7 +12,6 @@ export const usePatientRecordLogic = () => {
     });
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [playerName, setPlayerName] = useState('');
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const userId = queryParams.get('userId');
@@ -55,8 +54,6 @@ export const usePatientRecordLogic = () => {
                 }
             }
 
-            if (data.playerName) setPlayerName(data.playerName);
-
         } catch (error) {
             console.error('Record Dashboard API 호출 실패:', error);
             setLoading({ stats: false, chart: false, record: false });
@@ -86,7 +83,6 @@ export const usePatientRecordLogic = () => {
         loading,
         startDate,
         endDate,
-        playerName,
         setStartDate,
         setEndDate,
         handleSearch,
