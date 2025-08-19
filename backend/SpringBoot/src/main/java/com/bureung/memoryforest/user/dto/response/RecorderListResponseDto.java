@@ -22,8 +22,11 @@ public class RecorderListResponseDto {
     private String statusCode;
     private String relationshipCode;
     private Integer fileId;
+    private String lastActivityDate;
+    private String averageCorrectRate;
 
-    public static RecorderListResponseDto from(User user, String relationshipCode) {
+
+    public static RecorderListResponseDto from(User user, String relationshipCode, String lastActivityDate, String averageCorrectRate) {
         return RecorderListResponseDto.builder()
                 .userId(user.getUserId())
                 .loginId(user.getLoginId())
@@ -36,6 +39,8 @@ public class RecorderListResponseDto {
                 .statusCode(user.getStatusCode())
                 .relationshipCode(relationshipCode)
                 .fileId(user.getProfileImageFileId())
+                .lastActivityDate(lastActivityDate)
+                .averageCorrectRate(averageCorrectRate)
                 .build();
     }
 }

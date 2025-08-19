@@ -1,6 +1,8 @@
 package com.bureung.memoryforest.user.application.impl;
 
 import com.bureung.memoryforest.common.application.CommonCodeService;
+import com.bureung.memoryforest.game.domain.GamePlayer;
+import com.bureung.memoryforest.game.repository.GamePlayerRepository;
 import com.bureung.memoryforest.user.application.UserService;
 import com.bureung.memoryforest.user.domain.User;
 import com.bureung.memoryforest.user.domain.UserRel;
@@ -17,13 +19,18 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+    private final GamePlayerRepository gamePlayerRepository;
     private final UserRepository userRepository;
     private final UserRelRepository userRelRepository;
     private final CommonCodeService commonCodeService;
@@ -322,14 +329,32 @@ public class UserServiceImpl implements UserService {
         for (UserRel userRel : userRelList) {
             Optional<User> userOpt = userRepository.findByUserIdAndNotDeleted(userRel.getId().getPatientId());
             if (userOpt.isPresent()) {
+                User user = userOpt.get();  
+                String lastActivityDate = getLastActivityDate(user);
+                BigDecimal averageCorrectRate = getAverageCorrectRate(user);
                 RecorderListResponseDto dto = RecorderListResponseDto.from(
-                        userOpt.get(),
-                        userRel.getRelationshipCode()
+                        user,
+                        userRel.getRelationshipCode(),
+                        lastActivityDate,
+                        averageCorrectRate.toString()
                 );
                 recorderList.add(dto);
             }
         }
         return recorderList;
+    }
+
+    private String getLastActivityDate(User user){
+        Optional<GamePlayer> gamePlayerOpt = gamePlayerRepository.findFirstByIdPlayerIdAndEndTimeIsNotNullOrderByEndTimeDesc(user.getUserId());
+        if (gamePlayerOpt.isPresent()) {
+            return gamePlayerOpt.get().getEndTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+        return null;
+    }
+
+    private BigDecimal getAverageCorrectRate(User user){
+        BigDecimal averageCorrectRate = gamePlayerRepository.findOverallAccuracyRate(user.getUserId());
+        return averageCorrectRate != null ? averageCorrectRate : BigDecimal.ZERO;
     }
 
     @Override

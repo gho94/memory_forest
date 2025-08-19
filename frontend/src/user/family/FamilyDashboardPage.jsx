@@ -476,7 +476,7 @@ function FamilyDashboardPage() {
                                             <span
                                                 className="patient-age">({recorder.birthDate ? calculateAge(recorder.birthDate) : ''}세)</span>
                                         </div>
-                                        <div className="extra-desc">최근 활동 : 2025-06-20</div>
+                                        <div className="extra-desc">최근 활동 : {recorder.lastActivityDate}</div>
                                     </div>
                                     <button className="btn-detail me-1">
                                         <div className="btn more-btn"
@@ -488,10 +488,10 @@ function FamilyDashboardPage() {
                                     </button>
                                 </div>
                                 <div className="row risk-con mt-2">
-                                    <div className="risk-title col-3">평균 위험도</div>
+                                    <div className="risk-title col-3">평균 정답률</div>
                                     <div className="col-9 risk-bar-con d-flex align-items-center">
                                         <div className="risk-bar-bg">
-                                            <div className="risk-bar-fill"></div>
+                                            <div className="risk-bar-fill" style={{width: `${recorder.averageCorrectRate}%`}}></div>
                                         </div>
                                     </div>
                                 </div>
