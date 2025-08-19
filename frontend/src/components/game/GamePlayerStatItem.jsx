@@ -14,13 +14,13 @@ const GamePlayerStatItem = ({ stats, loading }) => {
                 어제 : {loading ? <StatSkeleton /> : <><span>{stats?.yesterdayScore}</span>점 (<span>{stats?.yesterdayAccuracy}</span>%)</>}
             </div>
             <div className="col-6">
-                전체 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.overallAccuracy}</span>%</>}
+                전체 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.overallAccuracy?.toFixed(1)}</span>%</>}
             </div>
             <div className="col-6">
-                일주일 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracy}</span>%</>}
+                일주일 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracy?.toFixed(1)}</span>%</>}
             </div>
             <div className="col-6">
-                주간 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracyDiff > 0 ? '+' : ( stats?.weeklyAccuracyDiff === 0 ? '' : '-')}{stats?.weeklyAccuracyDiff}</span>%</>}
+                주간 정답률 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyAccuracyDiff > 0 ? '+' : ( stats?.weeklyAccuracyDiff === 0 ? '' : '-')}{stats?.weeklyAccuracyDiff?.toFixed(1)}</span>%</>}
             </div>
         </div>
     );

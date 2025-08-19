@@ -14,13 +14,13 @@ const RecordStatItem = ({ stats, loading }) => {
                 어제 : {loading ? <StatSkeleton /> : <><span>{stats?.yesterdayScore}</span>점</>}
             </div>
             <div className="col-6">
-                전체 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.overallScore}</span>점</>}
+                전체 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.overallScore?.toFixed(1)}</span>점</>}
             </div>
             <div className="col-6">
-                일주일 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyScore}</span>점</>}
+                일주일 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyScore?.toFixed(1)}</span>점</>}
             </div>
             <div className="col-6">
-                주간 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyScoreDiff > 0 ? '+' : ( stats?.weeklyScoreDiff === 0 ? '' : '-')}{stats?.weeklyScoreDiff}</span>점</>}
+                주간 평균점수 : {loading ? <StatSkeleton /> : <><span>{stats?.weeklyScoreDiff > 0 ? '+' : ( stats?.weeklyScoreDiff === 0 ? '' : '-')}{stats?.weeklyScoreDiff?.toFixed(1)}</span>점</>}
             </div>
         </div>
     );
