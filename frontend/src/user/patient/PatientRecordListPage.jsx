@@ -38,7 +38,7 @@ const PatientRecordListPage = () => {
             <PatientHeader/>
 
             <main className="content-area patient-con record-result-area">
-                <div className="greeting">나의 진행도</div>
+                <div className="greeting">나의 기록</div>
 
                 <RecordDateSelector
                     selectedYear={selectedYear}
